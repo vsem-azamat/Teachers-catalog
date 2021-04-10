@@ -1,5 +1,4 @@
 from random import randint
-import re
 
 from aiogram import types
 from aiogram.dispatcher.filters import Command
