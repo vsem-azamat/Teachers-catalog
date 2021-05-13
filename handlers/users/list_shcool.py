@@ -1,230 +1,112 @@
 from aiogram import types
 
 from loader import dp, bot
-from sq_lite import cursor
-from keyboards.inline.db_list import next, back, next_back
+from keyboards.inline.db_list import next_back, next, back
+# next_back_callback = CallbackData("next", "page", "univ_less")
+from keyboards.inline.button_school import school_teacher1, school_teacher2
+from defs.def_sql_request import list_teachers, sql_request
+from filters import NextBackUL
+from defs.def_sql_request import dict_for_th_start
 
-import math
+dict_univ = {'list_cvut': 'cvut', 'list_uk': 'uk', 'list_vse': 'vse',
+             'list_czu': 'czu', 'list_vut': 'vut', 'list_masaryk': 'masaryk'}
+dict_less = {'list_math': 'math', 'list_nostr': 'nostr', 'list_boil': 'biol', 'list_chem': 'chem',
+             'list_czech': 'czech', 'list_engl': 'engl'}
 
-@dp.callback_query_handler()
+
+@dp.callback_query_handler(regexp=r"^list_")
 async def th_list(callback_query: types.CallbackQuery):
-    dict_univ = {'list_cvut':'cvut', 'list_uk':'uk', 'list_vse':'vse',
-                 'list_czu':'czu', 'list_vut':'vut', 'list_masaryk':'masaryk'}
-    dict_less = {'list_math':'math','list_nostr':'nostr','list_boil':'biol','list_chem':'chem',
-                 'list_czech':'czech','list_engl':'engl'}
+    splitted = callback_query.data.split(
+        "_")
+    # example "callback_data": list_cvit_2
+    # example "splitted": [list], [cvut], [2]
+    for_request = splitted[1]
+    now_page = splitted[2]
+    now_page = 1
+    call_back = f"list_" + for_request
+
+    if call_back in dict_univ.keys():
+        univ_less = "univ"
+    elif call_back in dict_less.keys():
+        univ_less = "less"
+    else:
+        print('Error in start if/elif')
+
+    await bot.answer_callback_query(callback_query.id)
+    list_login, list_about, pages = sql_request(univ_less, for_request)
+
+    if pages > 1:
+        await bot.send_message(callback_query.from_user.id,
+                               list_teachers(pages, now_page, list_login, list_about, call_back),
+                               reply_markup=next)
+    elif pages > 0:
+        await bot.send_message(callback_query.from_user.id,
+                               list_teachers(pages,now_page, list_login, list_about, call_back))
+    elif pages == 0:
+        await bot.send_message(callback_query.from_user.id, text="Вы можете стать первым!")
+
+
+@dp.callback_query_handler(regexp=r"^page_")  # next_page
+async def list_paging(callback_query: types.CallbackQuery):
+    await bot.answer_callback_query(callback_query.id)
+    text = callback_query.message.text
+    text_split = text.split()
+    now_page = int(text_split[-3])  # 1
+    for_request_for_dict_big = text_split[2]  # Karlov
+    for_request_for_dict = list(dict_for_th_start)[list(dict_for_th_start.values()).index(for_request_for_dict_big)]
+
+    if callback_query.data == "page_next":
+        now_page += 1
+    elif callback_query.data == "page_back":
+        if now_page == 1:
+            pass
+        elif now_page > 1:
+            now_page -= 1
+
+    if for_request_for_dict in dict_univ:
+        univ_less = "univ"
+        for_request = dict_univ.get(for_request_for_dict)
+    elif for_request_for_dict in dict_less:
+        univ_less = "less"
+        for_request = dict_less.get(for_request_for_dict)
+    else:
+        print('Error in start if/elif (next/back page)')
+
+    list_login, list_about, pages = sql_request(univ_less, for_request)
+
+    if pages > 0:
+        await bot.edit_message_text(chat_id=callback_query.message.chat.id,
+                                    message_id=callback_query.message.message_id,
+                                    text=list_teachers(pages, now_page, list_login, list_about, for_request_for_dict))
+
+        if now_page == 1:
+            await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,
+                                                reply_markup=next)
+        elif pages == now_page:
+            await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,
+                                                reply_markup=back)
+        elif pages > now_page:
+            await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,
+                                                reply_markup=next_back)
+    elif pages == 0:
+        pass
+    elif pages < now_page:
+        pass
+
+
+@dp.callback_query_handler(NextBackUL())  # for changing univ/less tables
+async def th_list(callback_query: types.CallbackQuery):
+    if callback_query.data == 'sort_less':
+        await bot.answer_callback_query(callback_query.id)
+        await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,
+                                            reply_markup=school_teacher2)
+    elif callback_query.data == 'sort_univ':
+        await bot.answer_callback_query(callback_query.id)
+        await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,
+                                            reply_markup=school_teacher1)
 
 
-    if callback_query.data in dict_univ:
-        try:
-            await bot.answer_callback_query(callback_query.id)
-            univ = dict_univ.pop(callback_query.data)
-            list_login = []
-            list_about = []
-            sql = "SELECT * FROM list_teachers WHERE univ = ?"
-            cursor.execute(sql, [(univ)])
-            catalog = cursor.fetchall()
-            d = 0  # порядковый номер для спика учителей
-            now_page = 1  # текущая страница
-            pages = 0  # количество страниц
-            for i in catalog:
-                login = i[1]
-                about = i[6]
-                list_login.append(login)
-                list_about.append(about)
-                pages = int(round((len(list_login)) / 5,0))
-                count_th = len(list_login)
-        except:
-            print('Error dp script')
 
-        try:
-            
-
-
-            th_all = ''
-            for i in range(5):
-                try:
-                    th = (f'''
-    Логин: {list_login[i]}
-    Описание: {list_about[i]}
-                    ''')
-                except:
-                    print('Error th list')
-                    th = ''
-                th_all += th
-
-            th_low = (f'''
-    Страница: {now_page} из {pages}
-                ''')
-
-            ##########################################
-            markup_for_list = None
-            if now_page == 1:
-                markup_for_list = next
-
-            elif now_page > 1 and now_page > pages:
-                markup_for_list = next_back
-
-            elif now_page < 1 and now_page == pages:
-                markup_for_list = back
-            ##########################################
-                # ЕСЛИ ДЕЛАЮ ХУЙНЮ, МАЯЧТЕ
-
-            th_all += th_low
-            await bot.send_message(callback_query.from_user.id, text=th_all, reply_markup=markup_for_list)
-
-        except:
-            print('Error handler')
-
-
-
-
-
-
-
-
-
-
-
-
-    # elif callback_query.data in dict_less:
-    #     await bot.answer_callback_query(callback_query.id)
-    #     less = dict_less.pop(callback_query.data)
-    #     pass
-
-
-
-    # elif callback_query.data == 'list_next':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id, reply_markup=school_teacher2)
-    #
-    #
-    # if callback_query.data == 'list_back':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id, reply_markup=school_teacher1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# @dp.callback_query_handler()
-# async def list1_univerity(callback_query: types.CallbackQuery):
-
-    # if callback_query.data == 'list_cvut':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     b = 1
-    #     univers = 'cvut'
-    #
-    # if callback_query.data == 'list_vse':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     b = 1
-    #     univers = 'vse'
-    #
-    # if callback_query.data == 'list_uk':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     b = 1
-    #     univers = 'uk'
-    #
-    # if callback_query.data == 'list_czu':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     b = 1
-    #     univers = 'czu'
-    #
-    # if callback_query.data == 'list_vut':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     b = 1
-    #     univers = 'vut'
-    #
-    # if callback_query.data == 'list_masaryk':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     b = 1
-    #     univers = 'masaryk'
-
-    # if callback_query.data == 'list_add':
-    #     await bot.answer_callback_query(callback_query.id)
-    #     await bot.send_message(callback_query.from_user.id,'Напишите нам на бота и мы вас добавим!')
-
-#     if callback_query.data == 'list_next':
-#         await bot.answer_callback_query(callback_query.id)
-#         await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id, reply_markup=school_teacher2)
-#
-# #####################################################
-#
-#     if callback_query.data == 'list_back':
-#         await bot.answer_callback_query(callback_query.id)
-#         await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id, reply_markup=school_teacher1)
-
-    # if b == 1:
-    #     list_login = []
-    #     list_about = []
-    #     sql = "SELECT * FROM list_teachers WHERE univ = ?"
-    #     cursor.execute(sql,[(univers)])
-    #     catalog = cursor.fetchall()
-    #     d = 0 #порядковый номер для спика учителей
-    #     now_page = 1 #текущая страница
-    #     pages = 0 #количество страниц
-    #
-    #     for i in catalog:
-    #         login = i[1]
-    #         about = i[6]
-    #         list_login.append(login)
-    #         list_about.append(about)
-    #         pages = math.ceil((len(list_login))/5)
-    #         count_th = len(list_login)
-    #
-    #
-    #
-    #         # print(now_page)
-    #
-    #
-    #
-    #         await bot.send_message(callback_query.from_user.id, text=list_login, reply_markup=next)
-    #
-    #
-    #     if now_page > 1 and now_page > pages:
-    #         await bot.send_message(callback_query.from_user.id, text=list_login, reply_markup=next_back)
-    #
-    #
-    #     if now_page > 1 and now_page == pages:
-    #         await bot.send_message(callback_query.from_user.id, text=list_login, reply_markup=back)
-    #
-    #
-    # ########################################
-    #
-    #     if callback_query.data == 'next':
-    #         now_page +=1
-    #         return now_page
-    #     if callback_query.data == 'back':
-    #         now_page -= 1
-    #
 
 
 

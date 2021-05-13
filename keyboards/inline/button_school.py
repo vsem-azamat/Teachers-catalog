@@ -1,49 +1,49 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 school_teacher1 = InlineKeyboardMarkup(row_wight=2,
-                              inline_keyboard=[
-                                  [
-                                      InlineKeyboardButton(
-                                          text='ČVUT',
-                                          callback_data='list_cvut'
-                                      ),
-                                      InlineKeyboardButton(
-                                          text='VŠE',
-                                          callback_data='list_vse'
-                                      )
+                                       inline_keyboard=[
+                                           [
+                                               InlineKeyboardButton(
+                                                   text='ČVUT',
+                                                   callback_data='list_cvut_1'
+                                               ),
+                                               InlineKeyboardButton(
+                                                   text='VŠE',
+                                                   callback_data='list_vse_1'
+                                               )
 
-                                  ],
-                                  [
-                                      InlineKeyboardButton(
-                                          text='Karlov',
-                                          callback_data='list_uk'
-                                      ),
-                                      InlineKeyboardButton(
-                                          text='ČZU',
-                                          callback_data='list_czu'
-                                      )
-                                  ],
-                                  [
-                                      InlineKeyboardButton(
-                                          text='VUT',
-                                          callback_data='list_vut'
-                                      ),
-                                      InlineKeyboardButton(
-                                          text='Masaryk',
-                                          callback_data='list_masaryk'
-                                      )
-                                  ],
-                                  [
-                                      # InlineKeyboardButton(
-                                      #     text='Стать репетитором',
-                                      #     callback_data='list_add'
-                                      # ),
-                                      InlineKeyboardButton(
-                                          text='По предметам',
-                                          callback_data='list_next'
-                                      )
-                                  ]
-                              ])
+                                           ],
+                                           [
+                                               InlineKeyboardButton(
+                                                   text='Karlov',
+                                                   callback_data='list_uk_1'
+                                               ),
+                                               InlineKeyboardButton(
+                                                   text='ČZU',
+                                                   callback_data='list_czu_1'
+                                               )
+                                           ],
+                                           [
+                                               InlineKeyboardButton(
+                                                   text='VUT',
+                                                   callback_data='list_vut_1'
+                                               ),
+                                               InlineKeyboardButton(
+                                                   text='Masaryk',
+                                                   callback_data='list_masaryk_1'
+                                               )
+                                           ],
+                                           [
+                                               # InlineKeyboardButton(
+                                               #     text='Стать репетитором',
+                                               #     callback_data='list_add'
+                                               # ),
+                                               InlineKeyboardButton(
+                                                   text='По предметам',
+                                                   callback_data='sort_less'
+                                               )
+                                           ]
+                                       ])
 
 school_teacher2 = InlineKeyboardMarkup(row_width=2,
                                        inline_keyboard=[
@@ -80,7 +80,7 @@ school_teacher2 = InlineKeyboardMarkup(row_width=2,
                                            [
                                                InlineKeyboardButton(
                                                    text='По ВУЗ-ам',
-                                                   callback_data='list_back'
+                                                   callback_data='sort_univ'
                                                )
                                            ]
                                        ])

@@ -10,8 +10,8 @@ from filters import IsGroup, AdminFilter
 from loader import dp, bot
 
 
-#MUTE and UNMUTE
-@dp.message_handler(IsGroup(), Command("mute",prefixes='!/'), AdminFilter())
+# MUTE and UNMUTE
+@dp.message_handler(IsGroup(), Command("mute", prefixes='!/'), AdminFilter())
 async def mute_member(message: types.Message):
     member = message.reply_to_message.from_user
     member_id = member.id
@@ -35,7 +35,20 @@ async def mute_member(message: types.Message):
     try:
         await bot.restrict_chat_member(chat_id, user_id=member_id, permissions=ReadOnlyPremissions,
                                        until_date=until_date)
-        await message.reply(f"Пользователь {member.get_mention(as_html=True)} в муте на {time} минут. \nПричина: {comment}")
+        # for change words "минут"
+        time_for_text = str(time)
+        time_for_text = int(time_for_text[-1])
+        if time_for_text < 5:
+            bukva = "ы"
+        else:
+            bukva = ""
+
+        if comment == None:
+            mute_text = f"Пользователь {member.get_mention(as_html=True)} в муте на {time} минут{bukva}."
+        elif comment != None:
+            mute_text = f"Пользователь {member.get_mention(as_html=True)} в муте на {time} минут{bukva}. \nПричина: {comment} "
+        await message.reply(mute_text)
+
     except BadRequest:
         await message.answer("Пользователь является администратором")
 
@@ -62,12 +75,11 @@ async def unmute_member(message: types.Message):
     await message.delete()
 
 
-#BAN and UNBAN
+# BAN and UNBAN
 @dp.message_handler(IsGroup(), Command("ban", prefixes="!/"), AdminFilter())
 async def ban_member(message: types.Message):
     member = message.reply_to_message.from_user
     member_id = member.id
-    chat_id = message.chat.id
     await message.chat.kick(user_id=member_id)
     await message.reply(f"Пользователь {member.get_mention(as_html=True)} забанен")
     await asyncio.sleep(300)
@@ -78,8 +90,19 @@ async def ban_member(message: types.Message):
 async def ban_member(message: types.Message):
     member = message.reply_to_message.from_user
     member_id = member.id
-    chat_id = message.chat.id
     await message.chat.unban(user_id=member_id)
     await message.reply(f"Пользователь {member.get_mention(as_html=True)} разбанен")
     await asyncio.sleep(300)
     await message.delete()
+
+
+# LEFT OF CHAT
+@dp.message_handler(IsGroup(), content_types=types.ContentType.LEFT_CHAT_MEMBER)
+async def push_ban_member(message: types.Message):
+    if message.left_chat_member.id == message.from_user.id:  # сам вышел
+        return
+    elif message.from_user.id == (await bot.me).id:  # бот забанил
+        return
+    else:
+        await message.reply(f"{message.left_chat_member.full_name} был удалён из чата"
+                            f" администратором {message.from_user.full_name}.")

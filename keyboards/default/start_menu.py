@@ -1,9 +1,9 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-bt11 = '💬Чаты по ВУЗ'
-bt12 = '📢Каналы'
+bt11 = '💬Чаты по вузам'
+bt12 = '👩‍🎓Репетиторы'
 
-bt21 = '👩‍🎓Репетиторы'
+bt21 = '📢Каналы'
 bt22 = '🛍️Рынок'
 
 # bt31 = '💇Предложить услуги'
