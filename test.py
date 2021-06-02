@@ -1,21 +1,16 @@
-from db.sq_lite import cursor, conn
+text = ''' 
+/notify ddahsdhj aksdhasjda test
+'''
+
+text = " ".join(text.split()[1:])
 
 
-def welcome_change(chat_id: str, welcome_message):
-    if welcome_message == "":
-        sql = "SELECT * FROM welcome WHERE chat_id =(?)"
-        print(sql)
-        cursor.execute(sql, [chat_id])
-        welcome_dates = cursor.fetchall()
-        if len(welcome_dates) == 0:
-            sql = "INSERT INTO welcome VALUES (?,?,?)"
-            values = [chat_id,"Добро пожаловать в чат!", str(1)]
-            cursor.execute(sql, values)
-            conn.commit()
 
-    else:
-        pass
+print(text)
 
+hello = [(456465,), (4514654656465,), (447036451,), (268388996,)]
 
-chat_id = -1001404474065
-print(welcome_change(chat_id, ""))
+i = 0
+for _ in hello:
+    print(hello[i][0])
+    i += 1

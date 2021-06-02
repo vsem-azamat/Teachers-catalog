@@ -10,8 +10,10 @@ from defs.def_sql_request import dict_for_th_start
 
 dict_univ = {'list_cvut': 'cvut', 'list_uk': 'uk', 'list_vse': 'vse',
              'list_czu': 'czu', 'list_vut': 'vut', 'list_masaryk': 'masaryk'}
-dict_less = {'list_math': 'math', 'list_nostr': 'nostr', 'list_boil': 'biol', 'list_chem': 'chem',
-             'list_czech': 'czech', 'list_engl': 'engl'}
+
+dict_less = {'list_math': 'math', 'list_nostr': 'nostr', 'list_biol': 'biol', 'list_chem': 'chem',
+             'list_czech': 'czech', 'list_engl': 'engl', 'list_fyz': 'fz', 'list_prog': 'prog',
+             'list_eco': 'eco', 'list_prav': 'prav'}
 
 
 @dp.callback_query_handler(regexp=r"^list_")
@@ -21,14 +23,13 @@ async def th_list(callback_query: types.CallbackQuery):
     # example "callback_data": list_cvit_2
     # example "splitted": [list], [cvut], [2]
     for_request = splitted[1]
-    now_page = splitted[2]
     now_page = 1
     call_back = f"list_" + for_request
 
     if call_back in dict_univ.keys():
         univ_less = "univ"
     elif call_back in dict_less.keys():
-        univ_less = "less"
+        univ_less = "lesson"
     else:
         print('Error in start if/elif')
 
@@ -43,7 +44,7 @@ async def th_list(callback_query: types.CallbackQuery):
         await bot.send_message(callback_query.from_user.id,
                                list_teachers(pages,now_page, list_login, list_about, call_back))
     elif pages == 0:
-        await bot.send_message(callback_query.from_user.id, text="Вы можете стать первым!")
+        await bot.send_message(callback_query.from_user.id, text="Вы можете стать первым! \nОтпишите @vsem_azamat")
 
 
 @dp.callback_query_handler(regexp=r"^page_")  # next_page
@@ -67,7 +68,7 @@ async def list_paging(callback_query: types.CallbackQuery):
         univ_less = "univ"
         for_request = dict_univ.get(for_request_for_dict)
     elif for_request_for_dict in dict_less:
-        univ_less = "less"
+        univ_less = "lesson"
         for_request = dict_less.get(for_request_for_dict)
     else:
         print('Error in start if/elif (next/back page)')

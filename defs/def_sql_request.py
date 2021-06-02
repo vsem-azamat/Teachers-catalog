@@ -43,7 +43,7 @@ def sql_request(univ_less, for_request):
     list_about = []
     quest = '=? '
     sql = "SELECT login, about FROM list_teachers WHERE " + univ_less + quest
-    cursor.execute(sql, [(for_request)])
+    cursor.execute(sql, [for_request])
     catalog = cursor.fetchall()
     for i in catalog:
         login = i[0]

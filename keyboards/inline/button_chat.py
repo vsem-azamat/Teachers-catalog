@@ -38,5 +38,11 @@ school_chat = InlineKeyboardMarkup(row_wight=2,
                                                text='GoStudy',
                                                url='t.me/Gostudy_20'
                                            )
+                                       ],
+                                       [
+                                           InlineKeyboardButton(
+                                               text='Центральный чат',
+                                               url='t.me/czechopen'
+                                           )
                                        ]
                                    ])

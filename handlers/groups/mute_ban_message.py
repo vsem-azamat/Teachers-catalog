@@ -13,7 +13,7 @@ from loader import dp, bot
 # MUTE and UNMUTE
 @dp.message_handler(IsGroup(), Command("mute", prefixes='!/'), AdminFilter())
 async def mute_member(message: types.Message):
-    member = message.reply_to_message.from_user
+    member = message.reply_to_message.from_user.full_name
     member_id = member.id
     chat_id = message.chat.id
     command_parse = re.compile(r"(!mute|/mute) ?(\d+)? ?([\w+\D ]+)?")
@@ -43,11 +43,13 @@ async def mute_member(message: types.Message):
         else:
             bukva = ""
 
-        if comment == None:
+        if comment is None:
             mute_text = f"Пользователь {member.get_mention(as_html=True)} в муте на {time} минут{bukva}."
-        elif comment != None:
+        elif comment is not None:
             mute_text = f"Пользователь {member.get_mention(as_html=True)} в муте на {time} минут{bukva}. \nПричина: {comment} "
-        await message.reply(mute_text)
+        mute_message = await message.reply(mute_text)
+        await asyncio.sleep(60)
+        await mute_message.delete()
 
     except BadRequest:
         await message.answer("Пользователь является администратором")
@@ -57,7 +59,6 @@ async def mute_member(message: types.Message):
 async def unmute_member(message: types.Message):
     member = message.reply_to_message.from_user
     member_id = member.id
-    chat_id = message.chat.id
 
     ReadOnlyPremissions = types.ChatPermissions(
         can_send_messages=True,
@@ -67,12 +68,11 @@ async def unmute_member(message: types.Message):
     )
     try:
         await message.chat.restrict(user_id=member_id, permissions=ReadOnlyPremissions, until_date=0)
-        await message.reply(f"Пользователь {member.get_mention(as_html=True)} размучен")
+        unmute_message = await message.reply(f"Пользователь {member.get_mention(as_html=True)} размучен")
     except BadRequest:
         await message.answer("Ошибка размута")
-
-    await asyncio.sleep(300)
-    await message.delete()
+    await asyncio.sleep(60)
+    await unmute_message.delete()
 
 
 # BAN and UNBAN
@@ -81,9 +81,9 @@ async def ban_member(message: types.Message):
     member = message.reply_to_message.from_user
     member_id = member.id
     await message.chat.kick(user_id=member_id)
-    await message.reply(f"Пользователь {member.get_mention(as_html=True)} забанен")
-    await asyncio.sleep(300)
-    await message.delete()
+    ban_message = await message.reply(f"Пользователь {member.get_mention(as_html=True)} забанен")
+    await asyncio.sleep(120)
+    await ban_message.delete()
 
 
 @dp.message_handler(IsGroup(), Command("unban", prefixes="!/"), AdminFilter())
@@ -91,18 +91,20 @@ async def ban_member(message: types.Message):
     member = message.reply_to_message.from_user
     member_id = member.id
     await message.chat.unban(user_id=member_id)
-    await message.reply(f"Пользователь {member.get_mention(as_html=True)} разбанен")
-    await asyncio.sleep(300)
-    await message.delete()
+    unban_message = await message.reply(f"Пользователь {member.get_mention(as_html=True)} разбанен")
+    await asyncio.sleep(60)
+    await unban_message.delete()
 
 
 # LEFT OF CHAT
-@dp.message_handler(IsGroup(), content_types=types.ContentType.LEFT_CHAT_MEMBER)
-async def push_ban_member(message: types.Message):
-    if message.left_chat_member.id == message.from_user.id:  # сам вышел
-        return
-    elif message.from_user.id == (await bot.me).id:  # бот забанил
-        return
-    else:
-        await message.reply(f"{message.left_chat_member.full_name} был удалён из чата"
-                            f" администратором {message.from_user.full_name}.")
+# @dp.message_handler(IsGroup(), content_types=types.ContentType.LEFT_CHAT_MEMBER)
+# async def push_ban_member(message: types.Message):
+#     if message.left_chat_member.id == message.from_user.id:  # сам вышел
+#         return
+#     elif message.from_user.id == (await bot.me).id:  # бот забанил
+#         return
+#     else:
+#         leave_message = await message.reply(f"{message.left_chat_member.full_name} был удалён из чата"
+#                                             f" администратором {message.from_user.full_name}.")
+#         await asyncio.sleep(60)
+#         await leave_message.delete()

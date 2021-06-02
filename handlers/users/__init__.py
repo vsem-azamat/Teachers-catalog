@@ -1,5 +1,8 @@
 from .start_handler import dp
 from .list_shcool import dp
+from .sql_commands import dp
+from .all_message import dp
+from .aboba import dp
 
 from .test import dp  # handler for tests
 
