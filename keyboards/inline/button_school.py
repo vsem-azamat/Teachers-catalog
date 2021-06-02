@@ -5,32 +5,32 @@ school_teacher1 = InlineKeyboardMarkup(row_wight=2,
                                            [
                                                InlineKeyboardButton(
                                                    text='ČVUT',
-                                                   callback_data='list_cvut_1'
+                                                   callback_data='list_cvut'
                                                ),
                                                InlineKeyboardButton(
                                                    text='VŠE',
-                                                   callback_data='list_vse_1'
+                                                   callback_data='list_vse'
                                                )
 
                                            ],
                                            [
                                                InlineKeyboardButton(
                                                    text='Karlov',
-                                                   callback_data='list_uk_1'
+                                                   callback_data='list_uk'
                                                ),
                                                InlineKeyboardButton(
                                                    text='ČZU',
-                                                   callback_data='list_czu_1'
+                                                   callback_data='list_czu'
                                                )
                                            ],
                                            [
                                                InlineKeyboardButton(
                                                    text='VUT',
-                                                   callback_data='list_vut_1'
+                                                   callback_data='list_vut'
                                                ),
                                                InlineKeyboardButton(
                                                    text='Masaryk',
-                                                   callback_data='list_masaryk_1'
+                                                   callback_data='list_masaryk'
                                                )
                                            ],
                                            [
@@ -64,8 +64,8 @@ school_teacher2 = InlineKeyboardMarkup(row_width=2,
                                                     callback_data='list_prog'
                                                ),
                                                InlineKeyboardButton(
-                                                   text='Нострификация',
-                                                   callback_data='list_nostr'
+                                                   text='Статистика',
+                                                   callback_data='list_stat'
                                                )
                                            ],
                                            [
@@ -97,6 +97,12 @@ school_teacher2 = InlineKeyboardMarkup(row_width=2,
                                                    text='Английский',
                                                    callback_data='list_engl'
                                                )
+                                           ],
+                                           [
+                                                InlineKeyboardButton(
+                                                   text='Нострификация',
+                                                   callback_data='list_nostr'
+                                                )
                                            ],
                                            [
                                                InlineKeyboardButton(

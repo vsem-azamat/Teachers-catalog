@@ -13,7 +13,7 @@ dict_univ = {'list_cvut': 'cvut', 'list_uk': 'uk', 'list_vse': 'vse',
 
 dict_less = {'list_math': 'math', 'list_nostr': 'nostr', 'list_biol': 'biol', 'list_chem': 'chem',
              'list_czech': 'czech', 'list_engl': 'engl', 'list_fyz': 'fz', 'list_prog': 'prog',
-             'list_eco': 'eco', 'list_prav': 'prav'}
+             'list_eco': 'eco', 'list_prav': 'prav', 'list_stat': 'stat'}
 
 
 @dp.callback_query_handler(regexp=r"^list_")
@@ -42,9 +42,10 @@ async def th_list(callback_query: types.CallbackQuery):
                                reply_markup=next)
     elif pages > 0:
         await bot.send_message(callback_query.from_user.id,
-                               list_teachers(pages,now_page, list_login, list_about, call_back))
+                               list_teachers(pages, now_page, list_login, list_about, call_back))
     elif pages == 0:
-        await bot.send_message(callback_query.from_user.id, text="Вы можете стать первым! \nОтпишите @vsem_azamat")
+        await bot.send_message(callback_query.from_user.id,
+                               text="Список пока пустой, но вы можете стать первым! \nОтпишите @vsem_azamat")
 
 
 @dp.callback_query_handler(regexp=r"^page_")  # next_page

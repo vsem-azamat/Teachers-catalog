@@ -12,15 +12,17 @@ bt32 = 'ℹ️О нас!'
 start_menu = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text=bt11),
             KeyboardButton(text=bt12)
         ],
         [
-            KeyboardButton(text=bt21),
-            KeyboardButton(text=bt22),
+            KeyboardButton(text=bt11),
+            KeyboardButton(text=bt21)
+
+
         ],
         [
             # KeyboardButton(text=bt31),
+            KeyboardButton(text=bt22),
             KeyboardButton(text=bt32),
         ],
     ],

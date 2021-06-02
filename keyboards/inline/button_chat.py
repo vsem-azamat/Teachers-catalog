@@ -25,15 +25,19 @@ school_chat = InlineKeyboardMarkup(row_wight=2,
                                        ],
                                        [
                                            InlineKeyboardButton(
-                                               text='VUT',
-                                               url='t.me/vut_chat'
+                                               text='VŠCHT',
+                                               url='t.me/vscht_chat'
                                            ),
                                            InlineKeyboardButton(
-                                               text='Masaryk',
-                                               url='t.me/masaryk_chat'
+                                               text='VUT',
+                                               url='t.me/vut_chat'
                                            )
                                        ],
                                        [
+                                           InlineKeyboardButton(
+                                               text='Masaryk',
+                                               url='t.me/masaryk_chat'
+                                           ),
                                            InlineKeyboardButton(
                                                text='GoStudy',
                                                url='t.me/Gostudy_20'

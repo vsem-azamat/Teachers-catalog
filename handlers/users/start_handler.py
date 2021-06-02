@@ -2,7 +2,7 @@ from aiogram import types
 from aiogram.dispatcher.filters import Command
 
 from defs.def_start_sql import add_start
-from filters import IsPrivate
+from filters import IsPrivate, Start_button
 from keyboards.default import start_menu
 from keyboards.default.start_menu import bt11, bt12, bt21, bt22, bt32
 from keyboards.inline.button_abous_us import about_us
@@ -19,7 +19,7 @@ async def start_message(msg: types.Message):
     add_start(msg.from_user.id)
 
 
-@dp.message_handler(IsPrivate())
+@dp.message_handler(Start_button(), IsPrivate())
 async def start_menu_message(message: types.Message):
     if message.text == bt11:
         await message.reply(text=start_list_chat,

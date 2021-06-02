@@ -7,6 +7,7 @@ from .user_chat import IsPrivate
 from .dict_list import DictList
 from .next_back_univ_less import NextBackUL
 from .super_admins import SuperAdmins
+from .start_button import Start_button
 
 
 def setup(dp: Dispatcher):
@@ -17,3 +18,4 @@ def setup(dp: Dispatcher):
     dp.filters_factory.bind(DictList)
     dp.filters_factory.bind(NextBackUL)
     dp.filters_factory.bind(SuperAdmins)
+    dp.filters_factory.bind(Start_button)

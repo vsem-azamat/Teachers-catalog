@@ -8,7 +8,7 @@ from filters import SuperAdmins
 from loader import dp, bot
 
 
-@dp.message_handler(SuperAdmins(), Command("sql", prefixes='!/'))
+@dp.message_handler(Command("sql", prefixes='!/'), SuperAdmins())
 async def edit(message: types.Message):
     try:
         sql_command = " ".join(message.text.split()[1:])

@@ -20,12 +20,12 @@ def list_teachers(pages, now_page, list_login, list_about, callback_for_dict):
         for_pages = now_page * 5
     now_page -= 1
 
-    th_all = f"""<b>Список репетиторов: {from_dict}</b>
+    th_all = f"""<b>Репетиторы: {from_dict}</b>
     """
     for i in range(5):
         try:
             th = (f"""
-{for_pages + 1 + i}) <b>Логин:</b> {list_login[for_pages + i]}
+{for_pages + 1 + i}) <b>Логин:</b> @{list_login[for_pages + i]}
    <b>Описание:</b> {list_about[for_pages + i]}
                 """)
         except:
