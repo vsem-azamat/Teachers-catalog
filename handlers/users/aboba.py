@@ -7,5 +7,5 @@ from loader import dp, bot
 
 @dp.message_handler(Command("aboba", prefixes='!/'))
 async def aboba(message: types.Message):
-    await message.reply(text='И вам абоба!')
+    await message.reply(text='И вам абоба, уважаемый!')
 
