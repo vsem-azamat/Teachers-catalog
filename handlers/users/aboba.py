@@ -4,7 +4,6 @@ from aiogram.dispatcher.filters import Command
 from filters import IsPrivate
 
 from loader import dp, bot
-c
 
 @dp.message_handler(Command("aboba", prefixes='!/'))
 async def aboba(message: types.Message):
