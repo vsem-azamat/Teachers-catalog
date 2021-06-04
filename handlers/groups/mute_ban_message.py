@@ -13,14 +13,14 @@ from loader import dp, bot
 # MUTE and UNMUTE
 @dp.message_handler(IsGroup(), Command("mute", prefixes='!/'), AdminFilter())
 async def mute_member(message: types.Message):
-    member = message.reply_to_message.from_user.full_name
-    member_id = member.id
+    member = message.reply_to_message.from_user
+    member_id = message.reply_to_message.from_user.id
     chat_id = message.chat.id
     command_parse = re.compile(r"(!mute|/mute) ?(\d+)? ?([\w+\D ]+)?")
     parsed = command_parse.match(message.text)
     time = parsed.group(2)
     comment = parsed.group(3)
-    if not time:
+    if time is None:
         time = int(5)
     else:
         time = int(time)
@@ -33,16 +33,15 @@ async def mute_member(message: types.Message):
         can_send_other_messages=False
     )
     try:
-        await bot.restrict_chat_member(chat_id, user_id=member_id, permissions=ReadOnlyPremissions,
+        await bot.restrict_chat_member(chat_id=chat_id, user_id=member_id, permissions=ReadOnlyPremissions,
                                        until_date=until_date)
         # for change words "минут"
-        time_for_text = str(time)
-        time_for_text = int(time_for_text[-1])
+        time_for_text = int(time)
+        # time_for_text = int(time_for_text[-1])
         if time_for_text < 5:
             bukva = "ы"
         else:
             bukva = ""
-
         if comment is None:
             mute_text = f"Пользователь {member.get_mention(as_html=True)} в муте на {time} минут{bukva}."
         elif comment is not None:
@@ -52,6 +51,8 @@ async def mute_member(message: types.Message):
         await mute_message.delete()
 
     except BadRequest:
+        print(BadRequest
+              )
         await message.answer("Пользователь является администратором")
 
 

@@ -8,12 +8,19 @@ from defs.def_sql_request import list_teachers, sql_request
 from filters import NextBackUL
 from defs.def_sql_request import dict_for_th_start
 
-dict_univ = {'list_cvut': 'cvut', 'list_uk': 'uk', 'list_vse': 'vse',
-             'list_czu': 'czu', 'list_vut': 'vut', 'list_masaryk': 'masaryk'}
+dict_univ = {'list_cvut': 'cvut', 'list_vse': 'vse',
+             'list_uk': 'uk', 'list_czu': 'czu',
+             'list_vut': 'vut', 'list_masaryk': 'masaryk',
+             'list_vscht': 'vscht'
+             }
 
-dict_less = {'list_math': 'math', 'list_nostr': 'nostr', 'list_biol': 'biol', 'list_chem': 'chem',
-             'list_czech': 'czech', 'list_engl': 'engl', 'list_fyz': 'fz', 'list_prog': 'prog',
-             'list_eco': 'eco', 'list_prav': 'prav', 'list_stat': 'stat'}
+dict_less = {'list_math': 'math', 'list_fyz': 'fz',
+             'list_prog': 'prog', 'list_stat': 'stat',
+             'list_eco': 'eco', 'list_prav': 'prav',
+             'list_biol': 'biol', 'list_chem': 'chem',
+             'list_czech': 'czech', 'list_engl': 'engl',
+             'list_nostr': 'nostr'
+             }
 
 
 @dp.callback_query_handler(regexp=r"^list_")
@@ -106,9 +113,4 @@ async def th_list(callback_query: types.CallbackQuery):
         await bot.answer_callback_query(callback_query.id)
         await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,
                                             reply_markup=school_teacher1)
-
-
-
-
-
 

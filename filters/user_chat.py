@@ -3,7 +3,7 @@ from aiogram.dispatcher.filters import BoundFilter
 
 
 class IsPrivate(BoundFilter):
-    async def check(self, message:types.Message) -> bool:
-        return message.chat.type in(
+    async def check(self, message: types.Message) -> bool:
+        return message.chat.type in (
             types.ChatType.PRIVATE
         )

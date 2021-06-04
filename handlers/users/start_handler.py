@@ -43,4 +43,3 @@ async def start_menu_message(message: types.Message):
                             reply_markup=about_us)
     if message.text == 'абоба':
         await message.reply('И вам абоба, Уважаемый.')
-

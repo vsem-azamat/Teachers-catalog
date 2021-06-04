@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
 
-list_super_admins = [268388996]
+list_super_admins = [268388996, 447036451]
 
 
 class AdminFilter(BoundFilter):

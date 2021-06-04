@@ -11,7 +11,7 @@ from loader import dp, bot
 @dp.message_handler(Command("sql", prefixes='!/'), SuperAdmins())
 async def edit(message: types.Message):
     try:
-        sql_command = " ".join(message.text.split()[1:])
+        sql_command = message.text.partition(" ")[2]
         cursor.execute(sql_command)
         catalog = cursor.fetchall()
         conn.commit()

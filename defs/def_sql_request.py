@@ -1,10 +1,17 @@
 from db.sq_lite import cursor
 import math
 
-dict_for_th_start = {'list_cvut': 'ČVUT', 'list_uk': 'Karlov', 'list_vse': 'VŠE',
-                     'list_czu': 'ČZU', 'list_vut': 'VUT', 'list_masaryk': 'Masaryk',
-                     'list_math': 'Математика', 'list_nostr': 'Нострификация', 'list_boil': 'Биология',
-                     'list_chem': 'Химия', 'list_czech': 'Чешский', 'list_engl': 'Английский'
+dict_for_th_start = {'list_cvut': 'ČVUT', 'list_vse': 'VŠE',
+                     'list_uk': 'Karlov', 'list_czu': 'ČZU',
+                     'list_vut': 'VUT', 'list_masaryk': 'Masaryk',
+                     'list_vscht': 'vscht',
+
+                     'list_math': 'Математика', "list_fyz": "Физика",
+                     'list_prog': 'Програмирование', 'list_stat': 'Статистика',
+                     'list_eco': 'Экономика', 'list_prav': 'Право',
+                     'list_boil': 'Биология', 'list_chem': 'Химия',
+                     'list_czech': 'Чешский', 'list_engl': 'Английский',
+                     'list_nostr': 'Нострификация'
                      }
 
 

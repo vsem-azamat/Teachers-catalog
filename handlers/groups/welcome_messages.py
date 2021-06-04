@@ -30,8 +30,7 @@ async def new_member(message: types.Message):
 # ACTIVATE WELCOME
 @dp.message_handler(IsGroup(), Command("welcome", prefixes="!/"), AdminFilter())
 async def welcome_change(message: types.Message):
-    welcome_text = (message.text.split())[1:]
-    welcome_text = " ".join(welcome_text)
+    welcome_text = message.text.partition(" ")[2]
     await message.reply(welcome_setting(message.chat.id, welcome_text))
 
 
