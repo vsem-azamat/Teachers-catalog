@@ -1,5 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher.filters import Command
+from aiogram.types import InputFile
 
 from defs.def_start_sql import add_start
 from filters import IsPrivate, Start_button
@@ -8,14 +9,14 @@ from keyboards.default.start_menu import bt11, bt12, bt21, bt22, bt32
 from keyboards.inline.button_abous_us import about_us
 from keyboards.inline.button_chat import school_chat
 from keyboards.inline.button_school import school_teacher2
-from loader import dp
+from loader import dp, bot
 from texts.texts_main import start_msg, start_about_us, start_list_univ, start_list_chat, start_channels, start_offer
 
 
-@dp.message_handler(IsPrivate(), Command('start'))
+@dp.message_handler(Command('start'), IsPrivate())
 async def start_message(msg: types.Message):
-    await msg.reply(text=start_msg,
-                    reply_markup=start_menu)
+    photo = InputFile(path_or_bytesio="Images/start.jpg")
+    await bot.send_photo(chat_id=msg.from_user.id, photo=photo, caption=start_msg, reply_markup=start_menu)
     add_start(msg.from_user.id)
 
 
@@ -43,3 +44,4 @@ async def start_menu_message(message: types.Message):
                             reply_markup=about_us)
     if message.text == 'абоба':
         await message.reply('И вам абоба, Уважаемый.')
+

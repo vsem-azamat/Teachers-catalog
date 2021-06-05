@@ -46,10 +46,11 @@ async def th_list(callback_query: types.CallbackQuery):
     if pages > 1:
         await bot.send_message(callback_query.from_user.id,
                                list_teachers(pages, now_page, list_login, list_about, call_back, list_link),
-                               reply_markup=next)
+                               reply_markup=next, disable_web_page_preview=True)
     elif pages > 0:
         await bot.send_message(callback_query.from_user.id,
-                               list_teachers(pages, now_page, list_login, list_about, call_back, list_link))
+                               list_teachers(pages, now_page, list_login, list_about, call_back, list_link),
+                               disable_web_page_preview=True)
     elif pages == 0:
         await bot.send_message(callback_query.from_user.id,
                                text="Список пока пустой, но вы можете стать первым! \nОтпишите @vsem_azamat")
@@ -86,7 +87,9 @@ async def list_paging(callback_query: types.CallbackQuery):
     if pages > 0:
         await bot.edit_message_text(chat_id=callback_query.message.chat.id,
                                     message_id=callback_query.message.message_id,
-                                    text=list_teachers(pages, now_page, list_login, list_about, for_request_for_dict, list_link))
+                                    text=list_teachers(pages, now_page, list_login, list_about,
+                                                       for_request_for_dict, list_link),
+                                    disable_web_page_preview=True)
 
         if now_page == 1:
             await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,
