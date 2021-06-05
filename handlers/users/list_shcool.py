@@ -81,12 +81,12 @@ async def list_paging(callback_query: types.CallbackQuery):
     else:
         print('Error in start if/elif (next/back page)')
 
-    list_login, list_about, pages = sql_request(univ_less, for_request)
+    list_login, list_about, list_link, pages = sql_request(univ_less, for_request)
 
     if pages > 0:
         await bot.edit_message_text(chat_id=callback_query.message.chat.id,
                                     message_id=callback_query.message.message_id,
-                                    text=list_teachers(pages, now_page, list_login, list_about, for_request_for_dict))
+                                    text=list_teachers(pages, now_page, list_login, list_about, for_request_for_dict, list_link))
 
         if now_page == 1:
             await bot.edit_message_reply_markup(callback_query.from_user.id, callback_query.message.message_id,

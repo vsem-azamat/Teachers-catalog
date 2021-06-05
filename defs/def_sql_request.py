@@ -34,7 +34,7 @@ def list_teachers(pages, now_page, list_login, list_about, callback_for_dict, li
     for i in range(3):
         try:
             if list_link[for_pages + i] is not None:
-                link = hlink('Подробнее', f'{list_link[for_pages + i]}')
+                link = hlink('Подробнее о преподавателе', f'{list_link[for_pages + i]}')
             else:
                 link = ''
         except:
