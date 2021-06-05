@@ -1,3 +1,5 @@
+from aiogram.utils.markdown import hlink
+
 from db.sq_lite import cursor
 import math
 
@@ -15,7 +17,7 @@ dict_for_th_start = {'list_cvut': 'ČVUT', 'list_vse': 'VŠE',
                      }
 
 
-def list_teachers(pages, now_page, list_login, list_about, callback_for_dict):
+def list_teachers(pages, now_page, list_login, list_about, callback_for_dict, list_link):
     from_dict = dict_for_th_start.get(callback_for_dict)  # example date: uk, vse
     now_page = int(now_page)
     number_page = now_page
@@ -24,19 +26,32 @@ def list_teachers(pages, now_page, list_login, list_about, callback_for_dict):
         for_pages = 0
     elif now_page > 1:
         now_page -= 1
-        for_pages = now_page * 5
+        for_pages = now_page * 3
     now_page -= 1
 
     th_all = f"""<b>Репетиторы: {from_dict}</b>
     """
-    for i in range(5):
+    for i in range(3):
+        try:
+            if list_link[for_pages + i] is not None:
+                link = hlink('Подробнее', f'{list_link[for_pages + i]}')
+            else:
+                link = ''
+        except:
+            link = ''
+
         try:
             th = (f"""
-{for_pages + 1 + i}) <b>Логин:</b> @{list_login[for_pages + i]}
-   <b>Описание:</b> {list_about[for_pages + i]}
+{for_pages + 1 + i}) {list_login[for_pages + i]}
+
+{list_about[for_pages + i]}
+<b>{link}</b>
                 """)
         except:
             th = ""
+
+
+
         th_all += th
     th_pages = (f"""
 Страница: {number_page} из {pages}
@@ -48,14 +63,17 @@ def list_teachers(pages, now_page, list_login, list_about, callback_for_dict):
 def sql_request(univ_less, for_request):
     list_login = []
     list_about = []
+    list_link = []
     quest = '=? '
-    sql = "SELECT login, about FROM list_teachers WHERE " + univ_less + quest
+    sql = "SELECT login, about, link FROM list_teachers WHERE " + univ_less + quest
     cursor.execute(sql, [for_request])
     catalog = cursor.fetchall()
     for i in catalog:
         login = i[0]
         about = i[1]
+        link = i[2]
         list_login.append(login)
         list_about.append(about)
-    pages = int(math.ceil((len(list_login)) / 5))
-    return list_login, list_about, pages
+        list_link.append(link)
+    pages = int(math.ceil((len(list_login)) / 3))
+    return list_login, list_about, list_link, pages

@@ -41,15 +41,15 @@ async def th_list(callback_query: types.CallbackQuery):
         print('Error in start if/elif')
 
     await bot.answer_callback_query(callback_query.id)
-    list_login, list_about, pages = sql_request(univ_less, for_request)
+    list_login, list_about, list_link, pages = sql_request(univ_less, for_request)
 
     if pages > 1:
         await bot.send_message(callback_query.from_user.id,
-                               list_teachers(pages, now_page, list_login, list_about, call_back),
+                               list_teachers(pages, now_page, list_login, list_about, call_back, list_link),
                                reply_markup=next)
     elif pages > 0:
         await bot.send_message(callback_query.from_user.id,
-                               list_teachers(pages, now_page, list_login, list_about, call_back))
+                               list_teachers(pages, now_page, list_login, list_about, call_back, list_link))
     elif pages == 0:
         await bot.send_message(callback_query.from_user.id,
                                text="Список пока пустой, но вы можете стать первым! \nОтпишите @vsem_azamat")
@@ -61,7 +61,7 @@ async def list_paging(callback_query: types.CallbackQuery):
     text = callback_query.message.text
     text_split = text.split()
     now_page = int(text_split[-3])  # 1
-    for_request_for_dict_big = text_split[2]  # Karlov
+    for_request_for_dict_big = text_split[1]  # Karlov
     for_request_for_dict = list(dict_for_th_start)[list(dict_for_th_start.values()).index(for_request_for_dict_big)]
 
     if callback_query.data == "page_next":
