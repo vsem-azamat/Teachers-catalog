@@ -1,7 +1,7 @@
-from .users import dp
-from .groups import dp
-# from .channels import dp
+from aiogram import Router
 
+from .private import router as router_private
 
+main_router = Router()
 
-__all__ = ['dp']
+main_router.include_router(router_private)
