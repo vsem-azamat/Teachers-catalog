@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, \
-        InlineKeyboardBuilder
+    InlineKeyboardBuilder
 
 from utils.callback_factory import CategoryTeachersCallbackFactory
 
@@ -66,7 +66,7 @@ class TextMenu:
         td_about_us = {
             'ru': 'О нас'
         }
-        td_my_profile = {
+        td_my_teachers_profile = {
             'ru': 'Личный кабинет репетитора'
         }
 
@@ -81,7 +81,7 @@ class TextMenu:
                 KeyboardButton(text=TextMenu.MainMenu.td_about_us[lang])
             )
             builder.row(
-                KeyboardButton(text=TextMenu.MainMenu.td_my_profile[lang])
+                KeyboardButton(text=TextMenu.MainMenu.td_my_teachers_profile[lang])
             )
             return builder.as_markup(resize_keyboard=True)
 
@@ -110,21 +110,51 @@ class TextMenu:
         def kb_teachers_category(lang: str) -> InlineKeyboardMarkup:
             buider = InlineKeyboardBuilder()
             buider.button(
-                    text=TextMenu.FindTeachers.ti_for_university[lang],
-                    # callback_data=CategoryTeachersCallbackFactory(category="university")
-                    switch_inline_query_current_chat="🏫"
-                )
+                text=TextMenu.FindTeachers.ti_for_university[lang],
+                # callback_data=CategoryTeachersCallbackFactory(category="university")
+                switch_inline_query_current_chat="🏫"
+            )
             buider.button(
-                    text=TextMenu.FindTeachers.ti_for_lessons[lang],
-                    switch_inline_query_current_chat=" 📚"
-                )
+                text=TextMenu.FindTeachers.ti_for_lessons[lang],
+                switch_inline_query_current_chat=" 📚"
+            )
             buider.button(
-                    text=TextMenu.FindTeachers.ti_exams[lang],
-                    switch_inline_query_current_chat="📝"
-                )
+                text=TextMenu.FindTeachers.ti_exams[lang],
+                switch_inline_query_current_chat="📝"
+            )
             buider.button(
-                    text=TextMenu.FindTeachers.ti_nostr[lang],
-                    switch_inline_query_current_chat="📓"
-                )
+                text=TextMenu.FindTeachers.ti_nostr[lang],
+                switch_inline_query_current_chat="📓"
+            )
             buider.adjust(2)
             return buider.as_markup()
+
+    class MyTeachersProfile:
+        """
+        Default buttons.
+        """
+        text_create_new_profile = {
+            "ru": "У вас еще нет профиля репетитора! Хотите создать?"
+        }
+
+        td_create_profile_yes = "✅"
+        td_create_profile_no = "❌"
+
+        aviable_create_profile_answers = [td_create_profile_no, td_create_profile_yes]
+
+        text_try_again_create_profile = {
+            "ru": "Нажмите на одну из кнопок ниже!"
+        }
+        
+        text_register_introdoction = {
+            "ru": ""
+        }
+
+        @staticmethod
+        def kb_ask_registration(lang: str) -> ReplyKeyboardMarkup:
+            builder = ReplyKeyboardBuilder()
+            builder.row(
+                KeyboardButton(text=TextMenu.MyTeachersProfile.td_create_profile_yes),
+                KeyboardButton(text=TextMenu.MyTeachersProfile.td_create_profile_no)
+            )
+            return builder.as_markup(resize_keyboard=True)

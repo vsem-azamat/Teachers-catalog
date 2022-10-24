@@ -1,17 +1,12 @@
 from aiogram import Router, types
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
 
 from databases.mongodb import mongodb
 from text_assets import TextMenu as tm
+from utils.states import SelectLanguage
 
 router = Router()
-
-
-class Form(StatesGroup):
-    new_lang = State()
-    lang = State()
 
 
 @router.message(CommandStart())
@@ -36,13 +31,13 @@ async def menu_start_command(msg: types.Message, state: FSMContext) -> None:
     else:
         text = tm.FirstStart.text_first_select_language[user_lang]
         keyboard = tm.FirstStart.kb_first_select_language()
-        await state.set_state(Form.lang)
+        await state.set_state(SelectLanguage.lang)
         await state.update_data(user_lang=user_lang)
 
         await msg.answer(text=text, reply_markup=keyboard)
 
 
-@router.message(Form.lang)
+@router.message(SelectLanguage.lang)
 async def set_user_language(msg: types.Message, state: FSMContext):
     new_user_lang = msg.text
     user_data = await state.get_data()
@@ -51,7 +46,7 @@ async def set_user_language(msg: types.Message, state: FSMContext):
     # Bad answer. Try again.
     if new_user_lang not in tm.FirstStart.aviable_languages:
 
-        await state.set_state(Form.lang)
+        await state.set_state(SelectLanguage.lang)
         text = tm.FirstStart.text_again_select_language[user_lang]
         keyboard = tm.FirstStart.kb_first_select_language()
         await msg.answer(text=text, reply_markup=keyboard)

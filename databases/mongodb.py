@@ -65,5 +65,8 @@ class MongoDB:
         """
         return self.university.find({}, { "_id": 0, "name": 1})
 
+    def get_my_teachers_profile(self, id_tg: int):
+        return self.teachers.find_one({"id_tg": id_tg})
+
 
 mongodb = MongoDB()

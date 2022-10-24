@@ -6,6 +6,6 @@ from .test_hanlder import router as router_test
 
 router = Router()
 
-router.include_router(router_start)
 router.include_router(router_find_teachers)
 router.include_router(router_test)
+router.include_router(router_start)
