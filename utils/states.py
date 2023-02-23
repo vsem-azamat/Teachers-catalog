@@ -8,5 +8,8 @@ class SelectLanguage(StatesGroup):
 
 class TeacherRegistration(StatesGroup):
     start_registration = State()
+    profile_category = State()
+
     name = State()
-    
+    lessons = State()
+    universities = State()

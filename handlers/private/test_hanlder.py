@@ -1,15 +1,22 @@
 from aiogram import Router, types, F, Bot
-from aiogram.filters import CommandStart
+from aiogram.filters import Command, Filter
 
-from databases.mongodb import mongodb
+from databases.db_postgresql import db
 from text_assets import TextMenu as tm
+from utils.gen_button import genButton
 
 router = Router()
 
+# get_university_lessons - test
+@router.message(Command(commands=["test"]))
+async def category_teachers(msg: types.Message, bot: Bot):
+    univ_id = 10
 
-@router.message(commands=["test"])
-async def category_teachers(msg: types.Message):
-    text = mongodb.get_university()
-    text = [coll for coll in text]
-    # await msg.answer(text=text)
-    print(text)
+    q = await db.get_teachers_univ_profiles_count(10)
+    print(q)
+    
+    
+
+@router.message(F.photo)
+async def image(msg: types.Message):
+    await msg.answer(f'{msg.photo[0].file_id}')

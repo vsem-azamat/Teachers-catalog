@@ -5,7 +5,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, \
     InlineKeyboardBuilder
 
 from utils.callback_factory import CategoryTeachersCallbackFactory
-
+from utils.gen_button import genButton
 
 @dataclass
 class TextMenu:
@@ -100,10 +100,10 @@ class TextMenu:
             'ru': 'По предметам'
         }
         ti_exams = {
-            'ru': 'Подготовка к вступительным'
+            'ru': 'Вступительным'
         }
         ti_nostr = {
-            'ru': 'Подготовка к нострификации'
+            'ru': 'Нострификации'
         }
 
         @staticmethod
@@ -111,8 +111,7 @@ class TextMenu:
             buider = InlineKeyboardBuilder()
             buider.button(
                 text=TextMenu.FindTeachers.ti_for_university[lang],
-                # callback_data=CategoryTeachersCallbackFactory(category="university")
-                switch_inline_query_current_chat="🏫"
+                callback_data='univ'
             )
             buider.button(
                 text=TextMenu.FindTeachers.ti_for_lessons[lang],
@@ -128,6 +127,7 @@ class TextMenu:
             )
             buider.adjust(2)
             return buider.as_markup()
+
 
     class MyTeachersProfile:
         """
@@ -145,10 +145,6 @@ class TextMenu:
         text_try_again_create_profile = {
             "ru": "Нажмите на одну из кнопок ниже!"
         }
-        
-        text_register_introdoction = {
-            "ru": ""
-        }
 
         @staticmethod
         def kb_ask_registration(lang: str) -> ReplyKeyboardMarkup:
@@ -158,3 +154,31 @@ class TextMenu:
                 KeyboardButton(text=TextMenu.MyTeachersProfile.td_create_profile_no)
             )
             return builder.as_markup(resize_keyboard=True)
+
+        text_profile_category = {
+            "ru": "Для большей гибкости мы разделили систему для поступающих и для студентов.\n\n"
+                  "Выбери какой профиль ты хочешь создать для начала!"
+        }
+
+        td_create_profile_for_students = {
+            "ru": "Для студентов"
+        }
+
+        td_create_profile_for_schools = {
+            "ru": "Для поступающих"
+        }
+
+        aviable_profile_category_answers = [
+            td_create_profile_for_schools["ru"], td_create_profile_for_students["ru"]
+        ]
+
+        @staticmethod
+        def kb_ask_new_profile_category(lang: str) -> ReplyKeyboardMarkup:
+            builder = ReplyKeyboardBuilder()
+            builder.row(
+                KeyboardButton(text=TextMenu.MyTeachersProfile.td_create_profile_for_students[lang]),
+                KeyboardButton(text=TextMenu.MyTeachersProfile.td_create_profile_for_schools[lang])
+            )
+            return builder.as_markup(resize_keyboard=True)
+
+    
