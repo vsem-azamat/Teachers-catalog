@@ -36,7 +36,7 @@ class SqlAlchemy:
  
     async def get_user_lang(self, id_tg):
         try:
-            return self.s.query(Users.lang).filter(Users.id_tg == id_tg).first()[0]
+            return self.s.query(Users.language).filter(Users.id_tg == id_tg).first()[0]
         except TypeError:
             return False
 
@@ -51,73 +51,67 @@ class SqlAlchemy:
             self.s.commit()
 
 
-    async def update_user_lang(self, id_tg, lang) -> None:
-        self.s.query(Users).filter(Users.id_tg==id_tg).update({'lang': lang})
+    async def update_user_lang(self, id_tg, language) -> None:
+        self.s.query(Users).filter(Users.id_tg==id_tg).update({'language': language})
         self.s.commit()
 
 
+    async def get_all_lessons(self):
+        sql = text('SELECT * FROM get_all_lessons()')
+        return self.conn.execute(sql)
+
+
+    # LESSONS: UNIVERSITY
     async def get_universities(self) -> list:
         return self.s.query(Universities).all()
 
 
-    async def get_university_lessons(self, univ_id):
-        return self.s.query(LessonsUniv).filter(LessonsUniv.id_univ==univ_id).all()
-        
-    
-    async def get_lesson_univ_teachers(self, lessons_id):
-        """
-        pl/pgSQL fuction:
-        
-        RETURNS TABLE(
-            id_tg BIGINT, 
-            login TEXT, 
-            name TEXT, 
-            description_univ TEXT, 
-            price TEXT, 
-            link TEXT)
-        """
-        data = {'lesson_id': lessons_id}
-        sql = text("SELECT * FROM get_lesson_univ_teachers(:lesson_id)")
-        return self.conn.execute(sql, data).all()
+    async def get_lessons_of_university(self, univ_id):
+        return self.s.query(LessonsUniversity).filter(LessonsUniversity.id==univ_id).all()
 
 
-    async def get_teachers_univ_profiles(self, lesson_id: int, page: int, rows: int):
-        data = {'lesson_id': lesson_id, 'page': 0+rows*(page-1), 'rows': rows}
-        sql = text("SELECT * FROM get_teachers_univ_profiles(:lesson_id) OFFSET :page LIMIT :rows")
-        return self.conn.execute(sql, data)
+    async def get_lesson_of_university(self, lesson_id):
+        return self.s.query(LessonsUniversity).filter(LessonsUniversity.id==lesson_id).first()
 
-    async def get_teachers_univ_profiles_count(self, lesson_id):
+
+    async def get_count_teachers_of_university_lesson(self, lesson_id):
         data = {'lesson_id': lesson_id}
-        sql = text('SELECT get_teachers_univ_profiles_count(:lesson_id)')
+        sql = text('SELECT get_count_teachers_of_university_lesson(:lesson_id)')
         return self.conn.execute(sql, data).fetchone()[0]
 
-    async def get_teacher_lessons(self, teacher_id: int):
-        return self.s.query(LessonsUniv).\
-            join(TeachersLessonsUniv, LessonsUniv.id_univ==TeachersLessonsUniv.id_lessons).\
-            filter(TeachersLessonsUniv.id_teachers==teacher_id).all()
 
-    async def get_lesson_info(self, lesson_id: int):
-        return self.s.query(LessonsUniv).filter(LessonsUniv.id==lesson_id).first()
+    async def get_teachers_of_university_lesson(self, lesson_id: int, current_page: int, rows_per_page: int):
+        data = {'lesson_id': lesson_id, 'current_page': 0+rows_per_page*(current_page-1), 'rows': rows_per_page}
+        sql = text("SELECT * FROM get_teachers_of_university_lesson(:lesson_id) OFFSET :current_page LIMIT :rows")
+        return self.conn.execute(sql, data)
 
 
+    # LESSONS: LANGUAGES
+    async def get_languages(self):
+        return self.s.query(LessonsLaguage).all()
 
-    async def test(self, lesson_id: int):
-        q = self.s.query(
-                    Users.id_tg,
-                    Users.login, 
-                    Teachers.name,
-                    Teachers.description_univ,
-                    Teachers.price,
-                    Teachers.link, 
-                    
-                    func.string_agg(LessonsUniv.name, ',')
-                .over(partition_by=LessonsUniv.name)
-                .label('lessons')).\
-            join(Users, Teachers.id_user==Users.id).\
-            join(TeachersLessonsUniv, Teachers.id==TeachersLessonsUniv.id_teachers).\
-            join(LessonsUniv, TeachersLessonsUniv.id_lessons==LessonsUniv.id).\
-            filter(LessonsUniv.id==lesson_id).distinct().all()
-            
-        return q
+
+    async def get_count_teachers_of_language_lesson(self, lesson_id):
+        data = {'lesson_id': lesson_id}
+        sql = text('SELECT get_count_teachers_of_language_lesson(:lesson_id)')
+        return self.conn.execute(sql, data).fetchone()[0]
+
+
+    async def get_teachers_of_language_lesson(self, lesson_id: int, current_page: int, rows_per_page: int):
+        data = {'lesson_id': lesson_id, 'current_page': 0+rows_per_page*(current_page-1), 'rows': rows_per_page}
+        sql = text("SELECT * FROM get_teachers_of_language_lesson(:lesson_id) OFFSET :current_page LIMIT :rows")
+        return self.conn.execute(sql, data)
+
+    
+    async def get_lesson_of_language(self, lesson_id: int):
+        return self.s.query(LessonsLaguage).filter(LessonsLaguage.id==lesson_id).first()
+
+
+    async def get_teacher_profile(self, id_teacher):
+        data = {'id_teacher': id_teacher}
+        sql = text('SELECT * FROM get_teacher_profile(:id_teacher)')
+        return self.conn.execute(sql, data).first()
+    
+
 db = SqlAlchemy()
 

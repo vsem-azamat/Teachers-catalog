@@ -1,10 +1,11 @@
 from aiogram import Router, types
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart, Command, F
 from aiogram.fsm.context import FSMContext
 
 from databases.db_postgresql import db
 from text_assets import TextMenu as tm
 from utils.states import SelectLanguage
+from utils.filters import FindTeachersFilter
 
 router = Router()
 
@@ -52,15 +53,20 @@ async def set_user_language(msg: types.Message, state: FSMContext):
     
     # Correct Answer. Set `new_user_lang`
     else:
-        await db.update_user_lang(id_tg=msg.from_user.id, lang=new_user_lang)
+        await db.update_user_lang(id_tg=msg.from_user.id, language=new_user_lang)
         await state.clear()
         text = tm.FirstStart.text_end_select_language[new_user_lang]
         keyboard = tm.MainMenu.kb_main_menu(new_user_lang)
     await msg.answer(text=text, reply_markup=keyboard)
 
 
-@router.message(Command('t'))
-async def test(msg: types.Message):
-    lang = await db.get_user_lang(msg.from_user.id)
-    await msg.answer(f'{lang}')
-    
+@router.callback_query(F.data == 'back_menu')
+@router.message(FindTeachersFilter())
+async def category_teachers(msg: types.Message or types.CallbackQuery):
+    user_lang = await db.get_user_lang(msg.from_user.id)
+    text = tm.FindTeachers.text_find_teachers[user_lang]
+    keyboard = tm.FindTeachers.kb_teachers_category(user_lang)
+    if isinstance(msg, types.Message):
+        await msg.answer(text=text, reply_markup=keyboard)
+    elif isinstance(msg, types.CallbackQuery):
+        await msg.message.edit_text(text=text, reply_markup=keyboard)

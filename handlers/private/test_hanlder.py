@@ -10,10 +10,9 @@ router = Router()
 # get_university_lessons - test
 @router.message(Command(commands=["test"]))
 async def category_teachers(msg: types.Message, bot: Bot):
-    univ_id = 10
-
-    q = await db.get_teachers_univ_profiles_count(10)
-    print(q)
+    
+    q = await db.get_teacher_profile(10)
+    print(f"name: {q.name} - code: {q.id}")
     
     
 

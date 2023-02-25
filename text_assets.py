@@ -93,37 +93,37 @@ class TextMenu:
             "ru": "Выбери нужный раздел с репетиторами!"
         }
 
-        ti_for_university = {
+        ti_universities = {
             'ru': 'По ВУЗ-ам'
         }
-        ti_for_lessons = {
+        ti_lessons = {
             'ru': 'По предметам'
         }
-        ti_exams = {
+        ti_school = {
             'ru': 'Вступительным'
         }
-        ti_nostr = {
-            'ru': 'Нострификации'
+        ti_languages = {
+            'ru': 'Языки'
         }
 
         @staticmethod
         def kb_teachers_category(lang: str) -> InlineKeyboardMarkup:
             buider = InlineKeyboardBuilder()
             buider.button(
-                text=TextMenu.FindTeachers.ti_for_university[lang],
-                callback_data='univ'
+                text=TextMenu.FindTeachers.ti_universities[lang],
+                callback_data='universities'
             )
             buider.button(
-                text=TextMenu.FindTeachers.ti_for_lessons[lang],
-                switch_inline_query_current_chat=" 📚"
+                text=TextMenu.FindTeachers.ti_lessons[lang],
+                switch_inline_query_current_chat=""
             )
             buider.button(
-                text=TextMenu.FindTeachers.ti_exams[lang],
-                switch_inline_query_current_chat="📝"
+                text=TextMenu.FindTeachers.ti_school[lang],
+                callback_data="schools"
             )
             buider.button(
-                text=TextMenu.FindTeachers.ti_nostr[lang],
-                switch_inline_query_current_chat="📓"
+                text=TextMenu.FindTeachers.ti_languages[lang],
+                callback_data="languages"
             )
             buider.adjust(2)
             return buider.as_markup()

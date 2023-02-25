@@ -16,7 +16,7 @@ class Users(Base):
     id = Column(Integer, primary_key=True)
     id_tg = Column(BigInteger, nullable=False)
     login = Column(Text)
-    lang = Column(VARCHAR(4))
+    language = Column(VARCHAR(4))
     start_time = Column(DateTime(timezone=True), server_default=func.now())
     black_list = Column(Boolean, default=False)
 
@@ -26,43 +26,29 @@ class Teachers(Base):
 
     id = Column(Integer, primary_key=True)
     id_user = Column(Integer, ForeignKey('users.id'), nullable=False)
-    name = Column(Text, nullable=False)
-    description_univ = Column(Text)
-    description_nostr = Column(Text)
-    link = Column(Text)
+    name = Column(Text)
+    location = Column(Text)
+    description = Column(Text)
     price = Column(Text)
+    state = Column(Boolean, default=True)
 
 
-class TeachersLessonsUniv(Base):
-    __tablename__ = 'teachers.lessons_univ'
-
-    id = Column(Integer, primary_key=True)
-    id_teachers = Column(Integer, ForeignKey('teachers.id'), nullable=False)
-    id_lessons = Column(Integer, ForeignKey('lessons_univ.id'), nullable=False)
-
-
-class TeachersLessonsNostr(Base):
-    __tablename__ = 'teachers.lessons_nostr'
+# University Lessons Tables
+class LessonsUniversity(Base):
+    __tablename__ = 'lessons_university'
 
     id = Column(Integer, primary_key=True)
-    id_teachers = Column(Integer, ForeignKey('teachers.id'), nullable=False)
-    id_lessons = Column(Integer, ForeignKey('lessons_school.id'), nullable=False)
-
-
-class LessonsSchool(Base):
-    __tablename__ = 'lessons_school'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(Text, nullable=False)
-
-
-class LessonsUniv(Base):
-    __tablename__ = 'lessons_univ'
-
-    id = Column(Integer, primary_key=True)
-    id_univ = Column(Integer, ForeignKey('universities.id'))
+    id_university = Column(Integer, ForeignKey('universities.id'))
     code = Column(Text)
     name = Column(Text, nullable=False)
+
+
+class TeachersLessonsUniversity(Base):
+    __tablename__ = 'teachers.lessons_university'
+
+    id = Column(Integer, primary_key=True)
+    id_teacher = Column(Integer, ForeignKey('teachers.id'), nullable=False)
+    id_lesson = Column(Integer, ForeignKey('lessons_university.id'))
 
 
 class Universities(Base):
@@ -73,9 +59,42 @@ class Universities(Base):
     link_image = Column(Text)
 
 
+# Language Lessons Tables
+class LessonsLaguage(Base):
+    __tablename__ = 'lessons_language'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(Text, nullable=True)
+
+
+class TeachersLessonsLanguage(Base):
+    __tablename__ = 'teachers.lessons_language'
+
+    id = Column(Integer, primary_key=True)
+    id_teacher = Column(Integer, ForeignKey('teachers.id'), nullable=False)
+    id_lesson = Column(Integer, ForeignKey('lessons_language.id'))
+
+
+# School Lessons Tables
+class LessonsSchool(Base):
+    __tablename__ = 'lessons_school'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(Text, nullable=False)
+
+
+class TeachersLessonsSchool(Base):
+    __tablename__ = 'teachers.lessons_school'
+
+    id = Column(Integer, primary_key=True)
+    id_teacher = Column(Integer, ForeignKey('teachers.id'), nullable=False)
+    id_lesson = Column(Integer, ForeignKey('lessons_school.id'))
+
+
+# Admin Table
 class Admins(Base):
     __tablename__ = 'admins'
 
     id = Column(Integer, primary_key=True)
     id_tg = Column(BigInteger, nullable=False)
-    state = Column(Boolean, default=True)  # global state of admin
+    state = Column(Boolean, default=True)
