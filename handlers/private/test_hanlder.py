@@ -1,5 +1,7 @@
 from aiogram import Router, types, F, Bot
 from aiogram.filters import Command, Filter
+from aiogram.filters.callback_data import CallbackData
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from databases.db_postgresql import db
 from text_assets import TextMenu as tm
@@ -7,15 +9,22 @@ from utils.gen_button import genButton
 
 router = Router()
 
-# get_university_lessons - test
+
+class MyCallback(CallbackData, prefix="my"):
+    value: int
+    action: str
+
 @router.message(Command(commands=["test"]))
 async def category_teachers(msg: types.Message, bot: Bot):
-    
-    q = await db.get_teacher_profile(10)
-    print(f"name: {q.name} - code: {q.id}")
-    
+    text = "test"
+    builder = InlineKeyboardBuilder()
+    teacher = await db.get_teacher(user_id_tg=msg.from_user.id)
+    print(teacher.id)
+    print(teacher.id)
     
 
-@router.message(F.photo)
-async def image(msg: types.Message):
-    await msg.answer(f'{msg.photo[0].file_id}')
+# @router.callback_query(MyCallback.filter(F.action == "page"))
+# async def test_callback(query: types.CallbackQuery, callback_data: MyCallback):
+#     print(callback_data.action)    
+#     print(1)
+#     await query.answer()

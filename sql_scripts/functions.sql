@@ -89,20 +89,25 @@ SELECT get_count_teachers_of_language_lesson(10);
 ---------------------------------------------
 CREATE OR REPLACE FUNCTION get_all_lessons()
     RETURNS TABLE(
-        id INT, name TEXT, code TEXT, link_image TEXT
+        id INT, name TEXT, code TEXT, link_image TEXT, id_university INT, name_university TEXT, source TEXT
                  ) AS
     $$
 BEGIN
     RETURN QUERY
-    SELECT DISTINCT L.id, L.name, L.code, U.link_image
+    SELECT DISTINCT L.id, L.name, L.code, U.link_image, L.id_university, U.name AS name_university, 'university' AS source
     FROM lessons_university AS L
         JOIN universities AS U ON L.id_university = U.id
     UNION
-    SELECT L.id, L.name, NULL AS code, NULL AS link
-    FROM lessons_school AS L;
-END; $$
+    SELECT L.id, L.name, NULL AS code, NULL AS link, NULL AS id_university, NULL AS name_university, 'school' AS source
+    FROM lessons_school AS L
+    UNION
+    SELECT L.id, L.name, NULL AS code, NULL AS link, NULL AS id_university, NULL AS name_university, 'language' AS source
+    FROM lessons_language AS L
+    GROUP BY source, L.name, L.id;
+END $$
 LANGUAGE plpgsql;
 
+-- DROP FUNCTION get_all_lessons();
 SELECT * FROM get_all_lessons();
 
 ---------------------------------------------
@@ -131,8 +136,9 @@ BEGIN
          WHERE "teachers.lessons_school".id_teacher = teachers.id) AS lesson_school
     FROM teachers
     JOIN users ON teachers.id_user = users.id
-    WHERE teachers.id = 10;
+    WHERE teachers.id = id_teacher;
 END $$
 LANGUAGE plpgsql;
 
-SELECT * FROM get_teacher_profile(10)
+--------------------
+

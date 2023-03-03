@@ -4,8 +4,7 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardBut
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, \
     InlineKeyboardBuilder
 
-from utils.callback_factory import CategoryTeachersCallbackFactory
-from utils.gen_button import genButton
+from utils.callback_factory import PageLevels, PageSettings
 
 @dataclass
 class TextMenu:
@@ -100,7 +99,7 @@ class TextMenu:
             'ru': 'По предметам'
         }
         ti_school = {
-            'ru': 'Вступительным'
+            'ru': 'DEV'
         }
         ti_languages = {
             'ru': 'Языки'

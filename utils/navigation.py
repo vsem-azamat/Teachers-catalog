@@ -1,28 +1,43 @@
 import math
 from aiogram import types
+from utils.callback_factory import *
 from databases.db_postgresql import db
+
+numbers = {
+        "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣", 
+        "5": "5️⃣", "6": "6️⃣", "7": "7️⃣", "8": "8️⃣", "9": "9️⃣"
+        }
 
 
 async def determine_navigation(
-    total_rows: int, current_page, rows_per_page, 
-    prefix: str = '', params: dict = {}, button_return_callback: str = None
+    total_rows: int = 1, current_page: int = 1, rows_per_page: int = 1,
+    back_button = False, next_button = False, return_button = False
     ):
     total_pages = total_rows // rows_per_page + (1 if total_rows % rows_per_page != 0 else 0)
-    back_button = current_page > 1
-    next_button = current_page < total_pages 
-    data = "--".join([f"{i}-{j}" for i, j in zip(params.keys(), params.values())])
+    back = f"◀️{current_page-1}" if current_page > 1 else False
+    next = f"{current_page+1}▶️" if current_page < total_pages else False 
     buttons = []
-    if back_button:
+    if back and back_button:
         buttons.append(
-            types.InlineKeyboardButton(text=f"◀️{current_page-1}", callback_data=f"{prefix}--current_page-{current_page-1}--{data}")
+            types.InlineKeyboardButton(
+                text=back,
+                callback_data=back_button.pack()
+            )
         )
-    if button_return_callback is not None:
+    if return_button:
         buttons.append(
-            types.InlineKeyboardButton(text="↩️Назад", callback_data=button_return_callback)
-    )
-    if next_button:
+            types.InlineKeyboardButton(
+                # ДОДЕЛАТЬ МНОГОЯЗЫЧНОСТЬ
+                text="↩️Назад",
+                callback_data=return_button.pack()
+            )
+        )
+    if next and next_button:
         buttons.append(
-            types.InlineKeyboardButton(text=f"{current_page+1}▶️", callback_data=f"{prefix}--current_page-{current_page+1}--{data}")
+            types.InlineKeyboardButton(
+                text=next,
+                callback_data=next_button.pack()
+            )
         )
     return buttons
 
@@ -45,32 +60,13 @@ async def truncate_text(text, max_length: int, max_lines: int) -> str:
     return truncated_text
 
 
-async def teachers_page(
+async def teachers_page_text(
     teachers, lesson,
-    prefix: str,
     total_rows: int, current_page: int = 1, rows_per_page: int = 3
-    ) -> str and list:
-    
+    ) -> str:
     result = "<b>Репетиторы по предмету:</b> {lesson_name}\n\n".format(lesson_name=lesson.name)
-    numbers = {
-        "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣", 
-        "5": "5️⃣", "6": "6️⃣", "7": "7️⃣", "8": "8️⃣", "9": "9️⃣"
-        }
-    buttons = []
     for i, teacher in enumerate(teachers):    
         number_emoji = ''.join([numbers.get(i) for i in str(current_page*rows_per_page+i-1)])
-        buttons.append(
-            types.InlineKeyboardButton(
-                text=number_emoji, 
-                callback_data='{prefix}--teacher_id-{teacher_id}--lesson_id-{lesson_id}--current_page-{current_page}'.\
-                    format(
-                        prefix=prefix,
-                        teacher_id=teacher.id,
-                        lesson_id=lesson.id,
-                        current_page=current_page,
-                    )
-            )
-        )
         description = await truncate_text(teacher.description, 225, 4)
         text = \
             "{line}\n"\
@@ -92,11 +88,17 @@ async def teachers_page(
         current_page=current_page, 
         total_rows=math.ceil(total_rows/rows_per_page)
         )
-    return result + end, buttons
+    return result + end
 
 
-async def teacher_profile(teacher_id: int) -> str:
-    teacher = await db.get_teacher_profile(teacher_id)
+async def teacher_profile_text(
+        teacher_id: int = 0, teacher_id_tg: int = 0, 
+        teacher = False, example: bool = False) -> str:
+    if example:
+        teacher_id = 10
+    if not teacher:
+        teacher = await db.get_teacher_profile(teacher_id, teacher_id_tg)
+    
     result = \
         "👩‍🏫 <b>{name} - @{login}</b>\n"\
         "📚 {lessons} \n"\
@@ -111,7 +113,8 @@ async def teacher_profile(teacher_id: int) -> str:
             description = teacher.description,
             price = teacher.price,
         ) 
-    return result   
+    return result
+
     
 
     

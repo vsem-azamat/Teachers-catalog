@@ -1,100 +1,134 @@
 from aiogram import Router, types, F, Bot
 from aiogram.filters.callback_data import CallbackData
-from aiogram.filters import Command
-
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from databases.db_postgresql import db
 from text_assets import TextMenu as tm
-from utils.gen_button import genButton
-from utils.desh_args import get_desh_args
+
+from utils.callback_factory import *
 from utils.navigation import *
 
 router = Router()
 
 
+# Show list of Languages
+@router.callback_query(PageSettings.filter(F.pageLevel == PageLevels.lessons_language))
 @router.callback_query(F.data == 'languages')
 async def list_universities(callback: types.CallbackQuery, bot: Bot):
-    user_lang = await db.get_user_lang(callback.from_user.id)
+    user_language = await db.get_user_lang(callback.from_user.id)
     text = "Выберите Язык, чтобы показать репетиторов"
-    languages = await db.get_languages()
+    languages = await db.get_lessons_languages()
+
+    builder = InlineKeyboardBuilder()
     for language in languages:
-        buttons = [
-
-        ]
-
-
-    languages_name = [language.name for language in languages]
-    languages_id_inline = [f'less_lang-1--lesson_id-{language.id}' for language in languages]
-    keyboard = await genButton.inline_b(languages_name, languages_id_inline, 2)
-    keyboard['inline_keyboard'].append([{'text': '↩️Назад', 'callback_data': 'back_menu'}])
+        builder.button(
+            text = language.name,
+            callback_data=PageSettings(
+                pageLevel=PageLevels.teachers_language,
+                lesson_id=language.id,
+            )
+        )
+    rows_per_page = PageSettings().rows_per_page
+    builder.adjust(rows_per_page)
+    builder.row(types.InlineKeyboardButton(text='↩️Назад', callback_data='back_menu'))
     await bot.edit_message_text(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id, 
         text=text, 
-        reply_markup=keyboard
+        reply_markup=builder.as_markup()
         )
     await callback.answer()
 
 
-@router.callback_query(F.data.regexp(r'^less_lang'))
-async def teachers_of_language_lessons(callback: types.CallbackQuery, bot: Bot):
-    data = await get_desh_args(callback.data)
-    lesson_id = data.get('lesson_id',)
-    current_page = data.get('current_page', 1)
-    rows_per_page = 2
+# Show list of Teachers
+@router.callback_query(PageSettings.filter(F.pageLevel == PageLevels.teachers_language))
+async def teachers_of_language_lessons(query: types.CallbackQuery, callback_data: PageSettings, bot: Bot):
+    lesson_id = callback_data.lesson_id
+    current_page = callback_data.current_page
+    rows_per_page = PageSettings().rows_per_page
     total_rows = await db.get_count_teachers_of_language_lesson(lesson_id=lesson_id,)
-    buttons_next_back = await determine_navigation(
-        total_rows=total_rows,
-        current_page=current_page,
-        rows_per_page=rows_per_page,
-        prefix='less_lang-1',
-        params={'lesson_id': lesson_id},
-        button_return_callback=f"languages",
-        )
+    
+    builder = InlineKeyboardBuilder()
     teachers_of_language_lesson = await db.get_teachers_of_language_lesson(
         lesson_id=lesson_id,
         current_page=current_page,
         rows_per_page=rows_per_page
         )
+    for i, teacher in enumerate(teachers_of_language_lesson):
+        builder.button(
+            text = ''.join([numbers.get(i) for i in str(current_page*rows_per_page+i-1)]),
+            callback_data=PageSettings(
+                pageLevel=PageLevels.teacher_language,
+                lesson_id=lesson_id,  
+                current_page=current_page,  
+                teacher_id=teacher.id,   
+            )
+        )
+    buttons_next_back = await determine_navigation(
+        total_rows=total_rows, 
+        current_page=current_page, 
+        rows_per_page=rows_per_page,
+        back_button=PageSettings(
+            pageLevel=PageLevels.teachers_language,
+            current_page=current_page-1,
+            lesson_id=lesson_id,
+            ),
+        next_button=PageSettings(
+            pageLevel=PageLevels.teachers_language,
+            current_page=current_page+1,
+            lesson_id=lesson_id
+            ),
+        return_button=PageSettings(
+            pageLevel=PageLevels.lessons_language,
+            lesson_id=lesson_id,
+            current_page = current_page,
+            ),
+        )
+    builder.adjust(rows_per_page)
+    builder.row(*buttons_next_back)
     lesson = await db.get_lesson_of_language(lesson_id=lesson_id)
-    text, buttons_teachers = await teachers_page(
+    teachers_of_language_lesson = await db.get_teachers_of_language_lesson(
+        lesson_id=lesson_id,
+        current_page=current_page,
+        rows_per_page=rows_per_page
+        )
+    text = await teachers_page_text(
         teachers=teachers_of_language_lesson,
         lesson=lesson,
-        prefix="teacher_language-1",
         current_page=current_page,
         rows_per_page=rows_per_page,
         total_rows=total_rows,
         )
     await bot.edit_message_text(
         text=text, 
-        chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
-        reply_markup=types.InlineKeyboardMarkup(inline_keyboard=[buttons_teachers, buttons_next_back]),
+        chat_id=query.from_user.id,
+        message_id=query.message.message_id,
+        reply_markup=builder.as_markup(),
         )
-    await callback.answer()
+    await query.answer()
 
-
-@router.callback_query(F.data.regexp(r'^teacher_language-1'))
-async def message_show_teacher_profile(callback: types.InlineQuery, bot: Bot):
-    data = await get_desh_args(callback.data)
-    lesson_id = data.get('lesson_id',)
-    current_page = data.get('current_page',)
-    teacher_id = data.get('teacher_id',)
-    button_return = [
-        types.InlineKeyboardButton(
-        text="↩️Назад",
-        callback_data="less_lang-1--lesson_id-{lesson_id}--current_page-{current_page}".format(
+# Show a teacher
+@router.callback_query(PageSettings.filter(F.pageLevel == PageLevels.teacher_language))
+async def message_show_teacher_profile(query: types.InlineQuery, bot: Bot, callback_data: PageSettings):
+    lesson_id = callback_data.lesson_id
+    current_page = callback_data.current_page
+    teacher_id = callback_data.teacher_id
+    builder = InlineKeyboardBuilder()
+    button_return = await determine_navigation(
+        return_button=PageSettings(
+            pageLevel=PageLevels.teachers_language,
             lesson_id=lesson_id,
-            current_page=current_page,
-            )
+            current_page=current_page
         )
-    ]
-    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[button_return])
-    text = await teacher_profile(teacher_id=teacher_id)
+    )
+    builder.row(*button_return)
+    text = await teacher_profile_text(teacher_id=teacher_id)
     await bot.edit_message_text(
         text=text,
-        chat_id=callback.from_user.id,
-        message_id=callback.message.message_id,
-        reply_markup=keyboard
+        chat_id=query.from_user.id,
+        message_id=query.message.message_id,
+        reply_markup=builder.as_markup()
         )
-    await callback.answer()
+    await query.answer()
+
+

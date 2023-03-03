@@ -14,7 +14,7 @@ class Users(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
-    id_tg = Column(BigInteger, nullable=False)
+    id_tg = Column(BigInteger, nullable=False, unique=True)
     login = Column(Text)
     language = Column(VARCHAR(4))
     start_time = Column(DateTime(timezone=True), server_default=func.now())
@@ -30,7 +30,7 @@ class Teachers(Base):
     location = Column(Text)
     description = Column(Text)
     price = Column(Text)
-    state = Column(Boolean, default=True)
+    state = Column(Boolean, default=False)
 
 
 # University Lessons Tables

@@ -1,40 +1,38 @@
-from aiogram import Router, types
-from aiogram.filters import CommandStart, Command, F
+from aiogram import Router, types, F
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 
 from databases.db_postgresql import db
 from text_assets import TextMenu as tm
 from utils.states import SelectLanguage
 from utils.filters import FindTeachersFilter
+from utils.callback_factory import *
+from utils.states import TeacherRegistration
 
 router = Router()
-
 
 @router.message(CommandStart(deep_link=False))
 async def menu_start_command(msg: types.Message, state: FSMContext):
     user_id_tg = msg.from_user.id
-    user_lang = await db.get_user_lang(msg.from_user.id)
+    user = await db.check_exists(id_tg=msg.from_user.id, login=msg.from_user.username)
 
-    if not user_lang:
-        user_lang = msg.from_user.language_code
-        user_lang = 'ru'
-        if user_lang not in ['ru', 'cz', 'en']:
-            user_lang = 'ru'
-
-    state_new_user = await db.check_exists(user_id_tg)
     # Old user
-    if state_new_user:
-        user_lang = await db.get_user_lang(user_id_tg)
-        text = tm.MainMenu.text_main_menu[user_lang]
-        keyboard = tm.MainMenu.kb_main_menu(user_lang)
+    if user.language:
+        user_language = user.language
+        text = tm.MainMenu.text_main_menu[user_language]
+        keyboard = tm.MainMenu.kb_main_menu(user_language)
 
     # New users
     else:
-        text = tm.FirstStart.text_first_select_language[user_lang]
+        user_language = msg.from_user.language_code
+        user_language = 'ru' # DEBUG
+        if user_language not in ['ru', 'en', 'cz']:
+            user_language = 'ru'
+        await db.update_user_lang(id_tg=user_id_tg, language=user_language)
+        text = tm.FirstStart.text_first_select_language[user_language]
         keyboard = tm.FirstStart.kb_first_select_language()
-        await db.new_user(user_id_tg, msg.from_user.username)
         await state.set_state(SelectLanguage.lang)
-        await state.update_data(user_lang=user_lang)
+        await state.update_data(user_lang=user_language)
 
     await msg.reply(text=text, reply_markup=keyboard)
 
