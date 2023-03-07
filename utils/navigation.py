@@ -1,5 +1,8 @@
 import math
+
 from aiogram import types
+
+from text_assets import TextMenu as tm
 from utils.callback_factory import *
 from databases.db_postgresql import db
 
@@ -28,7 +31,7 @@ async def determine_navigation(
         buttons.append(
             types.InlineKeyboardButton(
                 # ДОДЕЛАТЬ МНОГОЯЗЫЧНОСТЬ
-                text="↩️Назад",
+                text="↩️",
                 callback_data=return_button.pack()
             )
         )
@@ -61,10 +64,10 @@ async def truncate_text(text, max_length: int, max_lines: int) -> str:
 
 
 async def teachers_page_text(
-    teachers, lesson,
+    teachers, lesson, user_language: str,
     total_rows: int, current_page: int = 1, rows_per_page: int = 3
     ) -> str:
-    result = "<b>Репетиторы по предмету:</b> {lesson_name}\n\n".format(lesson_name=lesson.name)
+    result = tm.TeachersCategory.text_show_teachers.get(user_language, 'ru') + "{lesson_name}\n\n".format(lesson_name=lesson.name)
     for i, teacher in enumerate(teachers):    
         number_emoji = ''.join([numbers.get(i) for i in str(current_page*rows_per_page+i-1)])
         description = await truncate_text(teacher.description, 225, 4)
@@ -98,17 +101,26 @@ async def teacher_profile_text(
         teacher_id = 10
     if not teacher:
         teacher = await db.get_teacher_profile(teacher_id, teacher_id_tg)
-    
+
+    lessons_university = ""
+    if teacher.lessons_university:
+        lessons_university = "\n📚" + teacher.lessons_university
+    lessons_language = ""
+    if teacher.lessons_language:
+        lessons_language = "\n🔠" + teacher.lessons_language
+
     result = \
-        "👩‍🏫 <b>{name} - @{login}</b>\n"\
-        "📚 {lessons} \n"\
-        "📍 {location}\n"\
-        "💳 {price} Kč/hod\n\n"\
+        "👩‍🏫 <b>{name} - @{login}</b>"\
+        "{lessons_university}"\
+        "{lessons_language}"\
+        "\n📍 {location}\n"\
+        "💳 {price}\n\n"\
         "📝 {description}\n\n"\
         .format(
             name = teacher.name,
             login = teacher.login,
-            lessons = teacher.lessons_university,
+            lessons_university = lessons_university,
+            lessons_language = lessons_language,
             location = teacher.location,
             description = teacher.description,
             price = teacher.price,

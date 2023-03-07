@@ -46,7 +46,7 @@ class SqlAlchemy:
         return self.conn.execute(sql)
 
  
-    async def get_user_lang(self, id_tg):
+    async def get_user_language(self, id_tg):
         try:
             return self.s.query(Users.language).filter(Users.id_tg == id_tg).first()[0]
         except TypeError:
@@ -58,9 +58,18 @@ class SqlAlchemy:
         self.s.commit()
 
 
-    async def get_all_lessons(self):
-        sql = text('SELECT * FROM get_all_lessons()')
-        return self.conn.execute(sql)
+    async def get_all_lessons(self, current_page: int = 0, rows_per_page: int = 0, exclude_null_teachers: bool = False):
+        data = {'current_page': 0+rows_per_page*(current_page-1), 'rows': rows_per_page, 'exclude_null_teachers': exclude_null_teachers}
+        interval = ""
+        if current_page and rows_per_page:
+            interval = "OFFSET :current_page LIMIT :rows"
+        sql = text('SELECT * FROM get_all_lessons(:exclude_null_teachers) ' + interval)
+        return self.conn.execute(sql, data)
+    
+
+    async def get_count_all_lessons(self):
+        sql = text("SELECT get_count_all_lessons();")
+        return self.conn.execute(sql).fetchone()[0]
 
 
     # LESSONS: UNIVERSITY
@@ -68,8 +77,8 @@ class SqlAlchemy:
         return self.s.query(Universities).all()
 
 
-    async def get_lessons_of_university(self, univ_id):
-        return self.s.query(LessonsUniversity).filter(LessonsUniversity.id==univ_id).all()
+    async def get_lessons_of_university(self, university_id):
+        return self.s.query(LessonsUniversity).filter(LessonsUniversity.id_university==university_id).all()
 
 
     async def get_lesson_of_university(self, lesson_id):
@@ -80,13 +89,17 @@ class SqlAlchemy:
         data = {'lesson_id': lesson_id}
         sql = text('SELECT get_count_teachers_of_university_lesson(:lesson_id)')
         return self.conn.execute(sql, data).fetchone()[0]
+ 
 
-
-    async def get_teachers_of_university_lesson(self, lesson_id: int, current_page: int, rows_per_page: int):
+    async def get_teachers_of_university_lesson(self, lesson_id: int, current_page: int = 0, rows_per_page: int = 0):
         data = {'lesson_id': lesson_id, 'current_page': 0+rows_per_page*(current_page-1), 'rows': rows_per_page}
-        sql = text("SELECT * FROM get_teachers_of_university_lesson(:lesson_id) OFFSET :current_page LIMIT :rows")
+        interval = ""
+        if current_page and rows_per_page:
+            interval = "OFFSET :current_page LIMIT :rows"
+        sql = text("SELECT * FROM get_teachers_of_university_lesson(:lesson_id) " + interval)
         return self.conn.execute(sql, data)
 
+    
 
     # LESSONS: LANGUAGES
     async def get_lessons_languages(self):
@@ -145,7 +158,17 @@ class SqlAlchemy:
         return id
     
 
-    async def get_languages_id_of_teacher(self, teacher_id: int = 0, user_id_tg: int = 0):
+    async def get_lessons_id_of_teacher(self, table_name: str, teacher_id: int = 0, user_id_tg: int = 0):
+        
+        if table_name == "TeachersLessonsLanguage":
+            table = TeachersLessonsLanguage
+        elif table_name == "TeachersLessonsUniversity":
+            table = TeachersLessonsUniversity
+
+        if table is None:
+            raise ValueError(f"Invalid table name: {table_name}")
+
+
         if not teacher_id:
             try:
                 teacher = await self.get_teacher(user_id_tg=user_id_tg)
@@ -153,7 +176,7 @@ class SqlAlchemy:
             except AttributeError:
                 return False
         else:
-            return self.s.query(TeachersLessonsLanguage).filter(TeachersLessonsLanguage.id_teacher==teacher_id).all()
+            return self.s.query(table).filter(table.id_teacher==teacher_id).all()
         return False
 
               

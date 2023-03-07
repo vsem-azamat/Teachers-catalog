@@ -14,6 +14,9 @@ class PageLevels(str, Enum):
     teacher_university = "teacher_university"
 
     teacher = "teacher"
+
+    lessons = "lessons"
+    lessons_catalog = "lessons_catalog"
     google = "google"
 
 
@@ -25,6 +28,7 @@ class PageSettings(CallbackData, prefix='fub'):
     current_page: int = 1
     total_pages: int = 0
 
+    lesson_catalog:int = 0
     rows_per_page: int = 2
     # source: LessonsSource = ''
 
@@ -33,14 +37,12 @@ class PageSettings(CallbackData, prefix='fub'):
     
 class TeacherLevels(str, Enum):
     lessons_language = "lessons_language"
-    lesson_language = "lesson_language"
     
     universities = "universities"
     lessons_university = "lessons_university"
-    lesson_university = "lesson_university"
 
     teacher = "teacher"
-    google = "google"
+    # google = "google"
 
 
 class TeacherSettings(CallbackData, prefix='reg'):

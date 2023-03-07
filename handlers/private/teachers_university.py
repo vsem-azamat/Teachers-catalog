@@ -13,8 +13,9 @@ router = Router()
 @router.callback_query(PageSettings.filter(F.pageLevel == PageLevels.universities))
 @router.callback_query(F.data == 'universities')
 async def list_universities(callback: types.CallbackQuery, bot: Bot):
-    user_lang = await db.get_user_lang(callback.from_user.id)
-    text = tm.FindTeachers.ti_universities[user_lang]
+    user_language = await db.get_user_language(callback.from_user.id)
+    text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
+    text = tm.TeachersCategory.text_select_university.get(user_language, 'ru')
     universities = await db.get_universities()
     builder = InlineKeyboardBuilder()
     for university in universities:
@@ -27,11 +28,11 @@ async def list_universities(callback: types.CallbackQuery, bot: Bot):
         )
     rows_per_page = PageSettings().rows_per_page
     builder.adjust(rows_per_page)
-    builder.row(types.InlineKeyboardButton(text='↩️Назад', callback_data='back_menu'))
+    builder.row(types.InlineKeyboardButton(text='↩️', callback_data='back_menu'))
     await bot.edit_message_text(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id, 
-        text=text, 
+        text=text_head + text, 
         reply_markup=builder.as_markup()
         )
     await callback.answer()
@@ -40,8 +41,11 @@ async def list_universities(callback: types.CallbackQuery, bot: Bot):
 @router.callback_query(PageSettings.filter(F.pageLevel == PageLevels.lessons_university))
 async def list_university_lessons(query: types.CallbackQuery, bot: Bot, callback_data: PageSettings):
     """
-    Show list of selected Lessons University
+    Show list Lessons of selected University
     """
+    user_language = await db.get_user_language(query.from_user.id)
+    text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
+    text = tm.TeachersCategory.text_select_lesson_of_university.get(user_language, 'ru')
     university_id = callback_data.university_id
     current_page = callback_data.current_page
     lessons = await db.get_lessons_of_university(university_id)
@@ -70,7 +74,7 @@ async def list_university_lessons(query: types.CallbackQuery, bot: Bot, callback
     await bot.edit_message_text(
         chat_id=query.from_user.id,
         message_id=query.message.message_id,
-        text='Lessons of university',
+        text=text_head + text,
         reply_markup=builder.as_markup()
     )
     await query.answer()
@@ -78,6 +82,9 @@ async def list_university_lessons(query: types.CallbackQuery, bot: Bot, callback
 
 @router.callback_query(PageSettings.filter(F.pageLevel == PageLevels.teachers_university))
 async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, callback_data: PageSettings):
+    user_language = await db.get_user_language(query.from_user.id)
+    text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
+
     lesson_id = callback_data.lesson_id
     university_id = callback_data.university_id
     current_page = callback_data.current_page
@@ -101,6 +108,8 @@ async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, c
                 teacher_id=teacher.id
             )
         )
+    returnPageLevel = PageLevels.lessons_university
+    if callback_data.lesson_catalog: returnPageLevel = PageLevels.lessons_catalog
     buttons_next_back = await determine_navigation(
         total_rows=total_rows, 
         current_page=current_page, 
@@ -118,7 +127,7 @@ async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, c
             lesson_id=lesson_id
             ),
         return_button=PageSettings(
-            pageLevel=PageLevels.lessons_university,
+            pageLevel=returnPageLevel,
             lesson_id=lesson_id,
             university_id=university_id,
             current_page = current_page,
@@ -136,21 +145,31 @@ async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, c
     text = await teachers_page_text(
         teachers=teachers,
         lesson=lesson,
+        user_language=user_language,
         current_page=current_page,
         rows_per_page=rows_per_page,
         total_rows=total_rows
     )
-    await bot.edit_message_text(
-        text=text, 
-        chat_id=query.from_user.id,
-        message_id=query.message.message_id,
-        reply_markup=builder.as_markup()
+    try:
+        await bot.edit_message_text(
+            text=text, 
+            chat_id=query.from_user.id,
+            message_id=query.message.message_id,
+            reply_markup=builder.as_markup()
+            )
+    except AttributeError:
+        await bot.send_message(
+            chat_id=query.from_user.id,
+            text=text_head + text,
+            reply_markup=builder.as_markup()
         )
     await query.answer()
 
 
 @router.callback_query(PageSettings.filter(F.pageLevel == PageLevels.teacher_university))
 async def message_show_teacher_profile(query: types.InlineQuery, bot: Bot, callback_data: PageSettings):
+    user_language = await db.get_user_language(query.from_user.id)
+    text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
     lesson_id = callback_data.lesson_id
     current_page = callback_data.current_page
     teacher_id = callback_data.teacher_id
@@ -167,9 +186,10 @@ async def message_show_teacher_profile(query: types.InlineQuery, bot: Bot, callb
     builder.row(*button_return)
     text = await teacher_profile_text(teacher_id=teacher_id)
     await bot.edit_message_text(
-        text=text,
+        text=text_head + text,
         chat_id=query.from_user.id,
         message_id=query.message.message_id,
         reply_markup=builder.as_markup()
         )
     await query.answer()
+
