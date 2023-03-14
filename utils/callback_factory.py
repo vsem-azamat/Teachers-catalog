@@ -41,18 +41,27 @@ class TeacherLevels(str, Enum):
     universities = "universities"
     lessons_university = "lessons_university"
 
+    lessons_catalog = "lessons_catalog"
+
+    lessons = "lessons"
+
     teacher = "teacher"
-    # google = "google"
+    teacher_edit = "teacher_edit"
+    
+    edit_all = "edit_all"
+    edit_description = "edit_description"
 
 
 class TeacherSettings(CallbackData, prefix='reg'):
     pageLevel: TeacherLevels = ''
+    source: str = " "
     university_id: int = 0
     lesson_id: int = 0
 
     current_page: int = 1
     total_pages: int = 0
     rows_per_page: int = 2
+    
 
     # True - add lesson to teacher profile
     # False - delete lesson from teacher profile

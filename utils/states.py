@@ -11,6 +11,6 @@ class TeacherRegistration(StatesGroup):
     name = State()
     location = State()
     price = State()
-    description = State()
+    description_finish = State()
 
 

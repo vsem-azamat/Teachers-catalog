@@ -87,48 +87,61 @@ SELECT get_count_teachers_of_language_lesson(10);
 
 ---------------------------------------------
 CREATE OR REPLACE FUNCTION get_all_lessons(exclude_null_teachers BOOLEAN DEFAULT FALSE)
-    RETURNS TABLE(
-        id INT, name TEXT, code TEXT, link_image TEXT, id_university INT, name_university TEXT, id_teacher INT, source TEXT
-                 ) AS
-    $$
+RETURNS TABLE(
+    id INT, name TEXT, code TEXT, link_image TEXT, id_university INT, name_university TEXT, source TEXT
+) AS $$
 BEGIN
     RETURN QUERY
-    SELECT L.id, L.name, L.code, U.link_image, L.id_university, U.name AS name_university, tlu.id_teacher, 'university' AS source
+    SELECT DISTINCT L.id, L.name, L.code, U.link_image, L.id_university, U.name AS name_university, 'university' AS source
     FROM lessons_university AS L
-        LEFT OUTER JOIN universities AS U ON L.id_university = U.id
-        LEFT OUTER JOIN "teachers.lessons_university" AS tlu on L.id = tlu.id_lesson
+        LEFT JOIN universities AS U ON L.id_university = U.id
+        LEFT JOIN "teachers.lessons_university" AS tlu ON L.id = tlu.id_lesson
     WHERE NOT exclude_null_teachers OR tlu.id_teacher IS NOT NULL
 
     UNION
-    SELECT L.id, L.name, NULL AS code, NULL AS link, NULL AS id_university, NULL AS name_university, tlu.id_teacher, 'language' AS source
+
+    SELECT L.id, L.name, NULL AS code, NULL AS link_image, NULL AS id_university, NULL AS name_university, 'language' AS source
     FROM lessons_language AS L
-        LEFT OUTER JOIN "teachers.lessons_language" AS tlu on L.id = tlu.id_lesson
+        LEFT JOIN "teachers.lessons_language" AS tlu ON L.id = tlu.id_lesson
     WHERE NOT exclude_null_teachers OR tlu.id_teacher IS NOT NULL
-    ORDER BY source DESC , id_university DESC;
+
+    ORDER BY source DESC, id_university DESC;
 END $$
 LANGUAGE plpgsql;
 
 -- DROP FUNCTION get_all_lessons();
-SELECT * FROM get_all_lessons();
+SELECT * FROM get_all_lessons(TRUE);
 
 ---------------------------------------------
-CREATE OR REPLACE FUNCTION get_count_all_lessons()
+
+---------------------------------------------
+CREATE OR REPLACE FUNCTION get_count_all_lessons(exclude_null_teachers BOOLEAN DEFAULT FALSE)
     RETURNS INTEGER AS
 $$
 DECLARE
     count INTEGER = 0;
     result INTEGER = 0;
 BEGIN
-    SELECT count(*) INTO count FROM lessons_university;
+    SELECT COUNT(DISTINCT lessons_university.name) INTO count FROM lessons_university
+        LEFT JOIN "teachers.lessons_university" ON "teachers.lessons_university".id_lesson = lessons_university.id
+    WHERE not exclude_null_teachers or "teachers.lessons_university".id_teacher IS NOT NULL;
+
     result = result + count;
-    SELECT count(*) INTO count FROM lessons_language;
+
+    SELECT count(DISTINCT lessons_language.name) INTO count FROM lessons_language
+        LEFT JOIN "teachers.lessons_language" on "teachers.lessons_language".id_lesson = lessons_language.id
+    WHERE not exclude_null_teachers or "teachers.lessons_language".id_teacher IS NOT NULL;
+
     result = result + count;
     RETURN result;
 END;
 $$
 LANGUAGE plpgsql;
 
-SELECT get_count_all_lessons();
+SELECT get_count_all_lessons(True);
+---------------------------------------------
+
+
 
 ---------------------------------------------
 

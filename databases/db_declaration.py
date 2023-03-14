@@ -25,7 +25,7 @@ class Teachers(Base):
     __tablename__ = 'teachers'
 
     id = Column(Integer, primary_key=True)
-    id_user = Column(Integer, ForeignKey('users.id'), nullable=False)
+    id_user = Column(Integer, ForeignKey('users.id'), nullable=False, unique=True)
     name = Column(Text)
     location = Column(Text)
     description = Column(Text)

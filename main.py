@@ -13,7 +13,6 @@ async def on_shutdown(bot: Bot) -> None:
     await bot.delete_webhook()
     await bot.session.close()
 
-
 # Run bot
 async def main() -> None:
     bot = Bot(token=settings.BOT_TOKEN, parse_mode="HTML")

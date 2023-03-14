@@ -31,7 +31,7 @@ async def menu_start_command(msg: types.Message, state: FSMContext):
         text = tm.FirstStart.text_first_select_language.get(user_language, 'ru')
         keyboard = tm.FirstStart.kb_first_select_language()
         await state.set_state(SelectLanguage.language)
-        await state.update_data(user_lang=user_language)
+        await state.update_data(user_language=user_language)
 
     await msg.reply(text=text, reply_markup=keyboard)
 
@@ -50,7 +50,7 @@ async def set_user_language(msg: types.Message, state: FSMContext):
     
     # Correct Answer. Set `new_user_lang`
     else:
-        await db.update_user_lang(id_tg=msg.from_user.id, language=new_user_lang)
+        await db.update_user_lang(id_tg=msg.from_user.id, user_language=new_user_lang)
         await state.clear()
         text = tm.FirstStart.text_end_select_language.get(new_user_lang, 'ru')
         keyboard = tm.MainMenu.kb_main_menu(new_user_lang)

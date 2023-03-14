@@ -1,5 +1,7 @@
-from sqlalchemy import URL, exc, create_engine, text
-from sqlalchemy.orm import sessionmaker
+from typing import Optional
+
+from sqlalchemy import URL, create_engine, text
+from sqlalchemy.orm import sessionmaker, exc
 
 
 from .db_declaration import *
@@ -29,7 +31,7 @@ class SqlAlchemy:
 
     async def check_exists(self, id_tg: int, login: str) -> bool:
         user = self.s.query(Users).filter(Users.id_tg == id_tg).first()
-        if user.id:
+        if user:
             user.login = login
             self.s.commit()
         else:
@@ -53,8 +55,8 @@ class SqlAlchemy:
             return False
 
 
-    async def update_user_lang(self, id_tg, language) -> None:
-        self.s.query(Users).filter(Users.id_tg==id_tg).update({'language': language})
+    async def update_user_lang(self, id_tg, user_language) -> None:
+        self.s.query(Users).filter(Users.id_tg==id_tg).update({'language': user_language})
         self.s.commit()
 
 
@@ -67,9 +69,10 @@ class SqlAlchemy:
         return self.conn.execute(sql, data)
     
 
-    async def get_count_all_lessons(self):
-        sql = text("SELECT get_count_all_lessons();")
-        return self.conn.execute(sql).fetchone()[0]
+    async def get_count_all_lessons(self, exclude_null_teachers: Optional[bool] = False):
+        data = {'exclude_null_teachers': exclude_null_teachers}
+        sql = text("SELECT get_count_all_lessons(:exclude_null_teachers);")
+        return self.conn.execute(sql, data).fetchone()[0]
 
 
     # LESSONS: UNIVERSITY
@@ -143,20 +146,26 @@ class SqlAlchemy:
     async def get_teacher(self, user_id_tg: int):
         return self.s.query(Teachers).join(Users, Users.id==Teachers.id_user).filter(Users.id_tg==user_id_tg).first()
 
-
-    async def add_teacher_profile(self, id_tg: int, name: str, location: str, price: str, description: str):
-        user = self.s.query(Users).filter(Users.id_tg==id_tg).first()
-        teacher = Teachers(
-            id_user=user.id,
-            name=name,
-            location=location,
-            price=price,
-            description=description
-        )
-        self.s.add(teacher)
-        self.s.commit()
-        return id
     
+    async def add_teacher_profile(self, id_tg: int, **update_fields):
+        user = self.s.query(Users).filter(Users.id_tg==id_tg).first()
+        teacher = await db.get_teacher(user_id_tg=id_tg)
+        # Update old teacher
+        if teacher:
+            setattr(teacher, 'id_user', user.id)
+            for field, value in update_fields.items():
+                setattr(teacher, field, value)
+        # Add new teacher
+        else:
+            teacher = Teachers(
+                id_user=user.id,
+                **update_fields
+            )
+        self.s.merge(teacher)
+        self.s.commit()
+        return teacher
+
+
 
     async def get_lessons_id_of_teacher(self, table_name: str, teacher_id: int = 0, user_id_tg: int = 0):
         
@@ -207,7 +216,10 @@ class SqlAlchemy:
             self.s.merge(lesson)
         # Delete lesson from teacher profile
         else:
-            self.s.delete(lesson)
+            try:
+                self.s.delete(lesson)
+            except exc.UnmappedInstanceError:
+                return
         self.s.commit()
 
 

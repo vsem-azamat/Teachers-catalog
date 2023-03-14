@@ -29,7 +29,7 @@ async def lessons(query: types. CallbackQuery, bot: Bot):
 
 
 @router.callback_query(PageSettings.filter(F.pageLevel == PageLevels.lessons_catalog))
-async def lessons_catalog(query: types.CallbackQuery, callback_data: PageSettings ,bot: Bot):
+async def lessons_catalog(query: types.CallbackQuery, callback_data: PageSettings, bot: Bot):
     user_language = await db.get_user_language(query.from_user.id)
     text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
 
@@ -37,23 +37,23 @@ async def lessons_catalog(query: types.CallbackQuery, callback_data: PageSetting
     current_page = callback_data.current_page
 
     lessons = await db.get_all_lessons(current_page=current_page, rows_per_page=rows_per_page, exclude_null_teachers=True)
-    total_rows = await db.get_count_all_lessons()
+    total_rows = await db.get_count_all_lessons(exclude_null_teachers=True)
     builder = InlineKeyboardBuilder()
+    # ДОДЕЛАТЬ
     for lesson in lessons:
-        if lesson.source == 'university' and lesson.id_teacher:
-            if lesson.source == 'university':
-                source = PageLevels.teachers_university
-            else:
-                source = PageLevels.teachers_language
+        if lesson.source == 'university':
+            source = PageLevels.teachers_university
+        else:
+            source = PageLevels.teachers_language
 
-            builder.button(
-                text=lesson.name,
-                callback_data=PageSettings(
-                    pageLevel=source,
-                    lesson_id=lesson.id,
-                    current_page=current_page,
-                    lesson_catalog=1
-                )
+        builder.button(
+            text=lesson.name,
+            callback_data=PageSettings(
+                pageLevel=source,
+                lesson_id=lesson.id,
+                current_page=current_page,
+                lesson_catalog=1
+            )
         )
     builder.adjust(2)
     buttons_next_back = await determine_navigation(
@@ -114,7 +114,6 @@ async def generate_deep_link(bot: Bot):
     deeplink = f"https://t.me/{bot_username}?start"
     return deeplink
 
-
 async def get_inline_query_result(bot: Bot, inline_query: str = "", ):
     result = []
     query = inline_query.query
@@ -125,7 +124,13 @@ async def get_inline_query_result(bot: Bot, inline_query: str = "", ):
     if chat_type == 'sender':
         pass
     for lesson in lessons:
-        if not query or query.lower() in lesson.name.lower() or lesson.code and query.lower() in lesson.code.lower():
+        
+        lesson_name = await remove_diacritics(lesson.name.lower())
+        lesson_code = ""
+        if lesson.code: lesson_code = await remove_diacritics(lesson.code.lower())
+
+        if not query or \
+            query.lower() in lesson_name or query.lower() in lesson_code:
 
             if lesson.source == "university":
                 count_teachers = await db.get_count_teachers_of_university_lesson(lesson.id)
@@ -137,13 +142,14 @@ async def get_inline_query_result(bot: Bot, inline_query: str = "", ):
                 count_teachers = 0
 
             name_university = ""
-            if lesson.name_university: name_university = f"\n🏫 School: {name_university}"
+            if lesson.name_university: name_university = f"\n🏫 School: {lesson.name_university}"
+
 
             lesson_code = ""
             if lesson.code: lesson_code = f" - {lesson.code}"
             input_text = f"\n👩‍🏫 Teachers: {count_teachers}" + name_university
     
-            input_content = InputTextMessageContent(message_text=input_text, parse_mode="HTML")
+            input_content = InputTextMessageContent(message_text=f"📚 <b>Lesson: {lesson.name}</b> {input_text}", parse_mode="HTML")
             builder = InlineKeyboardBuilder()
             if count_teachers:
                 text = "Show teachers!"
@@ -164,7 +170,7 @@ async def get_inline_query_result(bot: Bot, inline_query: str = "", ):
                 types.InlineQueryResultArticle(
                     id=random.getrandbits(128),
                     title=f"📚 Lesson: {lesson.name}" + lesson_code,
-                    input_message_content=input_content,
+                    input_message_content= input_content,
                     description=remove_tags(input_text),
                     thumb_url=lesson.link_image,
                     hide_url=True,
