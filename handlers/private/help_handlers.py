@@ -26,7 +26,5 @@ async def chats(msg: types.Message):
 async def chats(msg: types.Message):
     user_language = await db.get_user_language(msg.from_user.id)
     text = tm.MainMenu.text_about_us.get(user_language)
-    
-
     await msg.answer(text=text, disable_web_page_preview=True)
     

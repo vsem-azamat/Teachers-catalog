@@ -68,9 +68,9 @@ class TextMenu:
                 "📍 Найти репетитора и помощь\n"
                 "📍 Бесплатно попасть в каталог репетиторов\n"\
                 "📍 Найти студенческие чаты/каналы\n"\
-                "📍 Предложить сотрудничество\n"
+                "📍 Предложить сотрудничество\n\n"
                 
-                "/start - Обновить меню"
+                "/start - Обновить меню\n"
                 "/language - Поменять язык",
 
             "cz":
@@ -85,9 +85,9 @@ class TextMenu:
                 "📍 Najít si doučovatele a pomoc\n"
                 "📍 Zdarma se dostat do katalogu doučovatelů\n"\
                 "📍 Najít studentské chaty/kanály\n"\
-                "📍 Nabídnout spolupráci\n"
+                "📍 Nabídnout spolupráci\n\n"
                 
-                "/start - Obnovit menu"
+                "/start - Obnovit menu\n"
                 "/language - Změnit jazyk",
 
             "en":
@@ -352,7 +352,7 @@ class TextMenu:
             'cz': '<b>Váš profil</b> ⬆️',
             'ua': '<b>Ваш профіль</b> ⬆️'
             }
-
+        
         td_create_profile_yes = "✅"
         td_create_profile_no = "❌"
 
@@ -629,7 +629,6 @@ class TextMenu:
                 "Каталог всіх предметів!"
         }
         
-
         text_profile_select_edit = {
             "ru": "<b>Редактировать:</b>",
             "en": "<b>Edit:</b>",
