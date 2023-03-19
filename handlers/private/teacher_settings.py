@@ -1,177 +1,70 @@
-from typing import List, Optional, Any, Union, Dict
-
-from aiogram import Router, types, F, Bot, filters
-from aiogram.filters import Command
+from aiogram import Router, types, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from databases.db_postgresql import db
 from text_assets import TextMenu as tm
 from utils.states import TeacherRegistration
-from utils.filters import TeacherSettingsFilter
 from utils.navigation import *
 from utils.callback_factory import *
+from utils.filters import TeacherSettingsFilter
 
 router = Router()
 
 
+# TEACHER: SETTINGS
+@router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.teacher))
 @router.message(TeacherSettingsFilter())
-async def teachers_profile(msg: types.Message, state: FSMContext):
+async def teachers_profile(msg: types.Message, state: FSMContext, callback_data: TeacherSettings = None):
+    await db.check_exists(id_tg=msg.from_user.id, login=msg.from_user.username)
     user_id_tg = msg.from_user.id
     user_language = await db.get_user_language(user_id_tg)
     teacher = await db.get_teacher_profile(user_id_tg=user_id_tg)
     # if teacher profile exists
     if teacher:
-        text_profile = await teacher_profile_text(teacher=teacher)
         text = tm.MyTeachersProfile.text_your_profile.get(user_language, 'ru')
-            
-        await msg.answer(text=text_profile)
-        await msg.answer(text=text,reply_markup=False)
-        
+        text_head = tm.MyTeachersProfile.text_profile_lessons_head.get(user_language, 'ru')
+        keyboard = None
+        # Teacher has USERNAME
+        if msg.from_user.username:
+
+            teacher_state = teacher.state
+            # Update teacher state
+            if callback_data and callback_data.state is not None:
+                teacher_state = callback_data.state
+                await db.teacher_state_update(teacher_id=teacher.id, state=teacher_state)
+
+            text_teacher_state = tm.MyTeachersProfile.text_teacher_state.get(teacher_state).get(user_language, 'ru')
+            keyboard: InlineKeyboardBuilder = tm.MyTeachersProfile.kb_profile_menu(user_language)
+            keyboard.row(
+                types.InlineKeyboardButton(
+                    text=text_teacher_state,
+                    callback_data=TeacherSettings(
+                        pageLevel=TeacherLevels.teacher,
+                        state=not teacher_state
+                    ).pack()
+                )
+            )
+            keyboard = keyboard.as_markup()
+
+        # Teacher has not USERNAME
+        else:
+            await db.teacher_state_update(teacher_id=teacher.id, state=False)
+            text_login_error = tm.MyTeachersProfile.text_login_error.get(user_language, 'ru')
+            text += "\n\n" + text_login_error
+        if isinstance(msg, types.Message):
+            text_profile = await teacher_profile_text(teacher=teacher)
+            await msg.answer(text=text_profile)
+            await msg.answer(text=text_head + text, reply_markup=keyboard)
+        elif isinstance(msg, types.CallbackQuery):
+            await msg.message.edit_text(text=text_head + text, reply_markup=keyboard)
+                        
     # if teacher profile doen't exist
     else:
         text = tm.MyTeachersProfile.text_create_new_profile.get(user_language, 'ru')
         keyboard = tm.MyTeachersProfile.kb_profile_settings()
         await msg.answer(text=text, reply_markup=keyboard)
         await state.set_state(TeacherRegistration.start_registration)
-
-
-@router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.edit_all))
-@router.message(TeacherRegistration.start_registration)
-async def start_teacher_registration(
-    message_or_callback: Union[types.Message, types.CallbackQuery], 
-    state: FSMContext,
-    bot: Bot, 
-    ):
-    user_language = await db.get_user_language(message_or_callback.from_user.id)
-    keyboard = None
-
-    # First registration 
-    if isinstance(message_or_callback, types.Message):
-        message_text = message_or_callback.text
-
-    # Bad answer. Try again.
-    if isinstance(message_or_callback, types.Message) and message_text not in tm.MyTeachersProfile.aviable_create_profile_answers:
-        await state.set_state(TeacherRegistration.start_registration)
-        text = tm.MyTeachersProfile.text_try_again_create_profile.get(user_language, 'ru')
-        keyboard = tm.MyTeachersProfile.kb_profile_settings(user_language)
-    
-    # Correct Answer.
-    else:
-        # Answer: Yes
-        if isinstance(message_or_callback, types.CallbackQuery) or message_text == tm.MyTeachersProfile.td_create_profile_yes:
-            text_profile_example = await teacher_profile_text(example=True)
-            text = tm.MyTeachersProfile.text_name_write.get(user_language, 'ru')
-            await bot.send_message(chat_id=message_or_callback.from_user.id, text=text_profile_example)
-            await state.set_state(TeacherRegistration.name)
-
-        # Answer: No -> Return to Main menu
-        elif message_or_callback.text == tm.MyTeachersProfile.td_create_profile_no:
-            text = tm.MainMenu.text_main_menu.get(user_language, 'ru')
-            keyboard = tm.MainMenu.kb_main_menu(user_language)    
-
-    await bot.send_message(chat_id=message_or_callback.from_user.id, text=text, reply_markup=keyboard)
-
-
-@router.message(TeacherRegistration.name)
-async def profile_location(
-    msg: types.Message, 
-    state: FSMContext, 
-    bot: Bot
-    ):
-    user_language = await db.get_user_language(msg.from_user.id)
-
-    # Correct answer
-    if 1 < len(msg.text) < 25:
-        await state.update_data(name=msg.text)
-        await state.set_state(TeacherRegistration.location)
-        text = tm.MyTeachersProfile.text_location_write.get(user_language, 'ru')
-        # Bad answer. Try again.
-    else:
-        await state.set_state(TeacherRegistration.name)
-        text = tm.MyTeachersProfile.text_name_try_again.get(user_language, 'ru')
-    await bot.send_message(chat_id=msg.from_user.id, text=text)
-
-
-@router.message(TeacherRegistration.location)
-async def profile_location(msg: types.Message, state: FSMContext):
-    user_language = await db.get_user_language(msg.from_user.id)
-    # Correct answer
-    if 1 < len(msg.text) < 25:
-        await state.update_data(location=msg.text)
-        await state.set_state(TeacherRegistration.price)
-        text = tm.MyTeachersProfile.text_price_write.get(user_language, 'ru')
-    # Bad answer. Try again.
-    else:
-        await state.set_state(TeacherRegistration.location)
-        text = tm.MyTeachersProfile.text_location_try_again.get(user_language, 'ru')
-    await msg.reply(text=text)
-
-
-@router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.edit_description))
-@router.message(TeacherRegistration.price)
-async def profile_description(
-    message_or_callback: Union[types.Message, types.CallbackQuery],
-    state: FSMContext,
-    bot: Bot,
-    ):
-    user_language = await db.get_user_language(message_or_callback.from_user.id)
-    # Correct answer
-    if isinstance(message_or_callback, types.CallbackQuery) or 1 < len(message_or_callback.text) < 100:
-        # Add location answer
-        if isinstance(message_or_callback, types.Message):
-            await state.update_data(price=message_or_callback.text)
-        await state.set_state(TeacherRegistration.description_finish)
-        text = tm.MyTeachersProfile.text_description_write.get(user_language, 'ru')
-    # Bad answer. Try again.
-    else:
-        await state.set_state(TeacherRegistration.price)
-        text = tm.MyTeachersProfile.text_price_try_again.get(user_language, 'ru')
-    await bot.send_message(chat_id=message_or_callback.from_user.id, text=text)
-
-
-@router.message(TeacherRegistration.description_finish)
-async def profile_finish(msg: types.Message, state: FSMContext):
-    user_language = await db.get_user_language(msg.from_user.id)
-    keyboard = None
-
-    # Correct answer
-    if 30 < len(msg.text) < 2500:
-        data = await state.get_data()
-        data['description'] = msg.text
-        await db.add_teacher_profile(id_tg=msg.from_user.id, **data)
-        await state.clear()
-        text_profile = await teacher_profile_text(teacher_id_tg=msg.from_user.id)
-        text = tm.MyTeachersProfile.text_profile_finish.get(user_language, 'ru')
-        keyboard = tm.MainMenu.kb_main_menu(user_language)    
-    
-        await msg.answer(text=text_profile)
-        
-    # Bad answer. Try again.
-    else:
-        await state.set_state(TeacherRegistration.description_finish)
-        text = tm.MyTeachersProfile.text_description_try_again.get(user_language, 'ru')
-
-    await msg.answer(text=text, reply_markup=keyboard)
-
-
-# TEACHER SETTINGS
-@router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.teacher))
-@router.message(Command('te', prefix='!/'))
-async def profile_lessons(msg: types.Message or types.CallbackQuery):
-    user_language = await db.get_user_language(msg.from_user.id)
-    if await db.get_teacher(user_id_tg=msg.from_user.id):
-        text = tm.MyTeachersProfile.text_profile_menu.get(user_language, 'ru')
-        text_head = tm.MyTeachersProfile.text_profile_lessons_head.get(user_language, 'ru')
-        keyboard = tm.MyTeachersProfile.kb_profile_menu(user_language)
-        if isinstance(msg, types.Message):
-            await msg.answer(text=text_head + text, reply_markup=keyboard)
-        elif isinstance(msg, types.CallbackQuery):
-            await msg.message.edit_text(text=text_head + text, reply_markup=keyboard)
-    else:
-        text = tm.MyTeachersProfile.text_profile_lessons_profile_doesnt_exists.get(user_language, 'ru')
-        await msg.answer(text=text)
-
 
 
 @router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.teacher_edit))
@@ -182,11 +75,11 @@ async def profile_edit(query: types.CallbackQuery, bot: Bot):
     builder = InlineKeyboardBuilder()
     builder.add(
         types.InlineKeyboardButton(
-            text="👩‍🏫 Всё",
+            text=tm.MyTeachersProfile.ti_profile_edit_all.get(user_language, 'ru'),
             callback_data=TeacherSettings(pageLevel=TeacherLevels.edit_all).pack()
         ),
         types.InlineKeyboardButton(
-            text="📝 Описание",
+            text=tm.MyTeachersProfile.ti_profile_edit_description.get(user_language, 'ru'),
             callback_data=TeacherSettings(pageLevel=TeacherLevels.edit_description).pack()
         ),
         types.InlineKeyboardButton(
@@ -205,7 +98,7 @@ async def profile_edit(query: types.CallbackQuery, bot: Bot):
 
 # TEACHER LESSONS
 @router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.lessons))
-async def profile_lessons(msg: types.Message or types.CallbackQuery):
+async def profile_lessons_category(msg: types.Message or types.CallbackQuery):
     user_language = await db.get_user_language(msg.from_user.id)
     text_head = tm.MyTeachersProfile.text_profile_lessons_head.get(user_language, 'ru')
     text = tm.MyTeachersProfile.text_profile_lessons.get(user_language, 'ru')
@@ -255,7 +148,7 @@ async def lessons_catalog(query: types.CallbackQuery, callback_data: PageSetting
             add=add_lesson,
             )
 
-    lessons = await db.get_all_lessons(current_page=current_page, rows_per_page=rows_per_page)
+    lessons = await db.get_all_lessons(current_page=current_page, rows_per_page=rows_per_page, exclude_null_teachers=False)
     lessons_language_id_of_teacher = await db.get_lessons_id_of_teacher(table_name='TeachersLessonsLanguage', teacher_id=teacher.id)
     lessons_university_id_of_teacher = await db.get_lessons_id_of_teacher(table_name='TeachersLessonsUniversity', teacher_id=teacher.id)
 
@@ -319,7 +212,6 @@ async def lessons_catalog(query: types.CallbackQuery, callback_data: PageSetting
     )
 
 
-
 # Show list of Languages
 @router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.lessons_language))
 async def list_universities(query: types.CallbackQuery, callback_data: TeacherSettings, bot: Bot):
@@ -363,7 +255,7 @@ async def list_universities(query: types.CallbackQuery, callback_data: TeacherSe
             )
         )
     builder.adjust(rows_per_page)
-    builder.row(types.InlineKeyboardButton(text='↩️', callback_data='teacher'))
+    builder.row(types.InlineKeyboardButton(text='↩️', callback_data=TeacherSettings(pageLevel=TeacherLevels.lessons).pack()))
     await bot.edit_message_text(
         chat_id=query.from_user.id,
         message_id=query.message.message_id, 
@@ -391,7 +283,7 @@ async def list_universities(callback: types.CallbackQuery, bot: Bot):
         )
     rows_per_page = PageSettings().rows_per_page
     builder.adjust(rows_per_page)
-    builder.row(types.InlineKeyboardButton(text='↩️', callback_data='teacher'))
+    builder.row(types.InlineKeyboardButton(text='↩️', callback_data=TeacherSettings(pageLevel=TeacherLevels.lessons).pack()))
     await bot.edit_message_text(
         chat_id=callback.from_user.id,
         message_id=callback.message.message_id, 

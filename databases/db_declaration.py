@@ -31,6 +31,7 @@ class Teachers(Base):
     description = Column(Text)
     price = Column(Text)
     state = Column(Boolean, default=False)
+    state_admin = Column(Boolean, default=True)
 
 
 # University Lessons Tables
@@ -98,3 +99,12 @@ class Admins(Base):
     id = Column(Integer, primary_key=True)
     id_tg = Column(BigInteger, nullable=False)
     state = Column(Boolean, default=True)
+
+
+class Chats(Base):
+    __tablename__ = 'chats'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(Text)
+    link = Column(Text)
+

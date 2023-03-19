@@ -22,9 +22,21 @@ class FindTeachersFilter(BaseFilter):
     async def __call__(self, msg: types.Message) -> bool:
         return msg.text in tm.MainMenu.td_find_teachers.values()
 
+
+class ShowChatsFilter(BaseFilter):
+    async def __call__(self, msg: types.Message) -> bool:
+        return msg.text in tm.MainMenu.td_chats.values()
+
+
+class AboutUsFilter(BaseFilter):
+    async def __call__(self, msg: types.Message) -> bool:
+        return msg.text in tm.MainMenu.td_about_us.values()
+
+
 class UnivLessonsFilter(BaseFilter):
     async def __call__(self, msg: types.Message) -> bool:
         return msg.text in tm.MainMenu.td_find_teachers.values()
+
 
 class TeacherSettingsFilter(BaseFilter):
     async def __call__(self, msg: types.Message) -> bool:

@@ -111,14 +111,13 @@ VALUES
 
 -- Lessons of School
 
--- INSERT INTO lessons_school
--- VALUES
---     (10, 'Mathematics'),
---     (10, 'Physics'),
---     (10, 'Mathematics'),
---     (10, 'Mathematics'),
---     (10, 'Mathematics'),
---     (10, 'Mathematics'),
---     (10, 'Mathematics'),
---     (10, 'Mathematics'),
---     (10, 'Mathematics');
+INSERT INTO chats(name, link)
+VALUES
+    ('ČVUT',    't.me/cvut_chat'),
+    ('VŠE',     't.me/vse_chat'),
+    ('Karlov',  't.me/karlov_chat'),
+    ('VŠCHT',   't.me/vscht_chat'),
+    ('MUNI',    't.me/masaryk_chat'),
+    ('VUT',     't.me/vut_chat'),
+    ('ZČU',     't.me/zcu_chat')
+;

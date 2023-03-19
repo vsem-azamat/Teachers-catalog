@@ -62,8 +62,18 @@ class TeacherSettings(CallbackData, prefix='reg'):
     total_pages: int = 0
     rows_per_page: int = 2
     
+    state: bool = None
 
     # True - add lesson to teacher profile
     # False - delete lesson from teacher profile
     add: bool = True 
     
+
+class AdminLevels(str, Enum):
+    universities = "universities"
+    university = "university"
+
+
+class AdminSettings(CallbackData, prefix='adm'):
+    pageLevel: AdminLevels = ''
+    university_id: int = 0

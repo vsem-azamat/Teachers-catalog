@@ -1,9 +1,10 @@
+import re
 import math
+from html import escape
 
 from aiogram import types
 
 from text_assets import TextMenu as tm
-from utils.callback_factory import *
 from databases.db_postgresql import db
 
 numbers = {
@@ -80,12 +81,12 @@ async def teachers_page_text(
             "📝 {description}\n\n"
         result += text.format(
             line = f"{number_emoji}〰️〰️〰️〰️〰️〰️〰️〰️"[:15],
-            name = teacher.name,
-            login = teacher.login,
-            lessons = teacher.lessons,
-            location = teacher.location,
-            description = description,
-            price = teacher.price,
+            name = escape(teacher.name),
+            login = escape(teacher.login),
+            lessons = escape(teacher.lessons),
+            location = escape(teacher.location),
+            description = escape(description),
+            price = escape(teacher.price),
             )
     end = "<b>Page:</b> {current_page}/{total_rows}".format(
         current_page=current_page, 
@@ -127,7 +128,8 @@ async def teacher_profile_text(
         ) 
     return result
 
-    
 
-    
+async def detect_bad_symbols(text: str):
+    bad_symbols = ['`', '[', ']', '~', '#', '+', '=', '|', '{', '}', '<', '>', ':']
+    return any(char in text for char in bad_symbols)
 

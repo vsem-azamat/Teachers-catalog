@@ -81,11 +81,6 @@ async def lessons_catalog(query: types.CallbackQuery, callback_data: PageSetting
     )
 
 
-# @router.message(ViaMessageFilter())
-# async def read(msg: types.Message, bot: Bot):
-#     pass
-
-
 @router.inline_query()
 async def show_univerity_teachers(inline_query: types.InlineQuery, bot: Bot,):
     result = await get_inline_query_result(bot, inline_query)
@@ -143,7 +138,6 @@ async def get_inline_query_result(bot: Bot, inline_query: str = "", ):
 
             name_university = ""
             if lesson.name_university: name_university = f"\n🏫 School: {lesson.name_university}"
-
 
             lesson_code = ""
             if lesson.code: lesson_code = f" - {lesson.code}"

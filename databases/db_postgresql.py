@@ -103,7 +103,6 @@ class SqlAlchemy:
         return self.conn.execute(sql, data)
 
     
-
     # LESSONS: LANGUAGES
     async def get_lessons_languages(self):
         return self.s.query(LessonsLaguage).all()
@@ -166,7 +165,6 @@ class SqlAlchemy:
         return teacher
 
 
-
     async def get_lessons_id_of_teacher(self, table_name: str, teacher_id: int = 0, user_id_tg: int = 0):
         
         if table_name == "TeachersLessonsLanguage":
@@ -189,7 +187,6 @@ class SqlAlchemy:
         return False
 
               
-
     async def add_lessons_to_teacher(self, table_name: str, teacher_id: int, lesson_id: int, add: bool = True):
         """
         add: bool
@@ -205,8 +202,8 @@ class SqlAlchemy:
         if table is None:
             raise ValueError(f"Invalid table name: {table_name}")
 
-        lesson = self.s.query(table).filter(table.id_teacher == teacher_id, table.id_lesson == lesson_id).first()
-        
+        lesson = self.s.query(table).filter(table.id_teacher == teacher_id, table.id_lesson == lesson_id).first()    
+
         # Add lesson from teacher profile
         if lesson is None and add:
             lesson = table(
@@ -222,7 +219,13 @@ class SqlAlchemy:
                 return
         self.s.commit()
 
+    async def teacher_state_update(self, teacher_id: int, state: bool):
+        self.s.query(Teachers).filter(Teachers.id==teacher_id).update({'state': state})
+        self.s.commit()
 
+
+    async def get_chats(self):
+        return self.s.query(Chats).all()
     
 
 

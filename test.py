@@ -5,6 +5,5 @@ from aiogram.types import InlineKeyboardButton
 
 from databases.db_postgresql import db
 from text_assets import TextMenu as tm
-from utils.gen_button import genButton
 from enum import Enum
 
