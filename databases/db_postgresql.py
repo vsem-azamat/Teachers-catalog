@@ -3,17 +3,17 @@ from typing import Optional
 from sqlalchemy import URL, create_engine, text
 from sqlalchemy.orm import sessionmaker, exc
 
-
+from config import settingsDB
 from .db_declaration import *
 
 class SqlAlchemy:
     def __init__(self):
         self.url_object = URL.create(
             "postgresql+pg8000",
-            username="postgres",
-            password="065Ababa",
-            host="localhost",
-            database="teachers_bot",
+            username=settingsDB.USERNAME,
+            password=settingsDB.PASSWORD,
+            host=settingsDB.HOST,
+            database=settingsDB.DATABASE,
         )
         self.engine = create_engine(self.url_object, client_encoding='utf8')
         Base.metadata.create_all(self.engine)

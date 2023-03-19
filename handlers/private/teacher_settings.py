@@ -52,6 +52,7 @@ async def teachers_profile(msg: types.Message, state: FSMContext, callback_data:
             await db.teacher_state_update(teacher_id=teacher.id, state=False)
             text_login_error = tm.MyTeachersProfile.text_login_error.get(user_language, 'ru')
             text += "\n\n" + text_login_error
+
         if isinstance(msg, types.Message):
             text_profile = await teacher_profile_text(teacher=teacher)
             await msg.answer(text=text_profile)
