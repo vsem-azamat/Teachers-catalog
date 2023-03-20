@@ -95,7 +95,7 @@ async def profile_location(msg: types.Message, state: FSMContext):
     keyboard = None
     
     # Correct answer
-    if 1 < len(msg.text) < 25:
+    if 1 < len(msg.text) < 100:
         # If Teacher editing existing profile
         teacher = await db.get_teacher_profile(user_id_tg=msg.from_user.id)
         if teacher:
