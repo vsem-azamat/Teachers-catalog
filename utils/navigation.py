@@ -110,15 +110,15 @@ async def teacher_profile_text(
     try:
         lessons_university = "\n📚" + teacher.lessons_university
     except TypeError:
-        lessons_university = "📚"
+        lessons_university = ""
     except AttributeError:
         lessons_university = ""
     try:
         lessons_language = "\n🔠" + teacher.lessons_language
     except TypeError:
-        lessons_language = "🔠"
+        lessons_language = ""
     except AttributeError:
-        lessons_language = "🔠"
+        lessons_language = ""
 
     try:
         result = \
