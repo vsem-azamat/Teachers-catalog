@@ -10,6 +10,13 @@ from sqlalchemy.sql import func
 Base = declarative_base()
 
 
+class Log(Base):
+    __tablename__ = 'logs'
+    id = Column(Integer, primary_key=True)
+    message = Column(Text)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
 class Users(Base):
     __tablename__ = 'users'
 

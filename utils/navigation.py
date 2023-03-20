@@ -115,22 +115,25 @@ async def teacher_profile_text(
     except AttributeError:
         lessons_language = ""
 
-    result = \
-        "👩‍🏫 <b>{name} - @{login}</b>"\
-        "{lessons_university}"\
-        "{lessons_language}"\
-        "\n📍 {location}\n"\
-        "💳 {price}\n\n"\
-        "📝 {description}\n\n"\
-        .format(
-            name = teacher.name,
-            login = teacher.login,
-            lessons_university = lessons_university,
-            lessons_language = lessons_language,
-            location = teacher.location,
-            description = teacher.description,
-            price = teacher.price,
-        ) 
+    try:
+        result = \
+            "👩‍🏫 <b>{name} - @{login}</b>"\
+            "{lessons_university}"\
+            "{lessons_language}"\
+            "\n📍 {location}\n"\
+            "💳 {price}\n\n"\
+            "📝 {description}\n\n"\
+            .format(
+                name = teacher.name,
+                login = teacher.login,
+                lessons_university = lessons_university,
+                lessons_language = lessons_language,
+                location = teacher.location,
+                description = teacher.description,
+                price = teacher.price,
+            ) 
+    except AttributeError:
+        return "Teacher Error"
     return result
 
 
