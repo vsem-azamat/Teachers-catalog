@@ -155,7 +155,7 @@ async def profile_finish(msg: types.Message, state: FSMContext):
         data = await state.get_data()
         if not skip_state:
             data['description'] = msg.text
-        
+        await db.add_teacher_profile(id_tg=msg.from_user.id, **data)
         teacher = await db.get_teacher_profile(user_id_tg=msg.from_user.id)
         # Editing finish
         if teacher:
@@ -166,7 +166,6 @@ async def profile_finish(msg: types.Message, state: FSMContext):
             text = tm.MyTeachersProfile.text_profile_finish.get(user_language, 'ru')
             text_profile = await teacher_profile_text(teacher_id_tg=msg.from_user.id)
 
-        await db.add_teacher_profile(id_tg=msg.from_user.id, **data)
         await state.clear()
         keyboard = tm.MainMenu.kb_main_menu(user_language)    
     

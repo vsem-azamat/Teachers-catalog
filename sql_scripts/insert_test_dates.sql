@@ -30,13 +30,13 @@ VALUES
 SELECT * FROM teachers;
 
 -- Universities
-INSERT INTO universities(id, name)
+INSERT INTO universities(name)
 VALUES
-    (10, 'ČVUT'),
-    (20, 'UK'),
-    (30, 'VŠE'),
-    (40, 'ČZU'),
-    (50, 'VUT');
+    ('ČVUT'),
+    ('UK'),
+    ('VŠE'),
+    ('ČZU'),
+    ('VUT');
 
 SELECT * FROM universities;
 
