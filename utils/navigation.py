@@ -99,7 +99,7 @@ async def teacher_profile_text(
         teacher_id: int = 0, teacher_id_tg: int = 0, 
         teacher = False, example: bool = False) -> str:
     if example:
-        teacher_id = 10
+        teacher_id = 1
     if not teacher:
         teacher = await db.get_teacher_profile(teacher_id, teacher_id_tg)
 
