@@ -106,12 +106,14 @@ async def teacher_profile_text(
         except Exception:
             return False
 
-    lessons_university = ""
-    if teacher.lessons_university:
+    try:
         lessons_university = "\n📚" + teacher.lessons_university
-    lessons_language = ""
-    if teacher.lessons_language:
+    except AttributeError:
+        lessons_university = ""
+    try:
         lessons_language = "\n🔠" + teacher.lessons_language
+    except AttributeError:
+        lessons_language = ""
 
     result = \
         "👩‍🏫 <b>{name} - @{login}</b>"\
