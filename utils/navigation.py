@@ -100,6 +100,7 @@ async def teacher_profile_text(
         teacher = False, example: bool = False) -> str:
     if example:
         teacher_id = 1
+
     if not teacher:
         try:
             teacher = await db.get_teacher_profile(teacher_id, teacher_id_tg)
@@ -108,12 +109,16 @@ async def teacher_profile_text(
 
     try:
         lessons_university = "\n📚" + teacher.lessons_university
+    except TypeError:
+        lessons_university = "📚"
     except AttributeError:
         lessons_university = ""
     try:
         lessons_language = "\n🔠" + teacher.lessons_language
+    except TypeError:
+        lessons_language = "🔠"
     except AttributeError:
-        lessons_language = ""
+        lessons_language = "🔠"
 
     try:
         result = \
