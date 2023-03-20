@@ -1,9 +1,10 @@
-from aiogram import Router, types, F, Bot
-from aiogram.filters import Command, Filter
-from aiogram.filters.callback_data import CallbackData
-from aiogram.types import InlineKeyboardButton
+import logging
 
-from databases.db_postgresql import db
-from text_assets import TextMenu as tm
-from enum import Enum
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+
+try:
+    test += q
+except Exception as e:
+    logging.debug(e)
