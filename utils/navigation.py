@@ -101,7 +101,10 @@ async def teacher_profile_text(
     if example:
         teacher_id = 1
     if not teacher:
-        teacher = await db.get_teacher_profile(teacher_id, teacher_id_tg)
+        try:
+            teacher = await db.get_teacher_profile(teacher_id, teacher_id_tg)
+        except Exception:
+            return False
 
     lessons_university = ""
     if teacher.lessons_university:
