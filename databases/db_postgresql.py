@@ -79,13 +79,16 @@ class SqlAlchemy:
     async def get_universities(self) -> list:
         return self.s.query(Universities)\
             .join(LessonsUniversity, Universities.id==LessonsUniversity.id_university)\
-            .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson).all()
+            .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
+            .join(Teachers, TeachersLessonsUniversity.id_teacher==Teachers.id)\
+            .filter(Teachers.state and Teachers.state_admin).all()
 
 
     async def get_lessons_of_university(self, university_id):
         return self.s.query(LessonsUniversity)\
             .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
-            .filter(LessonsUniversity.id_university==university_id).all()
+            .join(Teachers, TeachersLessonsUniversity.id_teacher==Teachers.id)\
+            .filter(LessonsUniversity.id_university==university_id and Teachers.state and Teachers.state_admin).all()
 
 
     async def get_lesson_of_university(self, lesson_id):
@@ -110,7 +113,9 @@ class SqlAlchemy:
     # LESSONS: LANGUAGES
     async def get_lessons_languages(self):
         return self.s.query(LessonsLaguage)\
-            .join(TeachersLessonsLanguage, LessonsLaguage.id==TeachersLessonsLanguage.id_lesson).all()
+            .join(TeachersLessonsLanguage, LessonsLaguage.id==TeachersLessonsLanguage.id_lesson)\
+            .join(Teachers, TeachersLessonsLanguage.id_teacher==Teachers.id)\
+            .filter(Teachers.state and Teachers.state_admin).all()
 
 
     async def get_count_teachers_of_language_lesson(self, lesson_id):
