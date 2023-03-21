@@ -57,9 +57,9 @@ async def teachers_of_language_lessons(query: types.CallbackQuery, callback_data
         current_page=current_page,
         rows_per_page=rows_per_page
         )
-    for i, teacher in enumerate(teachers_of_language_lesson):
+    for i, teacher in enumerate(teachers_of_language_lesson, start=1):
         builder.button(
-            text = ''.join([numbers.get(i) for i in str(current_page*rows_per_page+i-1)]),
+            text = ''.join([emoji_numbers.get(i) for i in str((current_page-1)*rows_per_page+i)]),
             callback_data=PageSettings(
                 pageLevel=PageLevels.teacher_language,
                 lesson_id=lesson_id,  
