@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import URL, create_engine, text
+from sqlalchemy import URL, create_engine, text, and_
 from sqlalchemy.orm import sessionmaker, exc
 
 from config import settingsDB
@@ -81,15 +81,25 @@ class SqlAlchemy:
             .join(LessonsUniversity, Universities.id==LessonsUniversity.id_university)\
             .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
             .join(Teachers, TeachersLessonsUniversity.id_teacher==Teachers.id)\
-            .filter(Teachers.state and Teachers.state_admin).all()
+            .filter(
+                and_(
+                    Teachers.state.is_(True),
+                    Teachers.state_admin.is_(True)
+                )
+            ).all()
 
 
     async def get_lessons_of_university(self, university_id):
         return self.s.query(LessonsUniversity)\
             .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
             .join(Teachers, TeachersLessonsUniversity.id_teacher==Teachers.id)\
-            .filter(LessonsUniversity.id_university==university_id and Teachers.state and Teachers.state_admin)\
-            .all()
+            .filter(
+                and_(
+                    LessonsUniversity.id_university==university_id,
+                    Teachers.state.is_(True),
+                    Teachers.state_admin.is_(True)
+                )
+            ).all()
 
 
     async def get_lesson_of_university(self, lesson_id):
@@ -116,7 +126,12 @@ class SqlAlchemy:
         return self.s.query(LessonsLaguage)\
             .join(TeachersLessonsLanguage, LessonsLaguage.id==TeachersLessonsLanguage.id_lesson)\
             .join(Teachers, TeachersLessonsLanguage.id_teacher==Teachers.id)\
-            .filter(Teachers.state and Teachers.state_admin).all()
+            .filter(
+                and_(
+                    Teachers.state.is_(True),
+                    Teachers.state_admin.is_(True)
+                )
+            ).all()
 
 
     async def get_count_teachers_of_language_lesson(self, lesson_id):
