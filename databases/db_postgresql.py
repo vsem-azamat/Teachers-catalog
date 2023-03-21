@@ -81,14 +81,15 @@ class SqlAlchemy:
             .join(LessonsUniversity, Universities.id==LessonsUniversity.id_university)\
             .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
             .join(Teachers, TeachersLessonsUniversity.id_teacher==Teachers.id)\
-            .filter(Teachers.state and Teachers.state_admin).all()
+            .filter(Teachers.state is True and Teachers.state_admin is True).all()
 
 
     async def get_lessons_of_university(self, university_id):
         return self.s.query(LessonsUniversity)\
             .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
             .join(Teachers, TeachersLessonsUniversity.id_teacher==Teachers.id)\
-            .filter(LessonsUniversity.id_university==university_id and Teachers.state and Teachers.state_admin).all()
+            .filter(LessonsUniversity.id_university==university_id and Teachers.state is True and Teachers.state_admin is True)\
+            .all()
 
 
     async def get_lesson_of_university(self, lesson_id):
