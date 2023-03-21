@@ -49,7 +49,6 @@ async def teachers_of_language_lessons(query: types.CallbackQuery, callback_data
     lesson_id = callback_data.lesson_id
     current_page = callback_data.current_page
     rows_per_page = PageSettings().rows_per_page
-    columns_per_row = PageSettings().columns_per_row
     total_rows = await db.get_count_teachers_of_language_lesson(lesson_id=lesson_id,)
     
     builder = InlineKeyboardBuilder()
@@ -88,7 +87,7 @@ async def teachers_of_language_lessons(query: types.CallbackQuery, callback_data
             current_page = current_page,
             ),
         )
-    builder.adjust(columns_per_row)
+    builder.adjust(rows_per_page)
     builder.row(*buttons_next_back)
     lesson = await db.get_lesson_of_language(lesson_id=lesson_id)
     teachers_of_language_lesson = await db.get_teachers_of_language_lesson(

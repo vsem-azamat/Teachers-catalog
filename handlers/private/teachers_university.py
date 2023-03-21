@@ -89,7 +89,6 @@ async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, c
     university_id = callback_data.university_id
     current_page = callback_data.current_page
     rows_per_page = PageSettings().rows_per_page
-    columns_per_row = PageSettings().columns_per_row
     total_rows = await db.get_count_teachers_of_university_lesson(lesson_id=lesson_id)
 
     builder = InlineKeyboardBuilder()
@@ -135,7 +134,7 @@ async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, c
             rows_per_page = rows_per_page,
             )
     )
-    builder.adjust(columns_per_row)
+    builder.adjust(rows_per_page)
     builder.row(*buttons_next_back)
     lesson = await db.get_lesson_of_university(lesson_id=lesson_id)
     teachers = await db.get_teachers_of_university_lesson(
