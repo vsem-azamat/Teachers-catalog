@@ -23,7 +23,7 @@ BEGIN
 END $$
 LANGUAGE plpgsql;
 
--- SELECT * FROM get_teachers_of_university_lesson(10);
+SELECT * FROM users;
 
 -----------------------------
 -- This Function only for USERS --
@@ -186,3 +186,4 @@ LANGUAGE plpgsql;
 
 --------------------
 -- SELECT * FROM get_teacher_profile(10);
+

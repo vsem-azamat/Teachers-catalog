@@ -97,9 +97,9 @@ async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, c
         current_page=current_page,
         rows_per_page=rows_per_page,
         )
-    for i, teacher in enumerate(teachers):
+    for i, teacher in enumerate(teachers, start=1):
         builder.button(
-            text=''.join([numbers.get(i) for i in str(current_page*rows_per_page+i-1)]),
+            text=''.join([emoji_numbers.get(i) for i in str((current_page-1)*rows_per_page+i)]),
             callback_data=PageSettings(
                 pageLevel=PageLevels.teacher_university,
                 lesson_id=lesson_id,

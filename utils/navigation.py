@@ -7,7 +7,7 @@ from aiogram import types
 from text_assets import TextMenu as tm
 from databases.db_postgresql import db
 
-numbers = {
+emoji_numbers = {
         "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣", 
         "5": "5️⃣", "6": "6️⃣", "7": "7️⃣", "8": "8️⃣", "9": "9️⃣"
         }
@@ -31,7 +31,6 @@ async def determine_navigation(
     if return_button:
         buttons.append(
             types.InlineKeyboardButton(
-                # ДОДЕЛАТЬ МНОГОЯЗЫЧНОСТЬ
                 text="↩️",
                 callback_data=return_button.pack()
             )
@@ -69,8 +68,8 @@ async def teachers_page_text(
     total_rows: int, current_page: int = 1, rows_per_page: int = 3
     ) -> str:
     result = tm.TeachersCategory.text_show_teachers.get(user_language, 'ru') + "{lesson_name}\n\n".format(lesson_name=lesson.name)
-    for i, teacher in enumerate(teachers):    
-        number_emoji = ''.join([numbers.get(i) for i in str(current_page*rows_per_page+i-1)])
+    for i, teacher in enumerate(teachers, start=1):    
+        number_emoji = ''.join([emoji_numbers.get(i) for i in str((current_page-1)*rows_per_page+i)])
         description = await truncate_text(teacher.description, 225, 4)
         text = \
             "{line}\n"\

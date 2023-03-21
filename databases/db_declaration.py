@@ -16,7 +16,7 @@ class Log(Base):
     message = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-
+    
 class Users(Base):
     __tablename__ = 'users'
 
