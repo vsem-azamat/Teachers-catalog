@@ -219,7 +219,7 @@ async def list_universities(query: types.CallbackQuery, callback_data: TeacherSe
     user_language = await db.get_user_language(query.from_user.id)
     text_head = tm.MyTeachersProfile.text_profile_lessons_head.get(user_language, 'ru')
     text = tm.MyTeachersProfile.text_profile_lessons_select.get(user_language, 'ru')
-    rows_per_page = PageSettings().rows_per_page
+    columns_per_row = PageSettings().columns_per_row
     teacher = await db.get_teacher(user_id_tg=query.from_user.id)
     add_lesson = callback_data.add
 
@@ -255,7 +255,7 @@ async def list_universities(query: types.CallbackQuery, callback_data: TeacherSe
                 add = state
             )
         )
-    builder.adjust(rows_per_page)
+    builder.adjust(columns_per_row)
     builder.row(types.InlineKeyboardButton(text='↩️', callback_data=TeacherSettings(pageLevel=TeacherLevels.lessons).pack()))
     await bot.edit_message_text(
         chat_id=query.from_user.id,
@@ -282,8 +282,8 @@ async def list_universities(callback: types.CallbackQuery, bot: Bot):
                 university_id=university.id
             )
         )
-    rows_per_page = PageSettings().rows_per_page
-    builder.adjust(rows_per_page)
+    columns_per_row = PageSettings().columns_per_row
+    builder.adjust(columns_per_row)
     builder.row(types.InlineKeyboardButton(text='↩️', callback_data=TeacherSettings(pageLevel=TeacherLevels.lessons).pack()))
     await bot.edit_message_text(
         chat_id=callback.from_user.id,
@@ -300,7 +300,7 @@ async def list_universities(query: types.CallbackQuery, callback_data: TeacherSe
     user_language = await db.get_user_language(query.from_user.id)
     text_head = tm.MyTeachersProfile.text_profile_lessons_head.get(user_language, 'ru')
     text = tm.MyTeachersProfile.text_profile_lessons_select.get(user_language, 'ru')
-    rows_per_page = PageSettings().rows_per_page
+    columns_per_row = PageSettings().columns_per_row
     university_id = callback_data.university_id
     teacher = await db.get_teacher(user_id_tg=query.from_user.id)
     add_lesson = callback_data.add
@@ -337,7 +337,7 @@ async def list_universities(query: types.CallbackQuery, callback_data: TeacherSe
                 add = state
             )
         )
-    builder.adjust(rows_per_page)
+    builder.adjust(columns_per_row)
     builder.row(
         types.InlineKeyboardButton(
             text='↩️', 

@@ -29,7 +29,8 @@ class PageSettings(CallbackData, prefix='fub'):
     total_pages: int = 0
 
     lesson_catalog:int = 0
-    rows_per_page: int = 2
+    rows_per_page: int = 5
+    columns_per_row: int = 2
     # source: LessonsSource = ''
 
 
