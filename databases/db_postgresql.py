@@ -77,11 +77,15 @@ class SqlAlchemy:
 
     # LESSONS: UNIVERSITY
     async def get_universities(self) -> list:
-        return self.s.query(Universities).all()
+        return self.s.query(Universities)\
+            .join(LessonsUniversity, Universities.id==LessonsUniversity.id_university)\
+            .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson).all()
 
 
     async def get_lessons_of_university(self, university_id):
-        return self.s.query(LessonsUniversity).filter(LessonsUniversity.id_university==university_id).all()
+        return self.s.query(LessonsUniversity)\
+            .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
+            .filter(LessonsUniversity.id_university==university_id).all()
 
 
     async def get_lesson_of_university(self, lesson_id):
@@ -105,7 +109,8 @@ class SqlAlchemy:
     
     # LESSONS: LANGUAGES
     async def get_lessons_languages(self):
-        return self.s.query(LessonsLaguage).all()
+        return self.s.query(LessonsLaguage)\
+            .join(TeachersLessonsLanguage, LessonsLaguage.id==TeachersLessonsLanguage.id_lesson).all()
 
 
     async def get_count_teachers_of_language_lesson(self, lesson_id):
