@@ -115,7 +115,7 @@ class SqlAlchemy:
         return self.s.query(LessonsLaguage)\
             .join(TeachersLessonsLanguage, LessonsLaguage.id==TeachersLessonsLanguage.id_lesson)\
             .join(Teachers, TeachersLessonsLanguage.id_teacher==Teachers.id)\
-            .filter(Teachers.state and Teachers.state_admin).all()
+            .filter(Teachers.state is True and Teachers.state_admin is True).all()
 
 
     async def get_count_teachers_of_language_lesson(self, lesson_id):
