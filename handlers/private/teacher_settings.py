@@ -27,7 +27,6 @@ async def teachers_profile(msg: types.Message, state: FSMContext, callback_data:
         keyboard = None
         # Teacher has USERNAME
         if msg.from_user.username:
-
             teacher_state = teacher.state
             # Update teacher state
             if callback_data and callback_data.state is not None:

@@ -1,4 +1,3 @@
-import re
 import math
 from html import escape
 
@@ -45,22 +44,15 @@ async def determine_navigation(
     return buttons
 
 
-async def truncate_text(text, max_length: int, max_lines: int) -> str:
-    lines = text.splitlines()[:max_lines]
-    truncated_length = sum(len(line) for line in lines)
-    if truncated_length > max_length:
-        last_line = lines[-1] if lines[-1] != '' else lines[-2]
-        truncated_length -= len(last_line)
-        truncated_text = ''
-        for line in lines:
-            if truncated_length + len(line) <= max_length:
-                truncated_text += line + '\n'
-                truncated_length += len(line)
-            else:
-                break
-    else:
-        truncated_text = '\n'.join(lines) + '.....'
-    return truncated_text
+async def truncate_text(text: str, max_length: int, max_lines: int) -> str:
+    lines = text.split('\n')
+    if len(lines) > max_lines:
+        text = '\n'.join(lines[:max_lines]) + '.....'
+        lines = text.split('\n')
+    for i, line in enumerate(lines):
+        if len(line) > max_length:
+            lines[i] = line[:max_length-3] + '.....'
+    return '\n'.join(lines)
 
 
 async def teachers_page_text(
