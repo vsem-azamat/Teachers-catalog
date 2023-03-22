@@ -14,7 +14,7 @@ router = Router()
 
 
 @router.message(Command('test'))
-async def test(msg: types.Message):
+async def test(msg: types.Message, bot: Bot):
     text = "\ntest <b>asd</b>"
     text = '111'
     q = await detect_bad_symbols(text)
