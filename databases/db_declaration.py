@@ -1,24 +1,25 @@
-from sqlalchemy import create_engine, Table,\
+from sqlalchemy import Table, Boolean, DateTime, \
     Column, ForeignKey,\
     Integer, BigInteger,\
-    Text, VARCHAR ,\
-    Boolean, DateTime
+    Text, VARCHAR 
+    
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+
 Base = declarative_base()
 
 
-class Log(Base):
-    __tablename__ = 'logs'
+class Logs(Base):
+    __tablename__ = 'Logs'
     id = Column(Integer, primary_key=True)
     message = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     
 class Users(Base):
-    __tablename__ = 'users'
+    __tablename__ = 'Users'
 
     id = Column(Integer, primary_key=True)
     id_tg = Column(BigInteger, nullable=False, unique=True)
@@ -28,80 +29,82 @@ class Users(Base):
     black_list = Column(Boolean, default=False)
 
 
+# Association Tables
+Teachers_LessonsLanguage = Table(
+    "Teachers_LessonsLanguage",
+    Base.metadata,
+    Column('id_teacher', BigInteger, ForeignKey('Teachers.id_tg'), nullable=False),
+    Column('id_lesson', Integer, ForeignKey('LessonsLanguage.id')),
+)
+
+
+Teachers_LessonsUniversity = Table(
+    "Teachers_LessonsUniversity",
+    Base.metadata,
+    Column('id_teacher', BigInteger, ForeignKey('Teachers.id_tg'), nullable=False),
+    Column('id_lesson', Integer, ForeignKey('LessonsUniversity.id')),
+)
+
+
+LessonsUniversity_Universities = Table(
+    "LessonsUniversity_Universities",
+    Base.metadata,
+    Column('id_lesson_university', Integer, ForeignKey('LessonsUniversity.id')),
+    Column('id_university', Integer, ForeignKey('Universities.id')),
+)
+
+
 class Teachers(Base):
-    __tablename__ = 'teachers'
+    __tablename__ = 'Teachers'
 
     id = Column(Integer, primary_key=True)
-    id_user = Column(Integer, ForeignKey('users.id'), nullable=False, unique=True)
+    id_tg = Column(BigInteger, ForeignKey('Users.id_tg'), nullable=False, unique=True)
     name = Column(Text)
     location = Column(Text)
     description = Column(Text)
     price = Column(Text)
     state = Column(Boolean, default=False)
     state_admin = Column(Boolean, default=True)
+    
+    lesson_university = relationship('LessonsUniversity', secondary=Teachers_LessonsUniversity, back_populates="teacher")
+    lesson_language = relationship('LessonsLanguage', secondary=Teachers_LessonsLanguage, back_populates="teacher")
 
 
 # University Lessons Tables
 class LessonsUniversity(Base):
-    __tablename__ = 'lessons_university'
+    __tablename__ = 'LessonsUniversity'
 
     id = Column(Integer, primary_key=True)
-    id_university = Column(Integer, ForeignKey('universities.id'))
     code = Column(Text)
     name = Column(Text, nullable=False)
 
-
-class TeachersLessonsUniversity(Base):
-    __tablename__ = 'teachers.lessons_university'
-
-    id = Column(Integer, primary_key=True)
-    id_teacher = Column(Integer, ForeignKey('teachers.id'), nullable=False)
-    id_lesson = Column(Integer, ForeignKey('lessons_university.id'))
+    teacher = relationship('Teachers', secondary=Teachers_LessonsUniversity, back_populates='lesson_university')
+    university = relationship('Universities', secondary=LessonsUniversity_Universities, back_populates='lesson_university')
 
 
 class Universities(Base):
-    __tablename__ = 'universities'
+    __tablename__ = 'Universities'
     
     id = Column(Integer, primary_key=True)
     name = Column(Text)
     link_image = Column(Text)
 
+    lesson_university = relationship('LessonsUniversity', secondary=LessonsUniversity_Universities, back_populates='university')
+
 
 # Language Lessons Tables
-class LessonsLaguage(Base):
-    __tablename__ = 'lessons_language'
+class LessonsLanguage(Base):
+    __tablename__ = 'LessonsLanguage'
 
     id = Column(Integer, primary_key=True)
     name = Column(Text, nullable=True)
 
-
-class TeachersLessonsLanguage(Base):
-    __tablename__ = 'teachers.lessons_language'
-
-    id = Column(Integer, primary_key=True)
-    id_teacher = Column(Integer, ForeignKey('teachers.id'), nullable=False)
-    id_lesson = Column(Integer, ForeignKey('lessons_language.id'))
-
-
-# School Lessons Tables
-class LessonsSchool(Base):
-    __tablename__ = 'lessons_school'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(Text, nullable=False)
-
-
-class TeachersLessonsSchool(Base):
-    __tablename__ = 'teachers.lessons_school'
-
-    id = Column(Integer, primary_key=True)
-    id_teacher = Column(Integer, ForeignKey('teachers.id'), nullable=False)
-    id_lesson = Column(Integer, ForeignKey('lessons_school.id'))
+    teacher = relationship('Teachers', secondary=Teachers_LessonsLanguage, back_populates='lesson_language')
 
 
 # Admin Table
 class Admins(Base):
-    __tablename__ = 'admins'
+    __tablename__ = 'Admins'
 
     id = Column(Integer, primary_key=True)
     id_tg = Column(BigInteger, nullable=False)
@@ -109,9 +112,8 @@ class Admins(Base):
 
 
 class Chats(Base):
-    __tablename__ = 'chats'
+    __tablename__ = 'Chats'
 
     id = Column(Integer, primary_key=True)
     name = Column(Text)
     link = Column(Text)
-
