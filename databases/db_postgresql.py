@@ -1,35 +1,39 @@
-from typing import Optional
+from typing import Optional, Union, List
 
-from sqlalchemy import URL, create_engine, text, and_
-from sqlalchemy.orm import sessionmaker, exc
+from sqlalchemy import URL, create_engine, text, and_, union_all, func, select
+from sqlalchemy.orm import sessionmaker, exc, configure_mappers, joinedload, Query
+
 
 from config import settingsDB
 from .db_declaration import *
 
+
 class SqlAlchemy:
-    def __init__(self):
+    def __init__(self) -> None:
         self.url_object = URL.create(
-            "postgresql+pg8000",
+            drivername="postgresql+pg8000",
             username=settingsDB.USERNAME,
             password=settingsDB.PASSWORD,
             host=settingsDB.HOST,
             database=settingsDB.DATABASE,
         )
         self.engine = create_engine(self.url_object, client_encoding='utf8')
-        Base.metadata.create_all(self.engine)
+        self.conn = self.engine.connect()
+        Base.metadata.create_all(self.engine, checkfirst=True)
         self.session = sessionmaker(bind=self.engine)
         self.s = self.session()
-        self.conn = self.engine.connect()
+    
+    
+    def update_db(self):
+        configure_mappers()
 
 
-    def conv_dict(self, query) -> dict:
-        """
-        Converts the query result to a dict
-        """
-        return [dict(i) for i in query][0]
+    def drop_all(self):
+        Base.metadata.drop_all(self.engine)
+        Base.metadata.create_all(self.engine)
 
-
-    async def check_exists(self, id_tg: int, login: str) -> bool:
+ 
+    async def check_exists(self, id_tg: int, login: Optional[str] = None) -> bool:
         user = self.s.query(Users).filter(Users.id_tg == id_tg).first()
         if user:
             user.login = login
@@ -38,222 +42,271 @@ class SqlAlchemy:
             user = Users(
                 id_tg=id_tg,
                 login=login,
-                )
+            )
             self.s.add(user)
-            self.conn.commit()
+            self.s.commit()
         return user
-
-            
-    async def execute(self, sql):
-        return self.conn.execute(sql)
-
+    
  
-    async def get_user_language(self, id_tg):
+    async def get_user_language(self, id_tg: int) -> Optional[Union[str, bool]]:
         try:
-            return self.s.query(Users.language).filter(Users.id_tg == id_tg).first()[0]
-        except TypeError:
+            return self.s.query(Users).filter(Users.id_tg == id_tg).first().language
+        except AttributeError:
             return False
 
 
-    async def update_user_lang(self, id_tg, user_language) -> None:
+    # rewrite!
+    async def update_user_lang(self, id_tg, user_language: str) -> None:
         self.s.query(Users).filter(Users.id_tg==id_tg).update({'language': user_language})
         self.s.commit()
 
 
-    async def get_all_lessons(self, current_page: int = 0, rows_per_page: int = 0, exclude_null_teachers: bool = False):
-        data = {'current_page': 0+rows_per_page*(current_page-1), 'rows': rows_per_page, 'exclude_null_teachers': exclude_null_teachers}
-        interval = ""
-        if current_page and rows_per_page:
-            interval = "OFFSET :current_page LIMIT :rows"
-        sql = text('SELECT * FROM get_all_lessons(:exclude_null_teachers) ' + interval)
-        return self.conn.execute(sql, data)
-    
+    # rewrite which use this method
+    async def get_all_lessons(self, current_page: Optional[int] = False, rows_per_page: Optional[int] = False, exclude_null_teachers: bool = False):
+        """
+        Retrieves all lessons based on the provided parameters.
 
-    async def get_count_all_lessons(self, exclude_null_teachers: Optional[bool] = False):
-        data = {'exclude_null_teachers': exclude_null_teachers}
-        sql = text("SELECT get_count_all_lessons(:exclude_null_teachers);")
-        return self.conn.execute(sql, data).fetchone()[0]
+        Parameters:
+        - current_page (int): The current page number of the results. Defaults to 0.
+        - rows_per_page (int): The number of rows per page. Defaults to 0.
+        - exclude_null_teachers (bool): Flag indicating whether to exclude lessons with null teachers. Defaults to False.
+
+        Returns:
+        - data (dict): A dictionary containing the retrieved lesson data.
+            - 'id' (int): The ID of the lesson.
+            - 'name' (str): The name of the lesson.
+            - 'code' (str): The code of the lesson.
+            - 'link_image' (str): The link to the image associated with the lesson/university/type.
+            - 'id_university' (int): The ID of the university offering the lesson.
+            - 'name_university' (str): The name of the university offering the lesson.
+            - 'source' (str): The source of the lesson (e.g., 'university' or 'languages, etc.').
+        """
+        all_lessons = []
+        
+        lessons_university  = self.s.query(LessonsUniversity)
+        all_lessons.extend(lessons_university)
+        
+        lessons_language = self.s.query(LessonsLanguage)
+        all_lessons.extend(lessons_language)
+        
+        if exclude_null_teachers:
+            all_lessons = [
+                lesson for lesson in all_lessons 
+                    if lesson.teacher and lesson.teacher[0].state and lesson.teacher[0].state_admin
+                ]
+
+        if current_page and rows_per_page:
+            current_page = rows_per_page*(current_page-1)
+            all_lessons = all_lessons[current_page:current_page+rows_per_page]
+        
+        return all_lessons
+
+
+    async def get_count_all_lessons(self, exclude_null_teachers: Optional[bool] = False) -> int:
+        lessons_university = self.s.query(func.count(LessonsUniversity.id))
+        lessons_language = self.s.query(func.count(LessonsUniversity.id))
+                
+        if exclude_null_teachers:
+            lessons_university = lessons_university.join(LessonsUniversity.teacher).filter(
+                and_(
+                    Teachers.state.is_(True),
+                    Teachers.state_admin.is_(True)
+                )
+            )
+            lessons_language = lessons_language.join(LessonsUniversity.teacher).filter(
+                and_(
+                    Teachers.state.is_(True),
+                    Teachers.state_admin.is_(True)
+                )
+            )
+        count_lessons_university = lessons_university.scalar()
+        count_lessons_language = lessons_language.scalar()
+
+        return count_lessons_university + count_lessons_language
 
 
     # LESSONS: UNIVERSITY
-    async def get_universities(self) -> list:
-        return self.s.query(Universities)\
-            .join(LessonsUniversity, Universities.id==LessonsUniversity.id_university)\
-            .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
-            .join(Teachers, TeachersLessonsUniversity.id_teacher==Teachers.id)\
-            .filter(
-                and_(
-                    Teachers.state.is_(True),
-                    Teachers.state_admin.is_(True)
-                )
-            ).all()
+    async def get_universities(self, exclude_null_teachers: Optional[bool] = False) -> Query[Universities]:
+        universities = self.s.query(Universities)
+        if exclude_null_teachers:
+            universities = universities\
+                .join(LessonsUniversity.university)\
+                .join(Teachers_LessonsUniversity)\
+                .join(Teachers)\
+                    .filter(
+                        and_(
+                            Teachers.state.is_(True),
+                            Teachers.state_admin.is_(True)
+                        )
+                    )
+        return universities
+            
 
-
-    async def get_lessons_of_university(self, university_id):
-        return self.s.query(LessonsUniversity)\
-            .join(TeachersLessonsUniversity, LessonsUniversity.id==TeachersLessonsUniversity.id_lesson)\
-            .join(Teachers, TeachersLessonsUniversity.id_teacher==Teachers.id)\
-            .filter(
-                and_(
-                    LessonsUniversity.id_university==university_id,
-                    Teachers.state.is_(True),
-                    Teachers.state_admin.is_(True)
+    async def get_lessons_of_university(self, university_id: int, exclude_null_teachers: Optional[bool] = False) -> Query[LessonsUniversity]:
+        lessons = self.s.query(LessonsUniversity)\
+            .join(LessonsUniversity_Universities)\
+            .join(Universities)\
+            .filter(Universities.id==university_id)
+        if exclude_null_teachers:
+            lessons = lessons\
+                .join(Teachers_LessonsUniversity)\
+                .join(Teachers)\
+                .filter(
+                    and_(
+                        Teachers.state.is_(True),
+                        Teachers.state_admin.is_(True)
+                    )
                 )
-            ).all()
+        return lessons
 
 
     async def get_lesson_of_university(self, lesson_id):
         return self.s.query(LessonsUniversity).filter(LessonsUniversity.id==lesson_id).first()
 
 
-    async def get_count_teachers_of_university_lesson(self, lesson_id):
-        data = {'lesson_id': lesson_id}
-        sql = text('SELECT get_count_teachers_of_university_lesson(:lesson_id)')
-        return self.conn.execute(sql, data).fetchone()[0]
- 
-
-    async def get_teachers_of_university_lesson(self, lesson_id: int, current_page: int = 0, rows_per_page: int = 0):
-        data = {'lesson_id': lesson_id, 'current_page': 0+rows_per_page*(current_page-1), 'rows': rows_per_page}
-        interval = ""
+    async def get_teachers_of_university_lesson(self, lesson_id: int, current_page: Optional[int] = False, rows_per_page: Optional[int] = 0, 
+        exclude_null_teachers: Optional[bool] = False) -> Query[Teachers]:
+        teachers = self.s.query(Teachers)\
+            .join(Teachers_LessonsUniversity)\
+            .join(LessonsUniversity)\
+            .filter(LessonsUniversity.id==lesson_id)
+            
+        if exclude_null_teachers:
+            teachers.filter(
+                and_(
+                    Teachers.state,
+                    Teachers.state_admin
+                )
+            )
+        
         if current_page and rows_per_page:
-            interval = "OFFSET :current_page LIMIT :rows"
-        sql = text("SELECT * FROM get_teachers_of_university_lesson(:lesson_id) " + interval)
-        return self.conn.execute(sql, data)
+            current_page = rows_per_page*(current_page-1)
+            teachers = teachers[current_page:current_page+rows_per_page]
+        
+        return teachers
 
     
     # LESSONS: LANGUAGES
-    async def get_lessons_languages(self):
-        return self.s.query(LessonsLaguage)\
-            .join(TeachersLessonsLanguage, LessonsLaguage.id==TeachersLessonsLanguage.id_lesson)\
-            .join(Teachers, TeachersLessonsLanguage.id_teacher==Teachers.id)\
-            .filter(
-                and_(
-                    Teachers.state.is_(True),
-                    Teachers.state_admin.is_(True)
+    async def get_lessons_of_languages(self, exclude_null_teachers: Optional[bool] = False) -> Query[LessonsLanguage]:
+        lessons = self.s.query(LessonsLanguage)
+        if exclude_null_teachers:
+            lessons = lessons\
+                .join(Teachers_LessonsLanguage)\
+                .join(Teachers)\
+                .filter(
+                    and_(
+                        Teachers.state.is_(True),
+                        Teachers.state_admin.is_(True)
+                    )
                 )
-            ).all()
-
-
-    async def get_count_teachers_of_language_lesson(self, lesson_id):
-        data = {'lesson_id': lesson_id}
-        sql = text('SELECT get_count_teachers_of_language_lesson(:lesson_id)')
-        return self.conn.execute(sql, data).fetchone()[0]
-
-
-    async def get_teachers_of_language_lesson(self, lesson_id: int, current_page: int, rows_per_page: int):
-        data = {'lesson_id': lesson_id, 'current_page': 0+rows_per_page*(current_page-1), 'rows': rows_per_page}
-        sql = text("SELECT * FROM get_teachers_of_language_lesson(:lesson_id) OFFSET :current_page LIMIT :rows")
-        return self.conn.execute(sql, data)
-
+        return lessons
     
-    async def get_lesson_of_language(self, lesson_id: int):
-        return self.s.query(LessonsLaguage).filter(LessonsLaguage.id==lesson_id).first()
 
-
-    async def get_teacher_profile(self, teacher_id: int = 0, user_id_tg: int = 0):
-        if teacher_id:
-            data = {'teacher_id': teacher_id}
-            sql = text('SELECT * FROM get_teacher_profile(:teacher_id)')
-        elif user_id_tg:
-            try:
-                teacher = await self.get_teacher(user_id_tg=user_id_tg)
-                data = {'teacher_id': teacher.id}
-                sql = text('SELECT * FROM get_teacher_profile(:teacher_id)')
-            except AttributeError:
-                return False
-        teacher = self.conn.execute(sql, data).fetchone()
-        if teacher:
-            return teacher
-        return False
-    
-    
-    # TEACHER SETTINGS
-    async def get_teacher(self, user_id_tg: int):
-        return self.s.query(Teachers).join(Users, Users.id==Teachers.id_user).filter(Users.id_tg==user_id_tg).first()
-
-    
-    async def add_teacher_profile(self, id_tg: int, **update_fields):
-        user = self.s.query(Users).filter(Users.id_tg==id_tg).first()
-        teacher = await db.get_teacher(user_id_tg=id_tg)
-        # Update old teacher
-        if teacher:
-            setattr(teacher, 'id_user', user.id)
-            for field, value in update_fields.items():
-                setattr(teacher, field, value)
-        # Add new teacher
-        else:
-            teacher = Teachers(
-                id_user=user.id,
-                **update_fields
+    async def get_teachers_of_language_lesson(self, lesson_id: int, current_page: Optional[int] = False, rows_per_page: Optional[int] = 0, 
+        exclude_null_teachers: Optional[bool] = False) -> Query[Teachers]:
+        teachers = self.s.query(Teachers)\
+            .join(Teachers_LessonsLanguage)\
+            .join(LessonsLanguage)\
+            .filter(LessonsLanguage.id==lesson_id)
+        
+        if exclude_null_teachers:
+            teachers.filter(
+                and_(
+                    Teachers.state,
+                    Teachers.state_admin
+                )
             )
-        self.s.merge(teacher)
+        
+        if current_page and rows_per_page:
+            current_page = rows_per_page*(current_page-1)
+            teachers = teachers[current_page:current_page+rows_per_page]
+        
+        return teachers
+
+    
+    async def get_lesson_of_language(self, lesson_id: int) -> LessonsLanguage:
+        return self.s.query(LessonsLanguage).filter(LessonsLanguage.id==lesson_id).first()
+
+
+    # TEACHER
+    async def get_teacher(self, teacher_id_tg: int = 0) -> Teachers:
+        return self.s.query(Teachers).filter(Teachers.id_tg==teacher_id_tg).first()
+    
+
+    # TEACHER SETTINGS
+    # async def add_teacher_profile(self, id_tg: int, **update_fields):
+        # user: Users = self.s.query(Users).filter(Users.id_tg==id_tg).first()
+        # teacher = await db.get_teacher(teacher_id_tg=id_tg)
+        # # Update old teacher
+        # if teacher:
+        #     setattr(teacher, 'id_user', user.id)
+        #     for field, value in update_fields.items():
+        #         setattr(teacher, field, value)
+        # # Add new teacher
+        # else:
+        #     teacher = Teachers(
+        #         id_user=user.id,
+        #         **update_fields
+        #     )
+        # self.s.merge(teacher)
+        # self.s.commit()
+        # return teacher
+        
+    async def update_teacher_profile(self, id_tg: int, teacher_object: Teachers) -> Teachers:
+        teacher = await self.get_teacher(teacher_id_tg=id_tg)
+        self.s.merge(teacher_object)
         self.s.commit()
         return teacher
 
+    
+    # I THINK IT CAN BE REPLACED WITH ANOTHER METHOD: get_teacher
+    # async def get_lessons_id_of_teacher(self, teacher_id_tg: int, table_name: Optional[str] = None):  
+    #     if table_name == "TeachersLessonsLanguage":
+    #         table = Teachers_LessonsLanguage
+    #     elif table_name == "TeachersLessonsUniversity":
+    #         table = Teachers_LessonsUniversity
+    #     else:
+    #         raise ValueError(f"Invalid table name: {table_name}")
 
-    async def get_lessons_id_of_teacher(self, table_name: str, teacher_id: int = 0, user_id_tg: int = 0):
-        
-        if table_name == "TeachersLessonsLanguage":
-            table = TeachersLessonsLanguage
-        elif table_name == "TeachersLessonsUniversity":
-            table = TeachersLessonsUniversity
-
-        if table is None:
-            raise ValueError(f"Invalid table name: {table_name}")
-
-
-        if not teacher_id:
-            try:
-                teacher = await self.get_teacher(user_id_tg=user_id_tg)
-                teacher_id = teacher.id
-            except AttributeError:
-                return False
-        else:
-            return self.s.query(table).filter(table.id_teacher==teacher_id).all()
-        return False
+    #     return self.s.query(table).filter(table.id_teacher==teacher_id).all()
 
               
-    async def add_lessons_to_teacher(self, table_name: str, teacher_id: int, lesson_id: int, add: bool = True):
+    async def add_lessons_to_teacher(self, teacher_id_tg: int, table_name: str, lesson_id: int, add: bool = True) -> None:
         """
         add: bool
             True  - add row
             False - delete row
         """
-        table = None
-        if table_name == "TeachersLessonsLanguage":
-            table = TeachersLessonsLanguage
-        elif table_name == "TeachersLessonsUniversity":
-            table = TeachersLessonsUniversity
+        teacher = await self.get_teacher(teacher_id_tg=teacher_id_tg)
 
-        if table is None:
+        if table_name == "TeachersLessonsLanguage":
+            lesson = self.s.query(LessonsLanguage).filter(LessonsLanguage.id==lesson_id).first()
+            if add:
+                teacher.lesson_language.append(lesson)
+            else:  
+                teacher.lesson_language.remove(lesson)
+        elif table_name == "TeachersLessonsUniversity":
+            lesson = self.s.query(LessonsUniversity).filter(LessonsUniversity.id==lesson_id).first()
+            if add:
+                teacher.lesson_university.append(lesson)
+            else:
+                teacher.lesson_university.remove(lesson)
+                
+        else: 
             raise ValueError(f"Invalid table name: {table_name}")
 
-        lesson = self.s.query(table).filter(table.id_teacher == teacher_id, table.id_lesson == lesson_id).first()    
-
-        # Add lesson from teacher profile
-        if lesson is None and add:
-            lesson = table(
-                id_teacher = teacher_id,
-                id_lesson = lesson_id,
-            )
-            self.s.merge(lesson)
-        # Delete lesson from teacher profile
-        else:
-            try:
-                self.s.delete(lesson)
-            except exc.UnmappedInstanceError:
-                return
-        self.s.commit()
-
-    async def teacher_state_update(self, teacher_id: int, state: bool):
-        self.s.query(Teachers).filter(Teachers.id==teacher_id).update({'state': state})
+        self.s.merge(teacher)
         self.s.commit()
 
 
-    async def get_chats(self):
+    async def teacher_state_update(self, teacher_id_tg: int, state: bool) -> None:
+        teacher = Teachers(id_tg=teacher_id_tg, state=state)
+        self.s.merge(teacher)
+        self.s.commit()
+
+
+    async def get_chats(self) -> List[Chats]:
         return self.s.query(Chats).all()
-    
-
 
 
 db = SqlAlchemy()
