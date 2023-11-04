@@ -4,7 +4,7 @@
 .idea
 .gitignore
 .vscode
-
+test*.py
 venv
 test_db.py
 
