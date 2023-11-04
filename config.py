@@ -1,25 +1,20 @@
-import os
-from dotenv import load_dotenv
+from decouple import config
 
-load_dotenv()
 
 class Settings:
-    BOT_TOKEN: str = str(os.getenv('BOT_TOKEN'))
-    ADMINS: list[int] = [int(id_admin) for id_admin in os.getenv('ADMINS').split(',')]
+    BOT_TOKEN = config('BOT_TOKEN', cast=str)
 
-    class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
+    try:
+        __ADMINS = config('ADMINS', cast=str).split(',')
+        ADMINS = [int(admin) for admin in __ADMINS if admin.isdigit()]
+    except:
+        ADMINS = []
 
 class SettingsDB:
-    USERNAME: str = str(os.getenv('USERNAME'))
-    PASSWORD: str = str(os.getenv('PASSWORD'))
-    HOST: str = str(os.getenv('HOST'))
-    DATABASE: str = str(os.getenv('DATABASE'))
-
-    class Config:
-        env_file = '.env'
-        env_file_encoding = 'utf-8'
+    USERNAME = config('USERNAME')
+    PASSWORD = config('PASSWORD')
+    HOST = config('HOST')
+    DATABASE = config('DATABASE')
 
 
 settings = Settings()
