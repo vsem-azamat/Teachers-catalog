@@ -4,7 +4,7 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardBut
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, \
     InlineKeyboardBuilder
 
-from utils.callback_factory import PageLevels, PageSettings, TeacherLevels, TeacherSettings
+from bot.utils.callback_factory import PageLevels, PageSettings, TeacherLevels, TeacherSettings
 
 @dataclass
 class TextMenu:

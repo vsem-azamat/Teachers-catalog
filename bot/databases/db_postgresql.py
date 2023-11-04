@@ -4,8 +4,8 @@ from sqlalchemy import URL, create_engine, text, and_, union_all, func, select
 from sqlalchemy.orm import sessionmaker, exc, configure_mappers, joinedload, Query
 
 
-from config import settingsDB
-from databases.db_declaration import *
+from bot.config import settingsDB
+from bot.databases.db_declaration import *
 
 
 class SqlAlchemy:

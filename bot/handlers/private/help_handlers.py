@@ -1,9 +1,9 @@
 from aiogram import Router, types
 from aiogram.utils.keyboard import InlineKeyboardBuilder 
 
-from databases.db_postgresql import db
+from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
-from utils.filters import ShowChatsFilter, AboutUsFilter
+from bot.utils.filters import ShowChatsFilter, AboutUsFilter
 
 router = Router()
 

@@ -4,11 +4,11 @@ from aiogram import Router, types, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-from databases.db_postgresql import db
+from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
-from utils.states import TeacherRegistration
-from utils.navigation import *
-from utils.callback_factory import *
+from bot.utils.states import TeacherRegistration
+from bot.utils.navigation import *
+from bot.utils.callback_factory import *
 
 router = Router()
 

@@ -2,7 +2,7 @@ import logging
 import asyncio
 from aiogram import Bot, Dispatcher
 
-from handlers import main_router
+from bot.handlers import main_router
 from bot.config import settings
 
 
@@ -31,7 +31,6 @@ async def main() -> None:
 
     finally:
         await bot.session.close()
-
 
 
 if __name__ == "__main__":

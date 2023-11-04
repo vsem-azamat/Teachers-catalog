@@ -2,11 +2,11 @@ from aiogram import Router, types, F, Bot
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from databases.db_postgresql import db
+from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
 
-from utils.callback_factory import *
-from utils.navigation import *
+from bot.utils.callback_factory import *
+from bot.utils.navigation import *
 
 router = Router()
 

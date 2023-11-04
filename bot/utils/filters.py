@@ -2,8 +2,8 @@ from typing import Union
 
 from aiogram import types, Bot
 from aiogram.filters import BaseFilter
-from databases.db_postgresql import db
 
+from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
 
 

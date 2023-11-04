@@ -6,9 +6,9 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from html import escape
 
 
-from databases.db_postgresql import db
+from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
-from utils.navigation import detect_bad_symbols
+from bot.utils.navigation import detect_bad_symbols
 
 router = Router()
 

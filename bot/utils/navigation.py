@@ -4,7 +4,7 @@ from html import escape
 from aiogram import types
 
 from bot.text_assets import TextMenu as tm
-from databases.db_postgresql import db
+from bot.databases.db_postgresql import db
 
 emoji_numbers = {
         "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣", 

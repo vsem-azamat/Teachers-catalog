@@ -2,9 +2,9 @@ from aiogram import Router, types, Bot, F
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from databases.db_postgresql import db
-from utils.navigation import *
-from utils.callback_factory import AdminLevels, AdminSettings
+from bot.databases.db_postgresql import db
+from bot.utils.navigation import *
+from bot.utils.callback_factory import AdminLevels, AdminSettings
 
 router = Router()
 

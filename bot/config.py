@@ -11,10 +11,11 @@ class Settings:
         ADMINS = []
 
 class SettingsDB:
-    USERNAME = config('USERNAME')
-    PASSWORD = config('PASSWORD')
-    HOST = config('HOST')
-    DATABASE = config('DATABASE')
+    USERNAME = config('DB_USERNAME')
+    PASSWORD = config('DB_PASSWORD')
+    HOST = config('DB_HOST')
+    DATABASE = config('DB_DATABASE')
+    PORT = config('DB_PORT', cast=int, default=5432)
 
 
 settings = Settings()

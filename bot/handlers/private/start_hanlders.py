@@ -3,11 +3,11 @@ from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-from databases.db_postgresql import db
+from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
-from utils.states import SelectLanguage
-from utils.filters import FindTeachersFilter
-from utils.callback_factory import *
+from bot.utils.states import SelectLanguage
+from bot.utils.filters import FindTeachersFilter
+from bot.utils.callback_factory import *
 
 router = Router()
 

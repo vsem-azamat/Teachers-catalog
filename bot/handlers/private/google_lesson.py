@@ -6,10 +6,10 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types.input_text_message_content import InputTextMessageContent
 
 
-from databases.db_postgresql import db
+from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
-from utils.callback_factory import PageSettings, PageLevels
-from utils.navigation import *
+from bot.utils.callback_factory import PageSettings, PageLevels
+from bot.utils.navigation import *
 
 router = Router()
 
