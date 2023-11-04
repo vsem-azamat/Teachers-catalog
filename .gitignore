@@ -1,8 +1,9 @@
-
+# Custom
 .fleet
 .env
 .idea
 .gitignore
+.vscode
 
 venv
 test_db.py
