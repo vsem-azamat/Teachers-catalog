@@ -1,10 +1,13 @@
 import math
 from html import escape
+from dataclasses import dataclass, field
+from typing import Union, List
 
 from aiogram import types
 
 from bot.text_assets import TextMenu as tm
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import *
 
 emoji_numbers = {
         "0": "0️⃣", "1": "1️⃣", "2": "2️⃣", "3": "3️⃣", "4": "4️⃣", 
@@ -137,3 +140,19 @@ async def detect_bad_symbols(text: str):
     bad_symbols = ['`', '[', ']', '~', '#', '+', '=', '|', '{', '}', '<', '>', ':']
     return any(char in text for char in bad_symbols)
 
+
+@dataclass
+class TeachersCatalog:
+    lesson: Union[LessonsUniversity, LessonsLanguage]
+    teachers: List[Teachers]
+    
+    current_page: int = 1
+    rows_per_page: int = 3
+    total_rows: int = 1
+
+    user_language: str = 'ru'
+    
+
+
+async def teachers_catalog():
+    pass

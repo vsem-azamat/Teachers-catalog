@@ -11,6 +11,7 @@ from bot.utils.callback_factory import *
 
 router = Router()
 
+
 @router.message(Command('language', prefix='!/'))
 @router.message(CommandStart(deep_link=False))
 async def menu_start_command(msg: types.Message, state: FSMContext, command: types.BotCommand):
@@ -19,7 +20,7 @@ async def menu_start_command(msg: types.Message, state: FSMContext, command: typ
     command_text = command.command
     # Old user
     if user.language and not command_text == 'language':
-        user_language = user.language
+        user_language = str(user.language)
         text = tm.MainMenu.text_main_menu.get(user_language, 'ru')
         keyboard = tm.MainMenu.kb_main_menu(user_language)
 
@@ -31,7 +32,7 @@ async def menu_start_command(msg: types.Message, state: FSMContext, command: typ
             user_language = msg.from_user.language_code
             user_language = 'ru' # DEBUG
             if user_language not in tm.FirstStart.td_languages.keys(): user_language = 'ru'
-            await db.update_user_lang(id_tg=user_id_tg, user_language=user_language)
+            await db.update_user_language(id_tg=user_id_tg, user_language=user_language)
         
         text = tm.FirstStart.text_first_select_language.get(user_language, 'ru')
 
@@ -64,7 +65,7 @@ async def set_user_language(msg: types.Message, state: FSMContext):
 
     # Correct Answer. Set `new_user_lang`s
     else:
-        await db.update_user_lang(id_tg=msg.from_user.id, user_language=new_user_lang)
+        await db.update_user_language(id_tg=msg.from_user.id, user_language=new_user_lang)
         await state.clear()
         text = tm.FirstStart.text_end_select_language.get(new_user_lang, 'ru')
         keyboard = tm.MainMenu.kb_main_menu(new_user_lang)

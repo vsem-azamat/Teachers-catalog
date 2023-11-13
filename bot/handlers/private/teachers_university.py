@@ -89,7 +89,6 @@ async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, c
     university_id = callback_data.university_id
     current_page = callback_data.current_page
     rows_per_page = PageSettings().rows_per_page
-    total_rows = await db.get_count_teachers_of_university_lesson(lesson_id=lesson_id)
 
     builder = InlineKeyboardBuilder()
     teachers = await db.get_teachers_of_university_lesson(
@@ -97,6 +96,8 @@ async def teachers_of_university_lessons(query: types.CallbackQuery, bot: Bot, c
         current_page=current_page,
         rows_per_page=rows_per_page,
         )
+    total_rows = len(teachers.all())
+    
     for i, teacher in enumerate(teachers, start=1):
         builder.button(
             text=''.join([emoji_numbers.get(i) for i in str((current_page-1)*rows_per_page+i)]),

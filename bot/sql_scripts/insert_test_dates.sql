@@ -1,5 +1,5 @@
 -- USERS
-INSERT INTO users(id, id_tg, start_time, language)
+INSERT INTO "Users"(id, id_tg, start_time, language)
 VALUES
     (10, 11111, current_timestamp, 'ru'),
     (20, 22222, current_timestamp, 'en'),
@@ -11,26 +11,30 @@ VALUES
     (80, 88888, current_timestamp, 'ru'),
     (90, 99999, current_timestamp, 'ru');
 
-SELECT * FROM users;
+SELECT * FROM "Users";
 
 -- TEACHERS
-INSERT INTO teachers(id, id_user, name, description, location, price, state)
+INSERT INTO "Teachers"(id, id_tg, name, description, location, price, state)
 VALUES
-    (10, 10, 'Azamat', 'Занимаюсь подготовкой учеников к сдаче экзаменов, в том числе и международных. У меня много материалов и тестов для подготовки, а также различные интересные методы обучения.',
+    (10, 11111, 'Azamat', 'Занимаюсь подготовкой учеников к сдаче экзаменов, в том числе и международных. У меня много материалов и тестов для подготовки, а также различные интересные методы обучения.',
      'Praha, Skype', '100', TRUE),
-    (20, 20, 'Vanya', 'Я занимаюсь репетиторством уже более 5 лет и за это время помог многим ученикам достичь успеха в учебе. Я предлагаю индивидуальный подход и гибкий график занятий.',
+    (20, 22222, 'Vanya', 'Я занимаюсь репетиторством уже более 5 лет и за это время помог многим ученикам достичь успеха в учебе. Я предлагаю индивидуальный подход и гибкий график занятий.',
      'Discord', '200', TRUE),
-    (30, 30, 'Sasha', 'Я выпускник лучшего ВУЗа страны и знаю, как достичь успеха в учебе. Мой подход основан на понимании материала и его применении на практике, что позволяет быстро и эффективно улучшить знания.',
+    (30, 33333, 'Sasha', 'Я выпускник лучшего ВУЗа страны и знаю, как достичь успеха в учебе. Мой подход основан на понимании материала и его применении на практике, что позволяет быстро и эффективно улучшить знания.',
      'Brno', '300', TRUE),
-    (40, 40, 'Anya', 'Я люблю свою работу и стараюсь подходить к каждому ученику индивидуально. У меня много интересных методик и материалов для обучения, которые помогут достичь успеха в учебе и жизни.',
+    (40, 44444, 'Anya', 'Я люблю свою работу и стараюсь подходить к каждому ученику индивидуально. У меня много интересных методик и материалов для обучения, которые помогут достичь успеха в учебе и жизни.',
      'OLOMOUC', '400', TRUE),
-    (50, 50, 'Katya', 'Я профессиональный репетитор с большим опытом работы. Владею различными методиками и стратегиями обучения, помогу с улучшением знаний и успехами в учебе.',
-     'Praha', '500', TRUE);
+    (50, 55555, 'Katya', 'Я профессиональный репетитор с большим опытом работы. Владею различными методиками и стратегиями обучения, помогу с улучшением знаний и успехами в учебе.',
+     'Praha', '500', False),
+    (60, 66666, 'Azamat', 'Занимаюсь подготовкой учеников к сдаче экзаменов, в том числе и международных. У меня много материалов и тестов для подготовки, а также различные интересные методы обучения.',
+     'Praha, Skype', '100', TRUE);
 
-SELECT * FROM teachers;
 
+SELECT * FROM "Teachers";
+
+-- LESSONS OF UNIVERSITY AND TEACHERS INSERTS
 -- Universities
-INSERT INTO universities(name)
+INSERT INTO "Universities"(name)
 VALUES
     ('ČVUT'),
     ('UK'),
@@ -38,80 +42,83 @@ VALUES
     ('ČZU'),
     ('VUT');
 
-SELECT * FROM universities;
+SELECT * FROM "Universities";
 
--- Lessons of Universities
-INSERT INTO lessons_university(id, id_university, code, name)
+-- Lessons of University
+INSERT INTO "LessonsUniversity"(id, code, name)
 VALUES
-    (10, 10, '221023', 'Механика'),
-    (20, 20, NULL, 'DZO'),
-    (30, 30, '2A54D4', 'HUI'),
-    (40, 40, 'CODE', 'PPO'),
-    (50, 50, NULL, 'DML'),
-    (60, 10, '221025', 'Динамика'),
-    (70, 10, '221026', 'МатАнализ'),
-    (80, 10, '221027', 'Физика'),
-    (90, 10, '221028', 'Термомеханика');
+    (10, '221023', 'Механика'),
+    (20, NULL, 'DZO'),
+    (30, '2A54D4', 'HUI'),
+    (40, 'CODE', 'PPO'),
+    (50, NULL, 'DML'),
+    (60, '221025', 'Динамика'),
+    (70, '221026', 'МатАнализ'),
+    (80, '221027', 'Физика'),
+    (90, '221028', 'Термомеханика'),
+    (100, '221029', 'Математика'),
+    (110, 'FY1', 'FY1');
 
-SELECT * FROM lessons_university;
+SELECT * FROM "LessonsUniversity";
 
--- Lessons of Applicants
-INSERT INTO lessons_school(id, name)
+-- Connections of Lessons and Universities
+INSERT INTO "Teachers_LessonsUniversity"(id_teacher, id_lesson)
 VALUES
-    (10, 'mathematics'),
-    (20, 'history'),
-    (30, 'informatics'),
-    (40, 'english'),
-    (50, 'geography'),
-    (60, 'biology');
+    (11111, 10),
+    (11111, 60),
+    (11111, 70),
+    (11111, 90),
+    (22222, 10),
+    (33333, 10),
+    (22222 ,20),
+    (22222, 50),
+    (44444, 10),
+    (55555, 30);
 
-SELECT * FROM lessons_school;
+SELECT * FROM "Teachers_LessonsUniversity";
 
---
-INSERT INTO "teachers.lessons_university"(id, id_teacher, id_lesson)
+-- Connections of Lessons and Universities
+INSERT INTO "LessonsUniversity_Universities"(id_lesson_university, id_university)
 VALUES
-    (10, 10, 10),
-    (20, 10, 60),
-    (30, 10, 70),
-    (40, 10, 90),
-    (50, 20, 10),
-    (60, 30, 10),
-    (70, 20 ,20),
-    (80, 20, 50),
-    (90, 40, 10),
-    (100, 50, 30);
+    (10, 1),
+    (20, 2),
+    (30, 1),
+    (40, 3),
+    (50, 1);
 
-SELECT * FROM "teachers.lessons_university";
--- DELETE FROM "teachers.lessons_univ" WHERE id!=0;
----------------------------
+SELECT * FROM "LessonsUniversity_Universities";
 
--- Lessons of Languages
-INSERT INTO lessons_language
+-------------------------------------------
+
+-- LESSONS OF LANGUAGE AND TEACHERS INSERTS
+-- Lessons of Language
+INSERT INTO "LessonsLanguage"
 VALUES
     (10, 'English'),
     (20, 'Spain'),
     (30, 'German'),
     (40, 'Czech'),
     (50, 'Russian'),
-    (60, 'Slovak');
---
-INSERT INTO "teachers.lessons_language"(id, id_teacher, id_lesson)
+    (60, 'Slovak'),
+    (70, 'Test');
+
+-- Connections of Lessons and Languages
+INSERT INTO "Teachers_LessonsLanguage"(id_teacher, id_lesson)
 VALUES
-    (10, 10, 10),
-    (20, 10, 60),
-    (30, 10, 20),
-    (40, 10, 30),
-    (50, 20, 10),
-    (60, 30, 10),
-    (70, 20 ,20),
-    (80, 20, 50),
-    (90, 40, 10),
-    (100, 50, 30);
+    (11111, 10),
+    (11111, 60),
+    (11111, 20),
+    (11111, 30),
+    (22222, 10),
+    (33333, 10),
+    (22222 ,20),
+    (22222, 50),
+    (44444, 10),
+    (44444, 30);
 
 
--- Lessons of School
-
-INSERT INTO chats(name, link)
+-- CHATS
+INSERT INTO "Chats"(name, link)
 VALUES
     ('ČVUT',    't.me/cvut_chat'),
     ('VŠE',     't.me/vse_chat'),
