@@ -3,6 +3,7 @@ from typing import Optional, List, Union
 from sqlalchemy import URL, create_engine, and_
 from sqlalchemy.orm import sessionmaker, configure_mappers, Query
 
+
 # Local imports
 from bot.config import settingsDB
 from bot.databases.db_declaration import *
@@ -158,9 +159,9 @@ class SqlAlchemy:
                     .filter(
                         and_(
                             Teachers.state.is_(True),
-                            Teachers.state_admin.is_(True)
+                            Teachers.state_admin.is_not(False)
                         )
-                    )
+                    ).join(Users).filter(Users.login.isnot(None))
         return universities
             
 
@@ -187,9 +188,9 @@ class SqlAlchemy:
                 .filter(
                     and_(
                         Teachers.state.is_(True),
-                        Teachers.state_admin.is_(True)
+                        Teachers.state_admin.is_not(False)
                     )
-                )
+                ).join(Users).filter(Users.login.isnot(None))
         return lessons
 
 
@@ -231,13 +232,11 @@ class SqlAlchemy:
             teachers = teachers.filter(
                 and_(
                     Teachers.state.is_(True),
-                    Teachers.state_admin.is_(True)
-                )
-            )
+                    Teachers.state_admin.is_not(False),
+                ),
+            ).join(Users).filter(Users.login.isnot(None))
         
         if current_page and rows_per_page:
-            # current_page = rows_per_page*(current_page-1)
-            # teachers = teachers[current_page:current_page+rows_per_page]
             teachers = teachers.limit(rows_per_page).offset(rows_per_page*(current_page-1))
         
         return teachers
@@ -262,9 +261,9 @@ class SqlAlchemy:
                 .filter(
                     and_(
                         Teachers.state.is_(True),
-                        Teachers.state_admin.is_(True)
+                        Teachers.state_admin.is_not(False)
                     )
-                )
+                ).join(Users).filter(Users.login.isnot(None))
         return lessons
     
 
@@ -292,18 +291,17 @@ class SqlAlchemy:
             teachers = teachers.filter(
                 and_(
                     Teachers.state.is_(True),
-                    Teachers.state_admin.is_(True)
+                    Teachers.state_admin.is_not(False),
                 )
-            )
+            ).join(Users).filter(Users.login.isnot(None))
         
         if current_page and rows_per_page:
-            current_page = rows_per_page*(current_page-1)
-            teachers = teachers[current_page:current_page+rows_per_page]
+            teachers = teachers.limit(rows_per_page).offset(rows_per_page*(current_page-1))
         
         return teachers
 
     
-    async def get_lesson_of_language(self, lesson_id: int) -> LessonsLanguage:
+    async def get_lesson_of_language(self, lesson_id: int) -> Optional[LessonsLanguage]:
         """
         Get lesson of language from database.
 
@@ -317,7 +315,7 @@ class SqlAlchemy:
 
 
     # TEACHER
-    async def get_teacher(self, teacher_id_tg: int = 0) -> Teachers:
+    async def get_teacher(self, teacher_id_tg: int = 0) -> Optional[Teachers]:
         """
         Get teacher from database.
 
