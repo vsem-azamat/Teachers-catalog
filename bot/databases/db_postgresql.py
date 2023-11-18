@@ -315,7 +315,7 @@ class SqlAlchemy:
 
 
     # TEACHER
-    async def get_teacher(self, teacher_id_tg: int = 0) -> Optional[Teachers]:
+    async def get_teacher(self, teacher_id_tg: int) -> Optional[Teachers]:
         """
         Get teacher from database.
 

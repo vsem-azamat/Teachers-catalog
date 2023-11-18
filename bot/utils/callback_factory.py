@@ -1,6 +1,8 @@
 from enum import Enum
+from typing import Optional
 from aiogram.filters.callback_data import CallbackData
 
+ROWS_PER_PAGE = 5
 
 class PageLevels(str, Enum):
     lessons_language = "lessons_language"
@@ -21,7 +23,15 @@ class PageLevels(str, Enum):
 
 
 class PageSettings(CallbackData, prefix='fub'):
-    pageLevel: PageLevels = ''
+    """
+    Settings for navigation between pages
+
+    Attributes:
+        # TODO: write description for attributes
+    """
+
+    targetpageLevel: Optional[PageLevels] = None
+    backPageLevel: Optional[PageLevels] = None
     university_id: int = 0
     lesson_id: int = 0
     teacher_id: int = 0
@@ -29,13 +39,60 @@ class PageSettings(CallbackData, prefix='fub'):
     total_pages: int = 0
 
     lesson_catalog:int = 0
-    rows_per_page: int = 5
+    rows_per_page: int = ROWS_PER_PAGE
     columns_per_row: int = 2
     # source: LessonsSource = ''
 
 
-
+class CatalogUniversity(CallbackData, prefix='uni'):
+    university_id: int = 0
     
+    # Page settings
+    columns_per_row: int = 2
+    current_page: int = 1
+    total_pages: int = 0
+    rows_per_page: int = ROWS_PER_PAGE
+
+
+class CatalogLessonUniversity(CallbackData, prefix='clu'):
+    university_id: Optional[int] = 0
+    lesson_id: int = 0
+    
+    # Page settings
+    columns_per_row: int = 2
+    current_page: int = 1
+    total_pages: int = 0
+    rows_per_page: int = ROWS_PER_PAGE
+
+
+class CatalogLessonLanguage(CallbackData, prefix='cll'):
+    university_id: Optional[int] = 0
+    lesson_id: int
+    
+    # Page settings
+    columns_per_row: int = 2
+    current_page: int = 1
+    total_pages: int = 0
+    rows_per_page: int = ROWS_PER_PAGE
+
+
+class CatalogTeacher(CallbackData, prefix='ct'):
+    lesson_id: int
+    teacher_id_tg: int
+    university_id: Optional[int] = 0
+
+    # Define lesson type
+    lesson_university: bool = False
+    lesson_language: bool = False
+
+    # Page settings
+    current_page: int = 1
+    total_pages: int = 0
+    rows_per_page: int = ROWS_PER_PAGE
+
+
+
+
 class TeacherLevels(str, Enum):
     lessons_language = "lessons_language"
     
