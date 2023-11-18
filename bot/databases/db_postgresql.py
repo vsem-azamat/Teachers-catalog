@@ -2,8 +2,6 @@ from typing import Optional, List, Union
 
 from sqlalchemy import URL, create_engine, and_
 from sqlalchemy.orm import sessionmaker, configure_mappers, Query
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.dialects.postgresql import insert
 
 # Local imports
 from bot.config import settingsDB
@@ -50,7 +48,7 @@ class SqlAlchemy:
         """
         user = self.s.query(Users).filter(Users.id_tg == id_tg).first()
         if user:
-            user.login = login
+            user.login = login # type: ignore
             self.s.commit()
         else:
             user = Users(
@@ -92,7 +90,7 @@ class SqlAlchemy:
         self.s.query(Users).filter(Users.id_tg==id_tg).update({'language': user_language})
         self.s.commit()
 
-
+    # TODO: Rewrite this method: must return a Query
     async def get_all_lessons(self, current_page: Optional[int] = False, rows_per_page: Optional[int] = False, exclude_null_teachers: bool = False) -> List[Union[LessonsLanguage, LessonsUniversity]]:
         """
         Get all lessons from database.
@@ -238,8 +236,9 @@ class SqlAlchemy:
             )
         
         if current_page and rows_per_page:
-            current_page = rows_per_page*(current_page-1)
-            teachers = teachers[current_page:current_page+rows_per_page]
+            # current_page = rows_per_page*(current_page-1)
+            # teachers = teachers[current_page:current_page+rows_per_page]
+            teachers = teachers.limit(rows_per_page).offset(rows_per_page*(current_page-1))
         
         return teachers
 
@@ -343,7 +342,7 @@ class SqlAlchemy:
             Teachers: Teacher.
         """
 
-        teacher = self.get_teacher(teacher_id_tg=new_teacher.id_tg)
+        teacher = self.get_teacher(teacher_id_tg=new_teacher.id_tg) # type: ignore
 
         # If teacher exists
         if teacher:
@@ -413,7 +412,7 @@ class SqlAlchemy:
             Teachers: Teacher.
         """
         teacher = await self.get_teacher(teacher_id_tg=teacher_id_tg)
-        teacher.state = state
+        teacher.state = state # type: ignore
 
         self.s.commit()
         return teacher
