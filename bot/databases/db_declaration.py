@@ -28,6 +28,8 @@ class Users(Base):
     start_time = Column(DateTime(timezone=True), server_default=func.now())
     black_list = Column(Boolean, default=False)
 
+    teacher = relationship('Teachers', back_populates='user', uselist=False)
+
 
 # Association Tables
 Teachers_LessonsLanguage = Table(
@@ -56,7 +58,7 @@ LessonsUniversity_Universities = Table(
 
 class Teachers(Base):
     __tablename__ = 'Teachers'
-
+    
     id = Column(Integer, primary_key=True)
     id_tg = Column(BigInteger, ForeignKey('Users.id_tg'), nullable=False, unique=True)
     name = Column(Text)
@@ -66,6 +68,7 @@ class Teachers(Base):
     state = Column(Boolean, default=False)
     state_admin = Column(Boolean, default=True)
     
+    user = relationship('Users', back_populates='teacher')
     lesson_university = relationship('LessonsUniversity', secondary=Teachers_LessonsUniversity, back_populates="teacher")
     lesson_language = relationship('LessonsLanguage', secondary=Teachers_LessonsLanguage, back_populates="teacher")
 
