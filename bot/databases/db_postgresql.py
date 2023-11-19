@@ -1,4 +1,4 @@
-from typing import Optional, List, Union
+from typing import Optional, Union, List
 
 from sqlalchemy import URL, create_engine, and_
 from sqlalchemy.orm import sessionmaker, configure_mappers, Query
@@ -92,7 +92,7 @@ class SqlAlchemy:
         self.s.commit()
 
     # TODO: Rewrite this method: must return a Query
-    async def get_all_lessons(self, current_page: Optional[int] = False, rows_per_page: Optional[int] = False, exclude_null_teachers: bool = False) -> List[Union[LessonsLanguage, LessonsUniversity]]:
+    async def get_all_lessons(self, current_page: Optional[int] = 1, rows_per_page: Optional[int] = False, exclude_null_teachers: bool = False) -> List[Union[LessonsLanguage, LessonsUniversity]]:
         """
         Get all lessons from database.
 
@@ -103,28 +103,37 @@ class SqlAlchemy:
 
         Returns:
             List[Union[LessonsLanguage, LessonsUniversity]]: List of lessons.
-        """
-        all_lessons: List[Union[LessonsLanguage, LessonsUniversity]] = []
-        
-        lessons_university  = self.s.query(LessonsUniversity)
-        all_lessons.extend(lessons_university)
-        
-        lessons_language = self.s.query(LessonsLanguage)
-        all_lessons.extend(lessons_language)
-        
+        """        
+        lessons_languages = self.s.query(LessonsLanguage)
+        lessons_universities = self.s.query(LessonsUniversity)
+
         if exclude_null_teachers:
-            all_lessons = [
-                lesson for lesson in all_lessons 
-                    if lesson.teacher and any(teacher.state*teacher.state_admin for teacher in lesson.teacher)
-                ]
+            lessons_languages = lessons_languages\
+                .join(Teachers_LessonsLanguage)\
+                .join(Teachers)\
+                .filter(
+                    and_(
+                        Teachers.state.is_(True),
+                        Teachers.state_admin.is_not(False)
+                    )
+                ).join(Users).filter(Users.login.isnot(None))
+            lessons_universities = lessons_universities\
+                .join(Teachers_LessonsUniversity)\
+                .join(Teachers)\
+                .filter(
+                    and_(
+                        Teachers.state.is_(True),
+                        Teachers.state_admin.is_not(False)
+                    )
+                ).join(Users).filter(Users.login.is_not(None))
 
-        if current_page and rows_per_page:
-            current_page = rows_per_page*(current_page-1)
-            all_lessons = all_lessons[current_page:current_page+rows_per_page]
+        lessons = lessons_languages.all() + lessons_universities.all()
         
-        return all_lessons
+        if current_page and rows_per_page:
+            lessons = lessons[(current_page-1)*rows_per_page:current_page*rows_per_page]
+        return lessons
 
-    # TODO: Rewrite this method for better performance
+
     async def get_count_all_lessons(self, exclude_null_teachers: bool = False) -> int:
         """
         Get count all lessons from database.
@@ -135,8 +144,8 @@ class SqlAlchemy:
         Returns:
             int: Count lessons.
         """
-        
-        return len(await self.get_all_lessons(exclude_null_teachers=exclude_null_teachers))
+        query = await self.get_all_lessons(exclude_null_teachers=exclude_null_teachers)
+        return query.count()
 
     
     # UNIVERSITY

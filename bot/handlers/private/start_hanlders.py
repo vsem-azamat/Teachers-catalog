@@ -14,12 +14,16 @@ router = Router()
 
 @router.message(Command('language', prefix='!/'))
 @router.message(CommandStart(deep_link=False))
-async def menu_start_command(msg: types.Message, state: FSMContext, command: types.BotCommand):
-    user_id_tg = msg.from_user.id
-    user = await db.check_exists(id_tg=msg.from_user.id, login=msg.from_user.username)
+async def menu_start_command(message: types.Message, state: FSMContext, command: types.BotCommand):
+    """
+    Start command handler. If user is new, then select language.
+    Or if user is update language, then select language.
+    """
+    user_id_tg = message.from_user.id
+    user = await db.check_exists(id_tg=message.from_user.id, login=message.from_user.username)
     command_text = command.command
     # Old user
-    if user.language and not command_text == 'language':
+    if user.language is not None and not command_text == 'language':
         user_language = str(user.language)
         text = tm.MainMenu.text_main_menu.get(user_language, 'ru')
         keyboard = tm.MainMenu.kb_main_menu(user_language)
@@ -27,14 +31,14 @@ async def menu_start_command(msg: types.Message, state: FSMContext, command: typ
     # New users or update language
     else:
         if command_text == 'language':
-            user_language = user.language
+            user_language = str(user.language)
         else:
-            user_language = msg.from_user.language_code
+            user_language = message.from_user.language_code
             user_language = 'ru' # DEBUG
             if user_language not in tm.FirstStart.td_languages.keys(): user_language = 'ru'
             await db.update_user_language(id_tg=user_id_tg, user_language=user_language)
         
-        text = tm.FirstStart.text_first_select_language.get(user_language, 'ru')
+        text = tm.FirstStart.text_first_select_language.get(user_language)
 
         builder = ReplyKeyboardBuilder()
         for language in tm.FirstStart.td_languages.keys():
@@ -44,15 +48,17 @@ async def menu_start_command(msg: types.Message, state: FSMContext, command: typ
         await state.set_state(SelectLanguage.language)
         await state.update_data(user_language=user_language)
 
-    await msg.reply(text=text, reply_markup=keyboard)
-
+    await message.reply(text=text, reply_markup=keyboard)
 
 
 @router.message(SelectLanguage.language)
-async def set_user_language(msg: types.Message, state: FSMContext):
+async def set_user_language(message: types.Message, state: FSMContext):
+    """
+    Set user language or update.
+    """
     user_data = await state.get_data()
     user_language = user_data.get('user_language', 'ru')
-    new_user_lang = tm.FirstStart.td_languages.get(msg.text, False)
+    new_user_lang = tm.FirstStart.td_languages.get(message.text, 'ru') # type: ignore
 
     # Bad answer. Try again.
     if new_user_lang not in tm.FirstStart.td_languages.values():
@@ -65,22 +71,22 @@ async def set_user_language(msg: types.Message, state: FSMContext):
 
     # Correct Answer. Set `new_user_lang`s
     else:
-        await db.update_user_language(id_tg=msg.from_user.id, user_language=new_user_lang)
+        await db.update_user_language(id_tg=message.from_user.id, user_language=new_user_lang)
         await state.clear()
         text = tm.FirstStart.text_end_select_language.get(new_user_lang, 'ru')
         keyboard = tm.MainMenu.kb_main_menu(new_user_lang)
-    await msg.answer(text=text, reply_markup=keyboard)
+    await message.answer(text=text, reply_markup=keyboard)
 
 
 # Menu for category of teachers
 @router.callback_query(F.data == 'back_menu')
 @router.message(FindTeachersFilter())
-async def category_teachers(msg: types.Message or types.CallbackQuery):
-    user_language = await db.get_user_language(msg.from_user.id)
+async def category_teachers(message: types.Message or types.CallbackQuery):
+    user_language = await db.get_user_language(message.from_user.id)
     text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
     text = tm.TeachersCategory.text_select_category.get(user_language, 'ru')
     keyboard = tm.TeachersCategory.kb_teachers_category(user_language)
-    if isinstance(msg, types.Message):
-        await msg.answer(text=text_head + text, reply_markup=keyboard)
-    elif isinstance(msg, types.CallbackQuery):
-        await msg.message.edit_text(text=text_head + text, reply_markup=keyboard)
+    if isinstance(message, types.Message):
+        await message.answer(text=text_head + text, reply_markup=keyboard)
+    elif isinstance(message, types.CallbackQuery):
+        await message.message.edit_text(text=text_head + text, reply_markup=keyboard) # type: ignore

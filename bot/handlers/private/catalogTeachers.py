@@ -62,9 +62,10 @@ async def catalog_university_lessons(query: types.CallbackQuery, bot: Bot, callb
     for lesson in lessons:
         builder.button(
             text=lesson.name, # type: ignore
-            callback_data=CatalogLessonUniversity(
-                university_id=university_id,
+            callback_data=CatalogLessons(
                 lesson_id=lesson.id, # type: ignore
+                lesson_type=TypeLessons.university,
+                university_id=university_id,
                 current_page=current_page,
             )
         )
@@ -98,8 +99,9 @@ async def catalog_language_lessons(query: types.CallbackQuery, bot: Bot):
     for lesson in lessons:
         builder.button(
             text = lesson.name, # type: ignore
-            callback_data=CatalogLessonLanguage(
+            callback_data=CatalogLessons(
                 lesson_id=lesson.id, # type: ignore
+                lesson_type=TypeLessons.language,
             ).pack()
         )
     columns_per_row = PageSettings().columns_per_row
@@ -116,9 +118,9 @@ async def catalog_language_lessons(query: types.CallbackQuery, bot: Bot):
     await query.answer()
 
 
-@router.callback_query(CatalogLessonUniversity.filter())
-@router.callback_query(CatalogLessonLanguage.filter())
-async def catalog_teachers(query: types.CallbackQuery, bot: Bot, callback_data: Union[CatalogLessonUniversity, CatalogLessonLanguage]):
+@router.callback_query(CatalogLessons.filter(F.lesson_type == TypeLessons.university))
+@router.callback_query(CatalogLessons.filter(F.lesson_type == TypeLessons.language))
+async def catalog_teachers(query: types.CallbackQuery, bot: Bot, callback_data: CatalogLessons):
     """
     Show list of Teachers of selected University Lesson
     """
@@ -162,16 +164,18 @@ async def catalog_teacher_profile(query: types.InlineQuery, bot: Bot, callback_d
 
     callback_data_return = None
     # If user select teacher from lessons of university
-    if callback_data.lesson_language:
-        callback_data_return = CatalogLessonLanguage(
+    if callback_data.lesson_type == TypeLessons.language:
+        callback_data_return = CatalogLessons(
             lesson_id=lesson_id,
+            lesson_type=TypeLessons.language,
             current_page=current_page,
         ).pack()
     
-    elif callback_data.lesson_university:
-        callback_data_return = CatalogLessonUniversity(
-            university_id=university_id,
+    elif callback_data.lesson_type == TypeLessons.university:
+        callback_data_return = CatalogLessons(
             lesson_id=lesson_id,
+            lesson_type=TypeLessons.university,
+            university_id=university_id,
             current_page=current_page,
         ).pack()
 

@@ -1,4 +1,6 @@
+from email.policy import default
 from decouple import config
+from typing import List, Optional
 
 
 class Settings:
@@ -11,11 +13,15 @@ class Settings:
         ADMINS = []
 
 class SettingsDB:
-    USERNAME = config('DB_USERNAME')
-    PASSWORD = config('DB_PASSWORD')
-    HOST = config('DB_HOST')
-    DATABASE = config('DB_DATABASE')
-    PORT = config('DB_PORT', cast=int, default=5432)
+    USERNAME: str = config('DB_USERNAME', default=None)
+    PASSWORD: str = config('DB_PASSWORD', default=None)
+    HOST: str =  config('DB_HOST', default=None)
+    DATABASE: str = config('DB_DATABASE', default=None)
+    PORT: int = int(config('DB_PORT', cast=int, default=5432))
+
+
+    if not USERNAME or not PASSWORD or not HOST or not DATABASE or not PORT:
+        raise Exception('DB settings are not set')
 
 
 settings = Settings()

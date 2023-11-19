@@ -8,7 +8,7 @@ from bot.utils.filters import ShowChatsFilter, AboutUsFilter
 router = Router()
 
 @router.message(ShowChatsFilter())
-async def chats(msg: types.Message):
+async def show_chat_list(msg: types.Message):
     user_language = await db.get_user_language(msg.from_user.id)
     text = tm.MainMenu.text_chats.get(user_language, 'ru')
     chats = await db.get_chats()
@@ -23,7 +23,7 @@ async def chats(msg: types.Message):
 
 
 @router.message(AboutUsFilter())
-async def chats(msg: types.Message):
+async def about_us(msg: types.Message):
     user_language = await db.get_user_language(msg.from_user.id)
     text = tm.MainMenu.text_about_us.get(user_language)
     await msg.answer(text=text, disable_web_page_preview=True)

@@ -15,8 +15,18 @@ router = Router()
 
 @router.message(Command('test'))
 async def test(msg: types.Message, bot: Bot):
-    text = "\ntest <b>asd</b>"
-    text = '111'
-    q = await detect_bad_symbols(text)
-    print(q)
-    await msg.answer(text=f"test: {escape(text)}")
+    lessons_exc = await db.get_all_lessons(exclude_null_teachers=True)
+
+    text = "Lessons exclude:\n"
+    for lesson in lessons_exc:
+        text += f"\n{lesson.name}:"
+    text += "\n" + str(await db.get_count_all_lessons(True))
+    
+    text += "\n\nLessons include:\n"
+    lessons_inc = await db.get_all_lessons(exclude_null_teachers=False)
+    for lesson in lessons_inc:
+        text += f"\n{lesson.name}"
+    text += "\n" + str(await db.get_count_all_lessons(False))
+
+
+    await msg.answer(text)

@@ -4,7 +4,7 @@ from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardBut
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, \
     InlineKeyboardBuilder
 
-from bot.utils.callback_factory import PageLevels, PageSettings, TeacherLevels, TeacherSettings
+from bot.utils.callback_factory import *
 
 @dataclass
 class TextMenu:
@@ -248,7 +248,7 @@ class TextMenu:
                 text=TextMenu.TeachersCategory.ti_lessons[language],
                 callback_data="lessons"
             )
-            builder.adjust(2)
+            builder.adjust(1)
             return builder.as_markup()
 
         text_select_head = {
@@ -314,14 +314,12 @@ class TextMenu:
             }
 
         @staticmethod
-        def kb_lessons_category(language: str) -> InlineKeyboardMarkup:
+        def kb_lessons_category(language: str) -> InlineKeyboardBuilder:
             builder = InlineKeyboardBuilder()
             builder.add(
                 InlineKeyboardButton(
                     text=TextMenu.TeachersCategory.ti_lessons_search_with_catalog.get(language, 'ru'),
-                    callback_data=PageSettings(
-                        pageLevel=PageLevels.lessons_catalog,
-                        ).pack()
+                    callback_data=CatalogGoogle().pack()
                     ),
                 InlineKeyboardButton(
                     text=TextMenu.TeachersCategory.ti_lessons_search_with_google.get(language, 'ru'),
@@ -333,7 +331,7 @@ class TextMenu:
                     )
                 )
             builder.adjust(1)
-            return builder.as_markup()
+            return builder
 
     class MyTeachersProfile:
         """
