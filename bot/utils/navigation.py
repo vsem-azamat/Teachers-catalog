@@ -1,11 +1,9 @@
 import math
 from html import escape
-from operator import call
 from typing import Union, List, Optional, Tuple
 
 from aiogram import types
 from sqlalchemy.orm import Query
-from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
@@ -71,8 +69,23 @@ async def truncate_text(text: str, max_length: int = 225, max_lines: int = 4) ->
 # TODO: Re-write this function
 async def determine_navigation(
     total_rows: int = 1, current_page: int = 1, rows_per_page: int = 1,
-    back_button: Optional[CallbackData] = None, next_button: Optional[CallbackData] = None, return_button: Optional[CallbackData] = None
-    ):
+    back_button: Optional[str] = None, next_button: Optional[str] = None, return_button: Optional[str] = None
+    ) -> List[types.InlineKeyboardButton]:
+    """
+    Build navigation buttons for catalog. Determine if is back or next buttons needed with current_page and total_rows
+
+    Args:
+        total_rows (int, optional): Total rows in query. Defaults to 1.
+        current_page (int, optional): Current page. Defaults to 1.
+        rows_per_page (int, optional): Rows per page. Defaults to 1.
+
+        back_button (Optional[str], optional): Callback data for back button. Defaults to None.
+        next_button (Optional[str], optional): Callback data for next button. Defaults to None.
+        return_button (Optional[str], optional): Callback data for return button. Defaults to None.
+    
+    Returns:
+        List[types.InlineKeyboardButton]: List of navigation buttons
+    """
     total_pages = total_rows // rows_per_page + (1 if total_rows % rows_per_page != 0 else 0)
     back = f"◀️{current_page-1}" if current_page > 1 else False
     next = f"{current_page+1}▶️" if current_page < total_pages else False 
@@ -81,21 +94,21 @@ async def determine_navigation(
         buttons.append(
             types.InlineKeyboardButton(
                 text=back,
-                callback_data=back_button.pack()
+                callback_data=back_button
             )
         )
     if return_button:
         buttons.append(
             types.InlineKeyboardButton(
                 text="↩️",
-                callback_data=return_button.pack()
+                callback_data=return_button
             )
         )
     if next and next_button:
         buttons.append(
             types.InlineKeyboardButton(
                 text=next,
-                callback_data=next_button.pack()
+                callback_data=next_button
             )
         )
     return buttons
@@ -195,7 +208,7 @@ async def teacher_profile_text(teacher: Teachers) -> str:
     
     return result
     
-
+# TODO: Maybe I should replace this function with determine_navigation
 async def navigation_for_catalog_teachers(callback_data: CatalogLessons, total_rows: int) -> List[types.InlineKeyboardButton]:
     """
     Make navigation buttons for catalog teachers

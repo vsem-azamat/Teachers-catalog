@@ -1,6 +1,4 @@
-from email.policy import default
 from decouple import config
-from typing import List, Optional
 
 
 class Settings:
@@ -24,5 +22,11 @@ class SettingsDB:
         raise Exception('DB settings are not set')
 
 
+class CatalogConfig:
+    ROWS_PER_PAGE_catalog_universities: int = 8
+    COLUMNS_PER_ROW_catalog_lessons: int = 2
+
+
+catalog_config = CatalogConfig()
 settings = Settings()
 settingsDB = SettingsDB()

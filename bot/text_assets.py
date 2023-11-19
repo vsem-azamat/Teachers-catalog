@@ -364,13 +364,13 @@ class TextMenu:
             }
 
         @staticmethod
-        def kb_profile_settings() -> ReplyKeyboardMarkup:
+        def kb_profile_settings() -> ReplyKeyboardBuilder:
             builder = ReplyKeyboardBuilder()
             builder.row(
                 KeyboardButton(text=TextMenu.MyTeachersProfile.td_create_profile_yes),
                 KeyboardButton(text=TextMenu.MyTeachersProfile.td_create_profile_no)
             )
-            return builder.as_markup(resize_keyboard=True)
+            return builder
 
         text_name_write = {
             'ru': "<b>Ваш профиль будет выглядить подобным образом!</b> ⬆️\n"
@@ -648,7 +648,7 @@ class TextMenu:
             "ua": "✍ Редагувати профіль"
         }
         @staticmethod
-        def kb_profile_menu(language: str) -> InlineKeyboardMarkup:
+        def kb_profile_menu(language: str) -> InlineKeyboardBuilder:
             builder = InlineKeyboardBuilder()
             builder.add(
                 InlineKeyboardButton(

@@ -6,6 +6,7 @@ from bot.text_assets import TextMenu as tm
 
 from bot.utils.navigation import *
 from bot.utils.callback_factory import *
+from bot.config import catalog_config
 
 router = Router()
 
@@ -31,7 +32,7 @@ async def catalog_universitites(callback: types.CallbackQuery, bot: Bot):
                 current_page=1,
             )
         )
-    columns_per_row = PageSettings().columns_per_row
+    columns_per_row = catalog_config.ROWS_PER_PAGE_catalog_universities
     builder.adjust(columns_per_row)
     builder.row(types.InlineKeyboardButton(text='↩️', callback_data='back_menu'))
     # Send message
@@ -69,7 +70,7 @@ async def catalog_university_lessons(query: types.CallbackQuery, bot: Bot, callb
                 current_page=current_page,
             )
         )
-    columns_per_row = PageSettings().columns_per_row
+    columns_per_row = catalog_config.COLUMNS_PER_ROW_catalog_lessons
     builder.adjust(columns_per_row)
     builder.row(types.InlineKeyboardButton(text='↩️', callback_data='universities'))
 
@@ -104,7 +105,7 @@ async def catalog_language_lessons(query: types.CallbackQuery, bot: Bot):
                 lesson_type=TypeLessons.language,
             ).pack()
         )
-    columns_per_row = PageSettings().columns_per_row
+    columns_per_row = catalog_config.COLUMNS_PER_ROW_catalog_lessons
     builder.adjust(columns_per_row)
     builder.row(types.InlineKeyboardButton(text='↩️', callback_data='back_menu'))
 

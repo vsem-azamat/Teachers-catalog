@@ -1,7 +1,5 @@
-from calendar import THURSDAY
 import re
 import random
-from typing import Type
 
 from aiogram import Router, types, Bot, F
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -10,13 +8,11 @@ from aiogram.types.input_text_message_content import InputTextMessageContent
 
 from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
-from bot.utils.callback_factory import PageSettings, PageLevels
 from bot.utils.navigation import *
 
 router = Router()
 
 @router.callback_query(F.data == 'lessons')
-@router.callback_query(PageSettings.filter(F.targetpageLevel == PageLevels.lessons))
 async def lessons(query: types. CallbackQuery, bot: Bot):
     """
     Show menu for catalog of all lessons:
@@ -83,14 +79,12 @@ async def lessons_catalog(query: types.CallbackQuery, bot: Bot, callback_data: C
         rows_per_page=rows_per_page,
         back_button=CatalogGoogle(
             current_page=current_page-1,
-            ),
+            ).pack(),
         next_button=CatalogGoogle(
             current_page=current_page+1,
-            ),
-        return_button=PageSettings(
-            targetpageLevel=PageLevels.lessons,
-            )
-    )
+            ).pack(),
+        return_button="lessons",
+        )
     builder.row(*buttons_next_back)
 
     # Send message
