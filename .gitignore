@@ -1,8 +1,11 @@
 # Custom
+# Custom
 .fleet
 .env
 .idea
 .gitignore
+.vscode
+
 .vscode
 test*.py
 venv
