@@ -2,8 +2,8 @@ import logging
 import asyncio
 from aiogram import Bot, Dispatcher
 
-from handlers import main_router
-from config import settings
+from bot.handlers import main_router
+from bot.config import settings
 
 
 async def on_startup(bot: Bot) -> None:
