@@ -6,7 +6,6 @@ from aiogram import types
 from sqlalchemy.orm import Query
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-
 from bot.text_assets import TextMenu as tm
 from bot.databases.db_postgresql import db
 from bot.databases.db_declaration import *
@@ -196,86 +195,9 @@ async def teacher_profile_text(teacher: Teachers) -> str:
         raise e
     
     return result
-    
-# TODO: Maybe I should replace this function with determine_navigation
-async def navigation_for_catalog_teachers(callback_data: CatalogLessons, total_rows: int) -> List[types.InlineKeyboardButton]:
-    """
-    Make navigation buttons for catalog teachers
-
-    Args:
-        callback_data (Union[CatalogLessonUniversity, CatalogLessonLanguage]): Callback data
-        total_rows (int): Total rows in query
-
-    Returns:
-        List[types.InlineKeyboardButton]: List of navigation buttons
-    """
-    # Page data
-    current_page = callback_data.current_page
-    rows_per_page = callback_data.rows_per_page
-    lesson_id = callback_data.lesson_id
-    university_id = callback_data.university_id
-
-    # Calculate if is next or back buttons needed
-    total_pages = total_rows // rows_per_page + (1 if total_rows % rows_per_page != 0 else 0)
-    back = f"◀️{current_page-1}" if current_page > 1 else False
-    next = f"{current_page+1}▶️" if current_page < total_pages else False
-    buttons = []
-
-    CatalogLesson = type(callback_data)
-    # Add back button
-    if back:
-        buttons.append(
-            types.InlineKeyboardButton(
-                text=back,
-                callback_data=CatalogLesson(
-                    lesson_id=lesson_id,
-                    lesson_type=callback_data.lesson_type,
-                    university_id=university_id,
-                    current_page=current_page-1,
-                ).pack()
-            )
-        )
-
-    # Add return button
-    if callback_data.university_id != -1:
-        if callback_data.lesson_type == TypeLessons.university:
-            callback_data_back = CatalogUniversity(university_id=university_id).pack()
-
-        elif callback_data.lesson_type == TypeLessons.language:
-            callback_data_back = "languages"
-
-        else:
-            raise TypeError("callback_data must be CatalogLessonUniversity or CatalogLessonLanguage")
-    
-    # If user go to teachers catalog from google search
-    else:
-        callback_data_back = "lessons"
-
-    buttons.append(
-        types.InlineKeyboardButton(
-            text="↩️",
-            callback_data=callback_data_back
-        )
-    )
-    
-    # Add next button
-    if next:    
-        buttons.append(
-            types.InlineKeyboardButton(
-                text=next,
-                callback_data=CatalogLesson(
-                    lesson_id=lesson_id,
-                    lesson_type=callback_data.lesson_type,
-                    university_id=university_id,
-                    current_page=current_page+1,
-                ).pack()
-            )
-        )
-
-    return buttons
 
 
-async def teachers_catalog(query: types.CallbackQuery, callback_data: CatalogLessons) -> Tuple[str, InlineKeyboardBuilder]:
+async def catalog_teachers(query: types.CallbackQuery, callback_data: CatalogLessons) -> Tuple[str, InlineKeyboardBuilder]:
     """
     Show catalog of teachers of selected lesson (university or language) for selected page
 
@@ -286,7 +208,6 @@ async def teachers_catalog(query: types.CallbackQuery, callback_data: CatalogLes
     Returns:
         Tuple[str, InlineKeyboardBuilder]: Text and buttons    
     """
-    
     # Text
     user_language = await db.get_user_language(query.from_user.id)
     
@@ -325,18 +246,50 @@ async def teachers_catalog(query: types.CallbackQuery, callback_data: CatalogLes
             callback_data=CatalogTeacher(
                 lesson_id=lesson_id,
                 lesson_type=callback_data.lesson_type,
+                lesson_return_type=callback_data.lesson_return_type,
                 university_id=university_id,
                 current_page=current_page,
                 teacher_id_tg=teacher.id_tg, # type: ignore
             )
         )
 
-    # Build navigation buttons
-    buttons_next_back = await navigation_for_catalog_teachers(
-        callback_data=callback_data,
+    # Build return button
+    return_callback = None
+    # Return -> List of lessons of university
+    if callback_data.lesson_return_type == TypeCatalogLessons.lessons_university and callback_data.university_id:
+        return_callback = CatalogUniversity(
+            university_id=callback_data.university_id
+            ).pack()
+    # Return -> List of lessons of language
+    elif callback_data.lesson_return_type == TypeCatalogLessons.lessons_languages:
+        return_callback = "languages"
+    # Return -> List of all lessons
+    elif callback_data.lesson_return_type == TypeCatalogLessons.lessons_all:
+        return_callback = CatalogGoogle(
+            current_page=callback_data.current_page,
+            ).pack()        
+
+    # Build buttons with navigation
+    navigation_buttons = await determine_navigation(
         total_rows=total_rows,
+        current_page=current_page,
+        rows_per_page=rows_per_page,
+
+        back_callback=CatalogLessons(
+            lesson_id=lesson_id,
+            lesson_type=callback_data.lesson_type,
+            university_id=university_id,
+            current_page=current_page-1,
+            ).pack(),
+        next_callback=CatalogLessons(
+            lesson_id=lesson_id,
+            lesson_type=callback_data.lesson_type,
+            university_id=university_id,
+            current_page=current_page+1,
+            ).pack(),
+        return_callback=return_callback,
         )
-    builder.row(*buttons_next_back)
+    builder.row(*navigation_buttons)
     
     # Build text
     text = await teachers_catalog_text(

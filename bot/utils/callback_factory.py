@@ -6,7 +6,7 @@ from aiogram.filters.callback_data import CallbackData
 ROWS_PER_PAGE = 5
 
 
-# CallbackData for CATALOG
+#-------------------------------CallbackData for Catalog of Teachers------------------------------#
 class CatalogUniversity(CallbackData, prefix='uni'):
     """
     CallbackData for university buttons in catalog
@@ -21,8 +21,22 @@ class CatalogUniversity(CallbackData, prefix='uni'):
 
 
 class TypeLessons(str, Enum):
-    language = "language"
-    university = "university"
+    language = "lang"
+    university = "univ"
+
+
+class TypeCatalogLessons(str, Enum):
+    """
+    CallbackData for return buttons in catalog
+        - universities: return to list of universities
+        - lessons_university: return to list of lessons of university
+        - lessons_languages: return to list of lessons of language
+        - lessons_all: return to list of all lessons
+    """
+    universities = "univ"
+    lessons_university = "l_univ"
+    lessons_languages = "l_lang"
+    lessons_all = "l_all"
 
 
 class CatalogLessons(CallbackData, prefix='clu'):
@@ -31,6 +45,7 @@ class CatalogLessons(CallbackData, prefix='clu'):
     """
     lesson_id: int
     lesson_type: TypeLessons
+    lesson_return_type: Optional[TypeCatalogLessons] = None
     university_id: Optional[int] = 0
     
     # Page settings
@@ -46,8 +61,9 @@ class CatalogTeacher(CallbackData, prefix='ct'):
     """
     lesson_id: int
     lesson_type: TypeLessons
+    lesson_return_type: Optional[TypeCatalogLessons] = None
     teacher_id_tg: int
-    university_id: Optional[int] = 0
+    university_id: Optional[int] = None
 
     # Page settings
     current_page: int = 1
@@ -64,12 +80,12 @@ class CatalogGoogle(CallbackData, prefix='cg'):
     total_pages: int = 0
     rows_per_page: int = ROWS_PER_PAGE
 
-#########################################################################
-# CallbackData for TEACHER SETTINGS
+
+#-------------------------------CallbackData for Teacher settings-------------------------------#
 class TypeTeacherSettingsMenu(str, Enum):
-    profile_edit = "profile_edit"
-    profile_lessons_add = "profile_lessons_add"
-    profile_state = "profile_state"
+    profile_edit = "prof_edit"
+    profile_lessons_add = "prof_lessons_add"
+    profile_activate = "prof_activate"
 
 class TeacherSettingsMenu(CallbackData, prefix='tsm'):
     """
@@ -83,8 +99,8 @@ class TeacherSettingsMenu(CallbackData, prefix='tsm'):
 
 
 class TypeTeacherSettingsEdit(str, Enum):
-    profile_full = "profile_full"
-    profile_description = "profile_descr"
+    profile_edit_full = "prof_edit_full"
+    profile_edit_description = "prof_edit_descr"
 
 class TeacherSettingsEdit(CallbackData, prefix='tse'):
     """
@@ -95,12 +111,6 @@ class TeacherSettingsEdit(CallbackData, prefix='tse'):
     edit_type: TypeTeacherSettingsEdit
 
 
-class TypeTeacherCatalogLessonsTypes(str, Enum):
-    universities = "universities"
-    lessons_university = "l_university"
-    lessons_languages = "l_languages"
-    lessons = "l_all"
-
 class TeacherCatalogLessonsTypes(CallbackData, prefix='reg'):
     """
     CallbackData for teacher settings buttons for edit lessons:
@@ -109,7 +119,7 @@ class TeacherCatalogLessonsTypes(CallbackData, prefix='reg'):
         - lesson of language
         - all lessons
     """
-    catalog_type: TypeTeacherCatalogLessonsTypes
+    catalog_type: TypeCatalogLessons
 
 
 class TeacherCatalogLessons(CatalogLessons, prefix='clt'):
@@ -120,7 +130,13 @@ class TeacherCatalogLessons(CatalogLessons, prefix='clt'):
         ...
     """
     add: bool = True
-    lesson_menu_type: TypeTeacherCatalogLessonsTypes
+    lesson_menu_type: TypeCatalogLessons
+
+
+
+
+
+
 
 
 

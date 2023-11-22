@@ -13,12 +13,21 @@ from bot.utils.navigation import *
 router = Router()
 
 @router.callback_query(F.data == 'lessons')
-async def lessons(query: types. CallbackQuery, bot: Bot):
+async def handler_lessons_category(query: types. CallbackQuery, bot: Bot):
     """
-    Show menu for catalog of all lessons:
-        - Catalog of all lessons
-        - Search lessons
-        - Back to main menu
+    Show menu for catalog of all lessons.
+
+    🏠 Main menu of catalog
+    ...
+    │
+    └── 📑 Menu of of all lessons with categories (THIS HANDLER)
+        ├── 📚 Catalog of all lessons
+        │   └── 👩‍🏫 Teachers of selected Lesson
+        │       └── 👤 Teacher profile
+        │
+        └── 🔎 Search lessons by name 
+            └── 👩‍🏫 Teachers of selected Lesson
+                └── 👤 Teacher profile
     """
     # Text
     user_language = await db.get_user_language(query.from_user.id)
@@ -39,9 +48,21 @@ async def lessons(query: types. CallbackQuery, bot: Bot):
 
 
 @router.callback_query(CatalogGoogle.filter())
-async def lessons_catalog(query: types.CallbackQuery, bot: Bot, callback_data: CatalogGoogle):
+async def handler_catalog_lessons(query: types.CallbackQuery, bot: Bot, callback_data: CatalogGoogle):
     """
-    Show list of all lessons
+    Show list of all lessons.
+
+    🏠 Main menu of catalog
+    ...
+    │
+    └── 📑 Menu of of all lessons with categories
+        ├── 📚 Catalog of all lessons (THIS HANDLER)
+        │   └── 👩‍🏫 Teachers of selected Lesson
+        │       └── 👤 Teacher profile
+        │
+        └── 🔎 Search lessons by name 
+            └── 👩‍🏫 Teachers of selected Lesson
+                └── 👤 Teacher profile
     """
     # Text
     user_language = await db.get_user_language(query.from_user.id)
@@ -52,7 +73,7 @@ async def lessons_catalog(query: types.CallbackQuery, bot: Bot, callback_data: C
     current_page = callback_data.current_page
     lessons = await db.get_all_lessons(current_page=current_page, rows_per_page=rows_per_page, exclude_null_teachers=True)
     total_rows = len(lessons)
-
+    
     builder = InlineKeyboardBuilder()
     for lesson in lessons:
         if isinstance(lesson, LessonsUniversity):
@@ -67,6 +88,7 @@ async def lessons_catalog(query: types.CallbackQuery, bot: Bot, callback_data: C
             callback_data=CatalogLessons(
                 lesson_id=lesson.id, # type: ignore
                 lesson_type=lesson_type,
+                lesson_return_type=TypeCatalogLessons.lessons_all,
                 current_page=current_page,
             )
         )
@@ -99,7 +121,19 @@ async def lessons_catalog(query: types.CallbackQuery, bot: Bot, callback_data: C
 @router.inline_query()
 async def show_univerity_teachers(inline_query: types.InlineQuery, bot: Bot) -> None:
     """
-    I don't know what it is ...
+    Inline query handler for search lessons by name in inline mode.
+
+    🏠 Main menu of catalog
+    ...
+    │
+    └── 📑 Menu of of all lessons with categories
+        ├── 📚 Catalog of all lessons
+        │   └── 👩‍🏫 Teachers of selected Lesson
+        │       └── 👤 Teacher profile
+        │
+        └── 🔎 Search lessons by name (THIS HANDLER)
+            └── 👩‍🏫 Teachers of selected Lesson
+                └── 👤 Teacher profile
     """
     result = await get_inline_query_result(bot, inline_query)
     await inline_query.answer(result, cache_time=10)
