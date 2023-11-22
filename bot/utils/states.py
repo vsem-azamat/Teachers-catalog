@@ -12,5 +12,3 @@ class TeacherRegistration(StatesGroup):
     location = State()
     price = State()
     description_finish = State()
-
-

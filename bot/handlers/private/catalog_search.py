@@ -77,13 +77,13 @@ async def lessons_catalog(query: types.CallbackQuery, bot: Bot, callback_data: C
         total_rows=total_rows, 
         current_page=current_page, 
         rows_per_page=rows_per_page,
-        back_button=CatalogGoogle(
+        back_callback=CatalogGoogle(
             current_page=current_page-1,
             ).pack(),
-        next_button=CatalogGoogle(
+        next_callback=CatalogGoogle(
             current_page=current_page+1,
             ).pack(),
-        return_button="lessons",
+        return_callback="lessons",
         )
     builder.row(*buttons_next_back)
 

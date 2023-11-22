@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
-from aiogram.utils.keyboard import ReplyKeyboardBuilder, \
-    InlineKeyboardBuilder
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from bot.utils.callback_factory import *
 
@@ -187,7 +186,7 @@ class TextMenu:
         }
 
         @staticmethod
-        def kb_main_menu(language: str) -> ReplyKeyboardMarkup:
+        def kb_main_menu(language: str) -> ReplyKeyboardBuilder:
             builder = ReplyKeyboardBuilder()
             builder.row(
                 KeyboardButton(text=TextMenu.MainMenu.td_find_teachers[language])
@@ -199,7 +198,7 @@ class TextMenu:
             builder.row(
                 KeyboardButton(text=TextMenu.MainMenu.td_my_teachers_profile[language])
             )
-            return builder.as_markup(resize_keyboard=True)
+            return builder
 
     class TeachersCategory:
         """
@@ -372,7 +371,7 @@ class TextMenu:
             )
             return builder
 
-        text_name_write = {
+        text_teacher_write_me_you_name = {
             'ru': "<b>Ваш профиль будет выглядить подобным образом!</b> ⬆️\n"
                 "Рекомундую заполнять всё латиницей, кроме описания профиля!"
                 "Можете не бояться сделать ошибку, у вас всегда будет возможность потом подправить свои данные!\n\n"
@@ -396,85 +395,80 @@ class TextMenu:
                 }
 
         text_name_try_again = {
-            'ru': 
-                "Попробуйте еще раз, вы что-то ввели неккоректно\n"\
+            'ru': "↪️ <b>Попробуйте еще раз, вы что-то ввели неккоректно</b>\n"
                 " - имя должно быть от 2 до 25 символов\n",
-            'en':
-                "Try again, you entered something incorrectly\n"
+            'en': "↪️ <b>Try again, you entered something incorrectly</b>\n"
                 " - name must be between 2 and 25 characters long\n",
-            'cz':
-                'Zkuste to znovu, zadal jste něco špatně\n'
+            'cz': '↪️ <b>Zkuste to znovu, zadal jste něco špatně</b>\n'
                 '- jméno musí být 2 až 25 znaků dlouhé\n',
-            'ua':
-                "Спробуйте ще раз, ви щось ввели неправильно\n"
+            'ua': "↪️ <b>Спробуйте ще раз, ви щось ввели неправильно</b>\n"
                 " - ім'я повинно бути від 2 до 25 символів\n"
-        }
+        }   
 
         text_keep = {
-            "ru": "Пропустить",
-            "en": "Skip",
-            "ua": "Пропустити",
-            "cz": "Přeskočit"
+            "ru": "⏩ Пропустить",
+            "en": "⏩ Skip",
+            "ua": "⏩ Пропустити",
+            "cz": "⏩ Přeskočit"
         }
 
         text_location_write = {
             'ru': 
-                "Перечислите кратко где и как проходят занятия!\n"\
-                "Пример: Прага, Скайп, Дискорд, Библиотека",
+                "📍<b>Перечислите кратко где и как проходят занятия!</b>\n"\
+                "<b>Пример:</b> Прага, Скайп, Дискорд, Библиотека",
             'cz':
-                "Stručně vyjmenujte, kde a jak probíhají lekce!\n"\
-                "Příklad: Praha, Skype, Discord, knihovna",
+                "📍<b>Stručně vyjmenujte, kde a jak probíhají lekce!</b>\n"\
+                "<b>Příklad:</b> Praha, Skype, Discord, knihovna",
             'en':
-                "List briefly where and how the lessons take place!\n"\
-                "Example: Prague, Skype, Discord, library",
+                "📍<b>List briefly where and how the lessons take place!</b>\n"\
+                "<b>Example:</b> Prague, Skype, Discord, library",
             'ua':
-                "Перелічіть коротко де і як проходять заняття!\n"\
-                "Приклад: Прага, Скайп, Дискорд, Бібліотека"
+                "📍<b>Перелічіть коротко де і як проходять заняття!</b>\n"\
+                "<b>Приклад:</b> Прага, Скайп, Дискорд, Бібліотека"
             }
 
         text_location_try_again = {
             "ru":
-                "Попробуйте еще раз, вы что-то ввели некорректно\n"\
+                "↪️ <b>Попробуйте еще раз, вы что-то ввели некорректно</b>\n"\
                 " - текст должен быть от 2 до 100 символов\n",
             'cz':
-                "Zkuste to znovu, něco jste zadal(a) nesprávně\n"\
+                "↪️ <b>Zkuste to znovu, něco jste zadal(a) nesprávně</b>\n"\
                 " - text by měl mít délku od 2 do 100 znaků\n",
             'en':
-                "Try again, you entered something incorrectly\n"\
+                "↪️ <b>Try again, you entered something incorrectly</b>\n"\
                 " - the text should be from 2 to 100 characters long\n",
             'ua':
-                "Спробуйте ще раз, ви щось ввели неправильно\n"\
+                "↪️ <b>Спробуйте ще раз, ви щось ввели неправильно</b>\n"\
                 " - текст повинен бути від 2 до 100 символів\n"
                 }
 
-
         text_price_write = {
             "ru":
-                "Напишите стоимость занятий!\n"\
-                "Пример: 300-500 Kč/час",
+                "💳<b>Напишите стоимость занятий!</b>\n"\
+                "<b>Пример:</b> 300-500 Kč/час",
             "cz":
-                "Napište cenu lekcí!\n"\
-                "Příklad: 300-500 Kč/hod",
+                "💳<b>Napište cenu lekcí!</b>\n"\
+                "Příklad:</b> 300-500 Kč/hod",
             "en":
-                "Write down the price of the lessons!\n"\
-                "Example: 300-500 CZK/hour",
+                "💳<b>Write down the price of the lessons!</b>\n"\
+                "<b>Example:</b> 300-500 CZK/hour",
             "ua":
-                "Напишіть вартість занять!\n"\
-                "Приклад: 300-500 Kč/год"
+                "💳<b>Напишіть вартість занять!</b>\n"\
+                "<b>Приклад:</b> 300-500 Kč/год"
             }
 
         text_price_try_again = {
             "ru":
-                "Попробуйте еще раз, вы что-то ввели некорректно\n"\
+                "↪️ Попробуйте еще раз, вы что-то ввели некорректно\n"\
                 " - текст должен быть от 2 до 25 символов\n",
             "cz":
-                "Zkuste to znovu, něco jste zadal(a) nesprávně\n"\
+                "↪️ Zkuste to znovu, něco jste zadal(a) nesprávně\n"\
                 " - text by měl mít délku od 2 do 25 znaků\n",
             "en":
-                "Try again, you entered something incorrectly\n"\
+                "↪️ Try again, you entered something incorrectly\n"\
                 " - the text should be from 2 to 25 characters long\n",
             "ua":
-                "Спробуйте ще раз, ви щось ввели неправильно\n"\
+                "↪️ Спробуйте ще раз, ви щось ввели неправильно\n"\
                 " - текст повинен бути від 2 до 25 символів\n"
             }
 
@@ -513,6 +507,12 @@ class TextMenu:
                 " - текст опису має бути від 30 до 2500 символів\n"
             }
 
+        text_cancel_registration = {
+            "ru": "Вы отменили регистрацию!",
+            "en": "You have canceled registration!",
+            "cz": "Zrušili jste registraci!",
+            "ua": "Ви скасували реєстрацію!"
+            }
 
         text_profile_finish = {
             "ru": 
@@ -653,14 +653,14 @@ class TextMenu:
             builder.add(
                 InlineKeyboardButton(
                     text=TextMenu.MyTeachersProfile.ti_profile_edit.get(language, 'ru'),
-                    callback_data=TeacherSettings(
-                        pageLevel=TeacherLevels.teacher_edit,
+                    callback_data=TeacherSettingsMenu(
+                        menu_type=TypeTeacherSettingsMenu.profile_edit
                         ).pack()
                     ),
                 InlineKeyboardButton(
                     text=TextMenu.MyTeachersProfile.ti_profile_lessons_add_delete.get(language, 'ru'),
-                    callback_data=TeacherSettings(
-                        pageLevel=TeacherLevels.lessons
+                    callback_data=TeacherSettingsMenu(
+                        menu_type=TypeTeacherSettingsMenu.profile_lessons_add
                         ).pack()
                     )
                 )

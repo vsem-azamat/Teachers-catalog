@@ -31,7 +31,7 @@ async def int_to_emoji(number: int) -> str:
     return ''.join([EMOJI_NUMBERS.get(i, '?') for i in str(number)])
 
 
-async def detect_bad_symbols(text: str) -> bool:
+def detect_bad_symbols(text: str) -> bool:
     """
     Detect special symbols in text which don't allowed in bot
 
@@ -69,7 +69,7 @@ async def truncate_text(text: str, max_length: int = 225, max_lines: int = 4) ->
 # TODO: Re-write this function
 async def determine_navigation(
     total_rows: int = 1, current_page: int = 1, rows_per_page: int = 1,
-    back_button: Optional[str] = None, next_button: Optional[str] = None, return_button: Optional[str] = None
+    back_callback: Optional[str] = None, next_callback: Optional[str] = None, return_callback: Optional[str] = None
     ) -> List[types.InlineKeyboardButton]:
     """
     Build navigation buttons for catalog. Determine if is back or next buttons needed with current_page and total_rows
@@ -90,25 +90,25 @@ async def determine_navigation(
     back = f"◀️{current_page-1}" if current_page > 1 else False
     next = f"{current_page+1}▶️" if current_page < total_pages else False 
     buttons = []
-    if back and back_button:
+    if back and back_callback:
         buttons.append(
             types.InlineKeyboardButton(
                 text=back,
-                callback_data=back_button
+                callback_data=back_callback
             )
         )
-    if return_button:
+    if return_callback:
         buttons.append(
             types.InlineKeyboardButton(
                 text="↩️",
-                callback_data=return_button
+                callback_data=return_callback
             )
         )
-    if next and next_button:
+    if next and next_callback:
         buttons.append(
             types.InlineKeyboardButton(
                 text=next,
-                callback_data=next_button
+                callback_data=next_callback
             )
         )
     return buttons
@@ -171,19 +171,8 @@ async def teacher_profile_text(teacher: Teachers) -> str:
         str: Text for teacher profile
     """
     # Lessons
-    try:
-        lessons_university = "📚" + ", ".join([lesson.name for lesson in teacher.lesson_university]) + "\n"
-    except TypeError:
-        lessons_university = ""
-    except AttributeError:
-        lessons_university = ""
-    
-    try:
-        lessons_language = "🔠" + ", ".join([lesson.name for lesson in teacher.lesson_language]) + "\n"
-    except TypeError:
-        lessons_language = ""
-    except AttributeError:
-        lessons_language = ""
+    lessons_university = "📚" + ", ".join([lesson.name for lesson in teacher.lesson_university]) + "\n" if teacher.lesson_university else ""
+    lessons_language = "🔠" + ", ".join([lesson.name for lesson in teacher.lesson_language]) + "\n" if teacher.lesson_language else ""
 
     # Text body
     try:

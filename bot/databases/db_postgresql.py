@@ -133,7 +133,7 @@ class SqlAlchemy:
             lessons = lessons[(current_page-1)*rows_per_page:current_page*rows_per_page]
         return lessons
 
-
+    # TODO: Rewrite method which use this method. Should return a Query for better performance
     async def get_count_all_lessons(self, exclude_null_teachers: bool = False) -> int:
         """
         Get count all lessons from database.
@@ -144,8 +144,8 @@ class SqlAlchemy:
         Returns:
             int: Count lessons.
         """
-        query = await self.get_all_lessons(exclude_null_teachers=exclude_null_teachers)
-        return query.count()
+        lessons = await self.get_all_lessons(exclude_null_teachers=exclude_null_teachers)
+        return len(lessons)
 
     
     # UNIVERSITY
@@ -348,16 +348,15 @@ class SqlAlchemy:
         Returns:
             Teachers: Teacher.
         """
+        teacher = await self.get_teacher(teacher_id_tg=new_teacher.id_tg) # type: ignore
 
-        teacher = self.get_teacher(teacher_id_tg=new_teacher.id_tg) # type: ignore
-
-        # If teacher exists
+        # If teacher exists -> Update
         if teacher:
             for key, value in new_teacher.__dict__.items():
-                if key != "_sa_instance_state":
+                if key != "_sa_instance_state" or value is not None:
                     setattr(teacher, key, value)
 
-        # If teacher does not exist
+        # If teacher does not exist -> Add
         else:
             teacher = new_teacher
             self.s.add(teacher)
