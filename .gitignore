@@ -1,5 +1,4 @@
 # Custom
-# Custom
 .fleet
 .env
 .idea
@@ -7,7 +6,7 @@
 .vscode
 
 .vscode
-test*.py
+test*
 venv
 test_db.py
 
