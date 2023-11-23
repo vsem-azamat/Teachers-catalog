@@ -83,6 +83,7 @@ class CatalogGoogle(CallbackData, prefix='cg'):
 
 #-------------------------------CallbackData for Teacher settings-------------------------------#
 class TypeTeacherSettingsMenu(str, Enum):
+    profile = "prof"
     profile_edit = "prof_edit"
     profile_lessons_add = "prof_lessons_add"
     profile_activate = "prof_activate"
@@ -90,6 +91,7 @@ class TypeTeacherSettingsMenu(str, Enum):
 class TeacherSettingsMenu(CallbackData, prefix='tsm'):
     """
     CallbackData for teacher settings buttons:
+        - Profile (return to profile)
         - Edit profile
         - Add/Remove lessons
         - Activate/Deactivate profile
