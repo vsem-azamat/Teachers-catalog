@@ -21,8 +21,8 @@ class SqlAlchemy:
         self.engine = create_engine(self.url_object, client_encoding='utf8')
         self.conn = self.engine.connect()
         Base.metadata.create_all(self.engine, checkfirst=True)
-        self.session = sessionmaker(bind=self.engine)
-        self.s = self.session()
+        self.__session = sessionmaker(bind=self.engine)
+        self.s = self.__session()
     
     
     def _update_db(self):
@@ -338,7 +338,7 @@ class SqlAlchemy:
 
 
     # TEACHER SETTINGS
-    async def upset_teacher_profile(self, new_teacher: Teachers) -> Teachers:
+    async def upsert_teacher_profile(self, new_teacher: Teachers) -> Teachers:
         """
         Add or update teacher profile in database.
 
@@ -353,7 +353,7 @@ class SqlAlchemy:
         # If teacher exists -> Update
         if teacher:
             for key, value in new_teacher.__dict__.items():
-                if key != "_sa_instance_state" or value is not None:
+                if key != "_sa_instance_state" and value is not None:
                     setattr(teacher, key, value)
 
         # If teacher does not exist -> Add

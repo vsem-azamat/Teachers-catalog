@@ -170,13 +170,13 @@ async def teacher_profile_text(teacher: Teachers) -> str:
         str: Text for teacher profile
     """
     # Lessons
-    lessons_university = "📚" + ", ".join([lesson.name for lesson in teacher.lesson_university]) + "\n" if teacher.lesson_university else ""
+    lessons_university = "\n📚" + ", ".join([lesson.name for lesson in teacher.lesson_university]) + "\n" if teacher.lesson_university else ""
     lessons_language = "🔠" + ", ".join([lesson.name for lesson in teacher.lesson_language]) + "\n" if teacher.lesson_language else ""
 
     # Text body
     try:
         result = \
-            "👩‍🏫 <b>{name} - @{login}</b>\n\n"\
+            "👩‍🏫 <b>{name} - @{login}</b>\n"\
             "{lessons_university}"\
             "{lessons_language}"\
             "\n📍 {location}\n"\
