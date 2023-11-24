@@ -1,12 +1,11 @@
-from operator import call
 from aiogram import Router, types, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.exceptions import TelegramBadRequest
 
 from typing import Optional, Union
 
 from bot.databases.db_postgresql import db
-from bot.handlers import teacher
 from bot.text_assets import TextMenu as tm
 from bot.utils.states import TeacherRegistration
 from bot.utils.navigation import *
@@ -37,7 +36,7 @@ async def teacher_profile_menu(teacher: Teachers, message_or_query: Union[types.
     
     user_language = await db.get_user_language(message_or_query.from_user.id)
     teacher_state = bool(teacher.state)
-    text_menu = tm.MyTeachersProfile.text_your_profile.get(user_language)
+    text_menu = tm.MyTeachersProfile.text_your_profile.get(user_language, '<b>Menu:</b>')
 
     builder = tm.MyTeachersProfile.kb_profile_menu(user_language)
 
@@ -46,7 +45,7 @@ async def teacher_profile_menu(teacher: Teachers, message_or_query: Union[types.
         # Set teacher.state=False
         await db.teacher_state_update(teacher_id_tg=message_or_query.from_user.id, state=False)
         # Text with request to set USERNAME
-        text_login_error = tm.MyTeachersProfile.text_login_error.get(user_language)
+        text_login_error = tm.MyTeachersProfile.text_login_error.get(user_language, '')
         # Add text with request to set USERNAME
         text_menu += "\n\n" + text_login_error # type: ignore
 
@@ -54,7 +53,7 @@ async def teacher_profile_menu(teacher: Teachers, message_or_query: Union[types.
     elif isinstance(message_or_query, types.CallbackQuery) and callback_data:
         # Event: profile_activate -> update teacher.state
         if callback_data.menu_type == TypeTeacherSettingsMenu.profile_activate:
-            teacher_state = not bool(callback_data.state)
+            teacher_state = bool(callback_data.state)
             print(message_or_query.from_user.id, teacher_state)
             teacher = await db.teacher_state_update(teacher_id_tg=message_or_query.from_user.id, state=teacher_state)            
 
@@ -132,9 +131,10 @@ async def handler_teachers_profile_menu(message_or_query: Union[types.Message, t
     
     # Edit message of settings
     elif isinstance(message_or_query, types.CallbackQuery):
-        await message_or_query.message.edit_text(text=text_menu, reply_markup=keyboard) # type: ignore
-        await message_or_query.answer()
-
+        try:
+            await message_or_query.message.edit_text(text=text_menu, reply_markup=keyboard)
+        finally:
+            await message_or_query.answer()
 
 
 @router.callback_query(TeacherSettingsMenu.filter(F.menu_type == TypeTeacherSettingsMenu.profile_edit))

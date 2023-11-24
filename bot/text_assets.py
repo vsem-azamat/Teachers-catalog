@@ -492,6 +492,17 @@ class TextMenu:
                 "Повний текст буде видно людині при повному відкритті профілю."
             }
         
+        text_description_keep_old ={
+            "ru":
+                "⏩ Оставить как есть",
+            "cz":
+                "⏩ Ponechat jak je",
+            "en":
+                "⏩ Leave as is",
+            "ua":
+                "⏩ Залишити як є"
+        }
+        
         text_description_try_again = {
             "ru":
                 "Попробуйте еще раз, вы что-то ввели неккоректно\n"\

@@ -84,7 +84,17 @@ async def cancel(msg: types.Message, state: FSMContext):
 async def start_teacher_registration(message: types.Message, state: FSMContext, bot: Bot):
     """
     Start first teacher registration. 
-    Method catch message from Main menu. Answers: Yes or No.
+    Method catch message from Main menu. 
+
+    Answers:
+        - ✅ -> Create new profile
+        - ❌ -> Return to Main menu
+
+    Teacher form structure:
+        - 👩‍🏫 Name (THIS HANDLER)
+        - 📍 Location
+        - 💳 Price
+        - 📝 Description
     """
     await db.check_exists(id_tg=message.from_user.id, login=message.from_user.username)
     user_language = await db.get_user_language(message.from_user.id)
@@ -126,16 +136,22 @@ async def start_teacher_registration(message: types.Message, state: FSMContext, 
         await bot.send_message(chat_id=message.from_user.id, text=text, reply_markup=keyboard)
 
 
-@router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.edit_all))
+@router.callback_query(TeacherSettingsEdit.filter(F.edit_type == TypeTeacherSettingsEdit.profile_edit_full))
 async def teacher_profile_edit(query: types.CallbackQuery, bot: Bot, state: FSMContext):
     """
     Edit teacher profile.
     Method catch callback from teacher menu (Edit all profile)
+
+    Teacher form structure:
+        - 👩‍🏫 Name (THIS HANDLER)
+        - 📍 Location
+        - 💳 Price
+        - 📝 Description
     """
     user_language = await db.get_user_language(query.from_user.id)
     teacher = await db.get_teacher(teacher_id_tg=query.from_user.id)
 
-    # Check if Teacher already has profile -> Send message
+    # Teacher has profile -> Offer old name
     if teacher:
         builder = ReplyKeyboardBuilder()
         builder.button(text=teacher.name)
@@ -158,6 +174,12 @@ async def teacher_profile_edit(query: types.CallbackQuery, bot: Bot, state: FSMC
 async def teacher_name_location(message: types.Message, state: FSMContext, bot: Bot):
     """
     Catch teacher name. Send message with request location.
+
+    Teacher form structure:
+        - 👩‍🏫 Name 
+        - 📍 Location (THIS HANDLER)
+        - 💳 Price
+        - 📝 Description
     """
     user_language = await db.get_user_language(message.from_user.id)
     try:
@@ -186,6 +208,12 @@ async def teacher_name_location(message: types.Message, state: FSMContext, bot: 
 async def teacher_location_price(message: types.Message, state: FSMContext):
     """
     Catch teacher location. Send message with request price.
+
+    Teacher form structure:
+        - 👩‍🏫 Name
+        - 📍 Location
+        - 💳 Price (THIS HANDLER)
+        - 📝 Description
     """
     user_language = await db.get_user_language(message.from_user.id)
     try:
@@ -210,7 +238,7 @@ async def teacher_location_price(message: types.Message, state: FSMContext):
         await message.answer(text=text)
 
 
-@router.callback_query(TeacherSettings.filter(F.pageLevel == TeacherLevels.edit_description))
+@router.callback_query(TeacherSettingsEdit.filter(F.edit_type == TypeTeacherSettingsEdit.profile_edit_description))
 @router.message(TeacherRegistration.price)
 async def profile_description(message_or_callback: Union[types.Message, types.CallbackQuery], state: FSMContext, bot: Bot):
     """
@@ -218,25 +246,36 @@ async def profile_description(message_or_callback: Union[types.Message, types.Ca
     Can be called from:
         - Message -> This is an ongoing registration
         - CallbackQuery -> Edit description
+
+    Teacher form structure:
+        - 👩‍🏫 Name
+        - 📍 Location
+        - 💳 Price
+        - 📝 Description (THIS HANDLER)
     """
     user_language = await db.get_user_language(message_or_callback.from_user.id)
     try:
-        TeacherValidator(price=message_or_callback.text)
         keyboard = None
 
         # Event: Message -> This is an ongoing registration -> Update price
         if isinstance(message_or_callback, types.Message):
+            TeacherValidator(price=message_or_callback.text)
             await state.update_data(price=message_or_callback.text)
+        
+        # Event: CallbackQuery -> Edit only description
+        elif isinstance(message_or_callback, types.CallbackQuery):
+            await state.set_state(TeacherRegistration.description_finish)
 
-        # If Teacher exists -> Offer old description
+        # If Teacher exists -> Offer keep old description
         teacher = await db.get_teacher(teacher_id_tg=message_or_callback.from_user.id)
         if teacher:
             builder = ReplyKeyboardBuilder()
-            builder.button(text=teacher.description)
+            text_keep_old_description = tm.MyTeachersProfile.text_description_keep_old.get(user_language)
+            builder.button(text=text_keep_old_description)
             keyboard = builder.as_markup(resize_keyboard=True)
 
         text = tm.MyTeachersProfile.text_description_write.get(user_language)
-        await message_or_callback.answer(text=text, reply_markup=keyboard)
+        await bot.send_message(chat_id=message_or_callback.from_user.id, text=text, reply_markup=keyboard)
         await state.set_state(TeacherRegistration.description_finish)
 
     # Uncorrect answer
@@ -248,13 +287,27 @@ async def profile_description(message_or_callback: Union[types.Message, types.Ca
 
 @router.message(TeacherRegistration.description_finish)
 async def profile_finish(msg: types.Message, state: FSMContext):
+    """
+    Catch teacher description. Finish registration.
+
+    Teacher form structure:
+        - 👩‍🏫 Name
+        - 📍 Location
+        - 💳 Price
+        - 📝 Description
+
+    >>> Teacher profile created or edited
+    >>> Upsert to database
+    """
     user_language = await db.get_user_language(msg.from_user.id)
-    
+
     try:
-        TeacherDescriptionError(description=msg.text)
-        await state.update_data(description=msg.text)
-        data = await state.get_data()
+        # != Event: Button (Keep old description) -> Finish editing of existing profile
+        if msg.text not in tm.MyTeachersProfile.text_description_keep_old.values():
+            TeacherDescriptionError(description=msg.text)
+            await state.update_data(description=msg.text)
         
+        data = await state.get_data()
         # Finish editing of existing profile -> Text: Profile edited
         if await db.get_teacher(teacher_id_tg=msg.from_user.id):
             text = tm.MyTeachersProfile.text_profile_edit_finish.get(user_language)
@@ -265,8 +318,9 @@ async def profile_finish(msg: types.Message, state: FSMContext):
         
         teacher = Teachers(**data)
         teacher.id_tg = msg.from_user.id
-        await db.upset_teacher_profile(new_teacher=teacher)
-        
+        await db.upsert_teacher_profile(new_teacher=teacher)
+        teacher = await db.get_teacher(teacher_id_tg=msg.from_user.id)
+
         text_profile = await teacher_profile_text(teacher)
         keyboard = tm.MainMenu.kb_main_menu(user_language).as_markup(resize_keyboard=True)
         await msg.answer(text=text_profile, reply_markup=keyboard)
