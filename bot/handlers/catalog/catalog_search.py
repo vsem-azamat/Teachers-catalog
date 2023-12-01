@@ -71,8 +71,9 @@ async def handler_catalog_lessons(query: types.CallbackQuery, bot: Bot, callback
     # Make buttons with lessons
     rows_per_page = 10
     current_page = callback_data.current_page
-    lessons = await db.get_all_lessons(current_page=current_page, rows_per_page=rows_per_page, exclude_null_teachers=True)
+    lessons = await db.get_all_lessons(exclude_null_teachers=True)
     total_rows = len(lessons)
+    lessons = await db._slice_request(lessons, current_page, rows_per_page)
     
     builder = InlineKeyboardBuilder()
     for lesson in lessons:
