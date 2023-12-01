@@ -1,5 +1,7 @@
+import logging
 from aiogram import Router, types, F, Bot
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram import exceptions
 
 from typing import Optional, Tuple
 
@@ -49,12 +51,12 @@ async def handler_profile_lessons_category(query: types.CallbackQuery):
     # 🔠 Languages
     builder.button(
         text=tm.TeachersCategory.ti_languages.get(user_language, 'ru'),
-        callback_data=TeacherCatalogLessonsTypes(catalog_type=TypeCatalogLessons.lessons_languages)
+        callback_data=TeacherCatalogLessons(lesson_type=TypeLessons.language, lesson_menu_type=TypeCatalogLessons.lessons_languages).pack()
         )
     # 📚 All lessons
     builder.button(
         text=tm.TeachersCategory.ti_lessons.get(user_language, 'ru'),
-        callback_data=TeacherCatalogLessonsTypes(catalog_type=TypeCatalogLessons.lessons_all)
+        callback_data=TeacherCatalogLessons(lesson_type=TypeLessons.university, lesson_menu_type=TypeCatalogLessons.lessons_all).pack()
         )
     # ↩️ Back to main menu
     builder.button(
@@ -91,7 +93,7 @@ async def list_universities(callback: types.CallbackQuery, bot: Bot):
     text = tm.MyTeachersProfile.text_profile_list_universities.get(user_language)
     
     # Build buttons
-    universities = await db.get_universities()
+    universities = await db.get_universities(exclude_null_lessons=True)
     builder = InlineKeyboardBuilder()
     for university in universities:
         builder.button(
@@ -113,33 +115,6 @@ async def list_universities(callback: types.CallbackQuery, bot: Bot):
         reply_markup=builder.as_markup()
         )
     await callback.answer()
-
-
-async def teacher_catalog_add_lesson(query: types.CallbackQuery, callback_data: TeacherCatalogLessons) -> None:
-    """
-    Add lesson to teacher profile.
-
-    Args:
-        query (types.CallbackQuery): CallbackQuery
-        callback_data (TeacherCatalogLessons): CallbackData for operations with lessons in teacher profile:
-            - lesson
-            - lesson
-            ...
-    
-    Returns:
-        None
-    """
-    if callback_data.lesson_id:
-        match callback_data.lesson_type:
-            case TypeLessons.language:
-                lesson = await db.get_lesson_of_language(lesson_id=callback_data.lesson_id)
-            case TypeLessons.university:
-                lesson = await db.get_lesson_of_university(lesson_id=callback_data.lesson_id)
-            case _:
-                return
-        add_lesson = callback_data.add
-        teacher_id_tg = query.from_user.id
-        await db.add_lessons_to_teacher(teacher_id_tg, lesson, add_lesson)
 
 
 async def teacher_catalog_lessons(query: types.CallbackQuery, callback_data: TeacherCatalogLessons) -> Optional[Tuple[str, InlineKeyboardBuilder]]:
@@ -168,6 +143,9 @@ async def teacher_catalog_lessons(query: types.CallbackQuery, callback_data: Tea
         await query.message.delete()
         return
 
+    # Pagination parameters
+    rows_per_page = 10
+    current_page = callback_data.current_page
 
     return_callback = None
     lessons_language_of_teacher = []
@@ -196,29 +174,25 @@ async def teacher_catalog_lessons(query: types.CallbackQuery, callback_data: Tea
         case _:
             await query.answer(text="Error: Unknown type of catalog")
             return
-    print(lessons_language_of_teacher)
-    print(lessons_university_of_teacher)
 
-    # Pagination and navigation buttons
+    # Pagination settings
     total_rows = len(lessons) if isinstance(lessons, list) else lessons.count()
-    rows_per_page = 10
-    current_page = callback_data.current_page
+    lessons = await db._slice_request(request=lessons, current_page=current_page, rows_per_page=rows_per_page)
 
     # Build buttons
     builder = InlineKeyboardBuilder()
     for lesson in lessons:
         lesson_name = str(lesson.name)
         lesson_type = TypeLessons.university if isinstance(lesson, LessonsUniversity) else TypeLessons.language
+        university_id = callback_data.university_id if isinstance(lesson, LessonsUniversity) else 0
         add = True
 
-        if isinstance(lesson, LessonsLanguage) and lesson.id in lessons_language_of_teacher:
+        if isinstance(lesson, LessonsLanguage) and lesson in lessons_language_of_teacher:
             lesson_name = "✅ " + lesson_name
             add = False
-        elif isinstance(lesson, LessonsUniversity) and lesson.id in lessons_university_of_teacher:
+        elif isinstance(lesson, LessonsUniversity) and lesson in lessons_university_of_teacher:
             lesson_name = "✅ " + lesson_name
             add = False
-        else: 
-            pass
 
         # Button with lesson name and callback_data
         builder.button(
@@ -227,6 +201,7 @@ async def teacher_catalog_lessons(query: types.CallbackQuery, callback_data: Tea
                 lesson_id=lesson.id,
                 lesson_type=lesson_type,
                 lesson_menu_type=callback_data.lesson_menu_type,
+                university_id=university_id,
                 current_page=current_page,
                 add=add
                 ).pack()
@@ -256,8 +231,7 @@ async def teacher_catalog_lessons(query: types.CallbackQuery, callback_data: Tea
     return text_head + text_menu, builder
 
 
-
-@router.callback_query(TeacherCatalogLessons.filter())
+@router.callback_query(TeacherCatalogLessons.filter(F.lesson_id == 0))
 async def handler_teacher_catalog_lessons(query: types.CallbackQuery, callback_data: TeacherCatalogLessons, bot: Bot):
     """
     Show list of all lessons where teacher can add or remove lesson from profile.
@@ -275,16 +249,42 @@ async def handler_teacher_catalog_lessons(query: types.CallbackQuery, callback_d
     │
     ...
     """
-    await teacher_catalog_add_lesson(query, callback_data)
     text_bulder =  await teacher_catalog_lessons(query, callback_data)
     if not text_bulder: return
     text, builder = text_bulder
 
     # Send message
-    await bot.edit_message_text(
-        text=text,
-        chat_id=query.from_user.id,
-        message_id=query.message.message_id,
-        reply_markup=builder.as_markup()
-    )
+    try:
+        await bot.edit_message_text(
+            text=text,
+            chat_id=query.from_user.id,
+            message_id=query.message.message_id,
+            reply_markup=builder.as_markup()
+        )
+    except exceptions.TelegramBadRequest:
+        logging.error("Error: Message is not modified")
     await query.answer()
+
+
+@router.callback_query(TeacherCatalogLessons.filter(F.lesson_id != 0))
+async def handler_teacher_add_lesson(query: types.CallbackQuery, callback_data: TeacherCatalogLessons, bot: Bot):
+    """
+    Add/remove lesson to/from teacher profile.
+
+    After this handler, teacher will be redirected to handler_teacher_catalog_lessons, with updated list of lessons.
+
+    ⚙️ Main menu of teacher profile -> ... -> 📚 All lessons / 📚 Lessons of university / 🔠 Languages
+    """
+    if callback_data.lesson_id:
+        match callback_data.lesson_type:
+            case TypeLessons.language:
+                lesson = await db.get_lesson_of_language(lesson_id=callback_data.lesson_id)
+            case TypeLessons.university:
+                lesson = await db.get_lesson_of_university(lesson_id=callback_data.lesson_id)
+            case _:
+                return
+        add_lesson = callback_data.add
+        teacher_id_tg = query.from_user.id
+        await db.add_lessons_to_teacher(teacher_id_tg, lesson, add_lesson)
+
+    await handler_teacher_catalog_lessons(query, callback_data, bot)
