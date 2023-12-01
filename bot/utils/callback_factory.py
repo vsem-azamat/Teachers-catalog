@@ -136,62 +136,12 @@ class TeacherCatalogLessons(CatalogLessons, prefix='clt'):
     lesson_menu_type: TypeCatalogLessons
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class TeacherLevels(str, Enum):
-    lessons_language = "lessons_language"
-    
-    universities = "universities"
-    lessons_university = "lessons_university"
-
-    lessons_catalog = "lessons_catalog"
-
-    lessons = "lessons"
-
-    teacher = "teacher"
-    teacher_edit = "teacher_edit"
-    
-    edit_all = "edit_all"
-    edit_description = "edit_description"
-
-
-class TeacherSettings(CallbackData, prefix='reg'):
-    catalog_type: TeacherLevels
-    
-    university_id: int = 0
-    lesson_id: int = 0
-
-    current_page: int = 1
-    total_pages: int = 0
-    rows_per_page: int = 2
-    
-    state: bool = None
-
-    # True - add lesson to teacher profile
-    # False - delete lesson from teacher profile
-    add: bool = True 
-    
-
+#-------------------------------CallbackData for Admin settings-------------------------------#
 class AdminLevels(str, Enum):
     universities = "universities"
     university = "university"
 
 
 class AdminSettings(CallbackData, prefix='adm'):
-    pageLevel: AdminLevels = ''
+    pageLevel: Optional[AdminLevels] = None
     university_id: int = 0
