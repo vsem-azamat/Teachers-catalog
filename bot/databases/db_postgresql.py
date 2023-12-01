@@ -364,7 +364,7 @@ class SqlAlchemy:
         self.s.commit()
         return teacher
 
-              
+    # TODO: Fix this method. Does not change nothing
     async def add_lessons_to_teacher(self, teacher_id_tg: int, lesson: Union[LessonsUniversity, LessonsLanguage], add: bool = True) -> Teachers:
         """
         Add or remove lessons to teacher.
@@ -388,22 +388,23 @@ class SqlAlchemy:
             raise ValueError("lesson must be LessonsUniversity or LessonsLanguage")
         
         # Add lesson to teacher
+        teacher_lesson_university = teacher.lesson_university
+        teacher_lesson_language = teacher.lesson_language
         if add:
-            if isinstance(lesson, LessonsUniversity) and lesson not in teacher.lesson_university:
-                teacher.lesson_university.append(lesson)
-            elif isinstance(lesson, LessonsLanguage) and lesson not in teacher.lesson_language:
-                teacher.lesson_language.append(lesson)
+            if isinstance(lesson, LessonsUniversity) and teacher_lesson_university and lesson not in teacher_lesson_university:
+                teacher_lesson_university.append(lesson)
+            elif isinstance(lesson, LessonsLanguage) and teacher_lesson_language and lesson not in teacher_lesson_language:
+                teacher_lesson_language.append(lesson)
             
         # Remove lesson from teacher
         else:
-            if isinstance(lesson, LessonsUniversity) and lesson in teacher.lesson_university:
-                teacher.lesson_university.remove(lesson)
-            elif isinstance(lesson, LessonsLanguage) and lesson in teacher.lesson_language:
-                teacher.lesson_language.remove(lesson)
+            if isinstance(lesson, LessonsUniversity) and teacher_lesson_university and lesson in teacher_lesson_university:
+                teacher_lesson_university.remove(lesson)
+            elif isinstance(lesson, LessonsLanguage) and teacher_lesson_language and lesson in teacher_lesson_language:
+                teacher_lesson_language.remove(lesson)
         
         self.s.commit()
         return teacher
-
 
 
     async def teacher_state_update(self, teacher_id_tg: int, state: bool) -> Teachers:
