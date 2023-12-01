@@ -11,47 +11,80 @@ from bot.utils.filters import FindTeachersFilter
 router = Router()
 
 
+async def main_menu_start(message: types.Message, user_language: str) -> None:
+    """
+    Send main menu to user.
+
+    Args:
+        message (types.Message): Message from user.
+        user_language (str): User language.
+
+    Returns:
+        None: Send main menu to user.
+    """
+    text = tm.MainMenu.text_main_menu.get(user_language, 'ru')
+    keyboard = tm.MainMenu.kb_main_menu(user_language).as_markup(resize_keyboard=True)
+    await message.answer(text=text, reply_markup=keyboard)
+
+
+async def main_menu_language(message: types.Message, state: FSMContext) -> None:
+    """
+    Send message with offer to select language.
+    > If user select bad language, then try again.
+    > If user select language, then update language.
+
+    Args:
+        message (types.Message): Message from user.
+        state (FSMContext): State machine.
+
+    Returns:
+        None: Send message with offer to select language.
+    """
+    command_text = message.text
+    user = await db.check_exists(id_tg=message.from_user.id, login=message.from_user.username)
+
+    # Event: /language -> Update language
+    if user.language is not None and command_text and "language" in command_text:
+        user_language = str(user.language)
+
+    # New user -> Select language
+    else:
+        user_language = message.from_user.language_code
+        if user_language not in tm.FirstStart.td_languages.keys() or user_language is None: 
+            user_language = 'ru'
+        await db.update_user_language(id_tg=message.from_user.id, user_language=user_language)
+
+    text = tm.FirstStart.text_end_select_language.get(user_language)
+    builder = ReplyKeyboardBuilder()
+    for language in tm.FirstStart.td_languages.keys():
+        builder.button(text=language)
+    keyboard = builder.as_markup(resize_keyboard=True)
+
+    # Run state machine
+    await state.set_state(SelectLanguage.language)
+    await state.update_data(user_language=user_language)
+
+    # Send message
+    await message.answer(text=text, reply_markup=keyboard)
+
+
 @router.message(Command('language', prefix='!/'))
 @router.message(CommandStart(deep_link=False))
-async def menu_start_command(message: types.Message, state: FSMContext, command: types.BotCommand):
+async def handler_main_menu(message: types.Message, state: FSMContext, command: types.BotCommand):
     """
     Start command handler. If user is new, then select language.
     Or if user is update language, then select language.
     """
-    user_id_tg = message.from_user.id
     user = await db.check_exists(id_tg=message.from_user.id, login=message.from_user.username)
     command_text = command.command
     # User exists && Event: /start -> Send main menu
     if user.language is not None and not command_text == 'language':
         user_language = str(user.language)
-        text = tm.MainMenu.text_main_menu.get(user_language, 'ru')
-        keyboard = tm.MainMenu.kb_main_menu(user_language).as_markup(resize_keyboard=True)
-        await message.answer(text=text, reply_markup=keyboard)
+        await main_menu_start(message=message, user_language=user_language)
 
     # New user || Event: /language -> Select language
     else:
-        # Event: /language -> Update language
-        if command_text == 'language':
-            user_language = str(user.language)
-        
-        # New user -> Select language
-        else:
-            user_language = message.from_user.language_code
-            if user_language not in tm.FirstStart.td_languages.keys() or user_language is None: 
-                user_language = 'ru'
-            await db.update_user_language(id_tg=user_id_tg, user_language=user_language)
-        
-        text = tm.FirstStart.text_first_select_language.get(user_language)
-        builder = ReplyKeyboardBuilder()
-        for language in tm.FirstStart.td_languages.keys():
-            builder.button(text=language)
-        keyboard = builder.as_markup(resize_keyboard=True)
-
-        # Run state machine
-        await state.set_state(SelectLanguage.language)
-        await state.update_data(user_language=user_language)
-
-        await message.reply(text=text, reply_markup=keyboard)
+        await main_menu_language(message=message, state=state)
 
 
 @router.message(SelectLanguage.language)
