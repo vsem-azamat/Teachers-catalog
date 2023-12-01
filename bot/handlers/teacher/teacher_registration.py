@@ -270,7 +270,7 @@ async def profile_description(message_or_callback: Union[types.Message, types.Ca
         teacher = await db.get_teacher(teacher_id_tg=message_or_callback.from_user.id)
         if teacher:
             builder = ReplyKeyboardBuilder()
-            text_keep_old_description = tm.MyTeachersProfile.text_description_keep_old.get(user_language)
+            text_keep_old_description = tm.MyTeachersProfile.td_keep_old_description.get(user_language)
             builder.button(text=text_keep_old_description)
             keyboard = builder.as_markup(resize_keyboard=True)
 
@@ -303,7 +303,7 @@ async def profile_finish(msg: types.Message, state: FSMContext):
 
     try:
         # != Event: Button (Keep old description) -> Finish editing of existing profile
-        if msg.text not in tm.MyTeachersProfile.text_description_keep_old.values():
+        if msg.text not in tm.MyTeachersProfile.td_keep_old_description.values():
             TeacherDescriptionError(description=msg.text)
             await state.update_data(description=msg.text)
         
