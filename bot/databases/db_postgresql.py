@@ -35,6 +35,28 @@ class SqlAlchemy:
         Base.metadata.drop_all(self.engine)
         Base.metadata.create_all(self.engine)
 
+    
+    async def _slice_request(self, request: Union[Query, List], current_page: Optional[int] = 1, rows_per_page: Optional[int] = None) -> Union[Query, List]:
+        """
+        Slice request or list by current page and rows per page for pagination.
+
+        Args:
+            request (Union[Query, List]): The request.
+            current_page (int): The current page.
+            rows_per_page (int): The number of rows per page.
+
+        Returns:
+            Union[Query, List]: The request.
+        """
+        if current_page and rows_per_page:
+            if isinstance(request, Query):
+                request = request.limit(rows_per_page).offset(rows_per_page*(current_page-1))
+
+            elif isinstance(request, List):
+                request = request[(current_page-1)*rows_per_page:current_page*rows_per_page]
+
+        return request
+    
  
     async def check_exists(self, id_tg: int, login: Optional[str] = None) -> Users:
         """
@@ -92,7 +114,7 @@ class SqlAlchemy:
         self.s.commit()
 
     # TODO: Rewrite this method: must return a Query
-    async def get_all_lessons(self, current_page: Optional[int] = 1, rows_per_page: Optional[int] = False, exclude_null_teachers: bool = False) -> List[Union[LessonsLanguage, LessonsUniversity]]:
+    async def get_all_lessons(self, current_page: Optional[int] = 1, rows_per_page: Optional[int] = None, exclude_null_teachers: bool = False) -> List[Union[LessonsLanguage, LessonsUniversity]]:
         """
         Get all lessons from database.
 
@@ -130,7 +152,7 @@ class SqlAlchemy:
         lessons = lessons_languages.all() + lessons_universities.all()
         
         if current_page and rows_per_page:
-            lessons = lessons[(current_page-1)*rows_per_page:current_page*rows_per_page]
+            lessons = await self._slice_request(lessons, current_page=current_page, rows_per_page=rows_per_page)
         return lessons
 
     # TODO: Rewrite method which use this method. Should return a Query for better performance
@@ -149,17 +171,21 @@ class SqlAlchemy:
 
     
     # UNIVERSITY
-    async def get_universities(self, exclude_null_teachers: Optional[bool] = False) -> Query[Universities]:
+    async def get_universities(self, exclude_null_teachers: Optional[bool] = False, exclude_null_lessons: Optional[bool] = False) -> Query[Universities]:
         """
         Get all universities from database.
 
         Args:
             exclude_null_teachers (bool): Exclude universities without teachers.
+            exclude_null_lessons (bool): Exclude universities without lessons.
 
         Returns:
             Query[Universities]: Query of universities.
         """
         universities = self.s.query(Universities)
+        if exclude_null_lessons:
+            universities = universities.filter(Universities.lesson_university)
+
         if exclude_null_teachers:
             universities = universities\
                 .join(LessonsUniversity.university)\
@@ -175,7 +201,7 @@ class SqlAlchemy:
             
 
     # LESSONS: UNIVERSITY
-    async def get_lessons_of_university(self, university_id: int, exclude_null_teachers: Optional[bool] = False) -> Query[LessonsUniversity]:
+    async def get_lessons_of_university(self, university_id: int, exclude_null_teachers: Optional[bool] = None, current_page: Optional[int] = 1, rows_per_page: Optional[int] = None) -> Query[LessonsUniversity]:
         """
         Get all lessons of university from database.
 
@@ -200,6 +226,10 @@ class SqlAlchemy:
                         Teachers.state_admin.is_not(False)
                     )
                 ).join(Users).filter(Users.login.isnot(None))
+        
+        if current_page and rows_per_page:
+            lessons = await self._slice_request(lessons, current_page=current_page, rows_per_page=rows_per_page)
+
         return lessons
 
 
@@ -246,7 +276,7 @@ class SqlAlchemy:
             ).join(Users).filter(Users.login.isnot(None))
         
         if current_page and rows_per_page:
-            teachers = teachers.limit(rows_per_page).offset(rows_per_page*(current_page-1))
+            teachers = await self._slice_request(teachers, current_page=current_page, rows_per_page=rows_per_page)
         
         return teachers
 
@@ -305,7 +335,7 @@ class SqlAlchemy:
             ).join(Users).filter(Users.login.isnot(None))
         
         if current_page and rows_per_page:
-            teachers = teachers.limit(rows_per_page).offset(rows_per_page*(current_page-1))
+            teachers = await self._slice_request(teachers, current_page=current_page, rows_per_page=rows_per_page)
         
         return teachers
 
@@ -364,7 +394,6 @@ class SqlAlchemy:
         self.s.commit()
         return teacher
 
-    # TODO: Fix this method. Does not change nothing
     async def add_lessons_to_teacher(self, teacher_id_tg: int, lesson: Union[LessonsUniversity, LessonsLanguage], add: bool = True) -> Teachers:
         """
         Add or remove lessons to teacher.
@@ -391,9 +420,9 @@ class SqlAlchemy:
         teacher_lesson_university = teacher.lesson_university
         teacher_lesson_language = teacher.lesson_language
         if add:
-            if isinstance(lesson, LessonsUniversity) and teacher_lesson_university and lesson not in teacher_lesson_university:
+            if isinstance(lesson, LessonsUniversity) and lesson not in teacher_lesson_university:
                 teacher_lesson_university.append(lesson)
-            elif isinstance(lesson, LessonsLanguage) and teacher_lesson_language and lesson not in teacher_lesson_language:
+            elif isinstance(lesson, LessonsLanguage) and lesson not in teacher_lesson_language:
                 teacher_lesson_language.append(lesson)
             
         # Remove lesson from teacher
