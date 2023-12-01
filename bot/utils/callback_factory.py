@@ -131,6 +131,7 @@ class TeacherCatalogLessons(CatalogLessons, prefix='clt'):
         - lesson
         ...
     """
+    lesson_id: int = 0
     add: bool = True
     lesson_menu_type: TypeCatalogLessons
 
