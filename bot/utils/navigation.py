@@ -122,7 +122,7 @@ async def teachers_catalog_text(
 
     Args:
         teachers (Query[Teachers]): Teachers
-        lesson (Union[LessonsUniversity, LessonsLanguage]): Lesson
+        lesson (Union[LessonsUniversity, LessonsLanguage]): Lesson which selected for catalog of teachers
         user_language (str): User language
         total_rows (int): Total rows in query
         current_page (int, optional): Current page. Defaults to 1.
@@ -218,6 +218,7 @@ async def catalog_teachers(query: types.CallbackQuery, callback_data: CatalogLes
 
     # Determine lesson type
     if callback_data.lesson_type == TypeLessons.university:
+        selected_lessons = await db.get_lesson_of_university(lesson_id=lesson_id)
         university_id = callback_data.university_id
         teachers = await db.get_teachers_of_university_lesson(
             lesson_id=lesson_id,
@@ -226,6 +227,7 @@ async def catalog_teachers(query: types.CallbackQuery, callback_data: CatalogLes
             exclude_null_teachers=True,
             )
     elif callback_data.lesson_type == TypeLessons.language:
+        selected_lessons = await db.get_lesson_of_language(lesson_id=lesson_id)
         university_id = None
         teachers = await db.get_teachers_of_language_lesson(
             lesson_id=lesson_id,
@@ -294,7 +296,7 @@ async def catalog_teachers(query: types.CallbackQuery, callback_data: CatalogLes
     # Build text
     text = await teachers_catalog_text(
         teachers=teachers,
-        lesson=await db.get_lesson_of_language(lesson_id=lesson_id),
+        lesson=selected_lessons,
         user_language=user_language,
         current_page=current_page,
         rows_per_page=rows_per_page,
