@@ -218,6 +218,7 @@ async def catalog_teacher_profile(query: types.CallbackQuery, callback_data: Cat
         return_callback = CatalogLessons(
             lesson_id=lesson_id,
             lesson_type=lesson_type,
+
             lesson_return_type=TypeCatalogLessons.lessons_languages,
             current_page=current_page,
         ).pack()

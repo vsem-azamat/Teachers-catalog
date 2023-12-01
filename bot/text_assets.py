@@ -552,7 +552,7 @@ class TextMenu:
                 "⏩ Leave as is",
             "ua":
                 "⏩ Залишити як є"
-        }
+            }
         
         text_description_try_again = {
             "ru":
@@ -678,6 +678,17 @@ class TextMenu:
             "en": "🏫 <b>List of universities:</b>",
             "ua": "🏫 <b>Список ВНЗ:</b>"
             }
+
+        text_profile_list_universities = {
+            "ru":
+                "🏫<b>Список ВУЗ-ов:</b>",
+            "cz":
+                "🏫<b>Seznam VŠ:</b>",
+            "en":
+                "🏫<b>List of universities:</b>",
+            "ua":
+                "🏫<b>Список ВНЗ:</b>"
+        }
 
         text_profile_lessons_universities = {
             "ru": "🏫 <b>Сортировка предметов по ВУЗ-ам:</b>",
