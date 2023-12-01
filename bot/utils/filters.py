@@ -7,6 +7,12 @@ from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
 
 
+class IsAdminFilter(BaseFilter):
+    async def __call__(self, msg: types.Message) -> bool:
+        admins_id = [admin.id_tg for admin in await db.get_admins()]
+        return msg.from_user.id in admins_id
+
+
 class ChatTypeFilter(BaseFilter): 
     def __init__(self, chat_type: Union[str, list]):
         self.chat_type = chat_type
