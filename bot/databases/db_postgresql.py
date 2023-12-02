@@ -463,6 +463,48 @@ class SqlAlchemy:
         """
         return self.s.query(Chats)
 
+    #----------------------------------ADMIN----------------------------------#
+    async def get_admins(self) -> Query[Admins]:
+        """
+        Get all admins from database.
+
+        Returns:
+            Query[Admins]: Query of admins.
+        """
+        return self.s.query(Admins)
+
+
+    async def get_all_teachers(self, current_page: Optional[int] = 1, rows_per_page: Optional[int] = None) -> Query[Teachers]:
+        """
+        Get all teachers from database.
+
+        Args:
+            current_page (int): The current page.
+            rows_per_page (int): The number of rows per page.
+
+        Returns:
+            Query[Teachers]: Query of teachers.
+        """
+        teachers = self.s.query(Teachers)
+        if current_page and rows_per_page:
+            teachers = await self._slice_request(teachers, current_page=current_page, rows_per_page=rows_per_page)
+        return teachers
+
+
+    async def delete_teacher(self, teacher_id_tg: int) -> int:
+        """
+        Delete teacher from database.
+
+        Args:
+            teacher_id_tg (int): The id of teacher.
+
+        Returns:
+            int: Count deleted teachers.
+        """
+        deleted = self.s.query(Teachers).filter(Teachers.id_tg==teacher_id_tg).delete()
+        self.s.commit()
+        return deleted
+    
 
 db = SqlAlchemy()
 

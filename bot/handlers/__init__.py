@@ -1,11 +1,12 @@
 from aiogram import Router
 
-from bot.utils.filters import ChatTypeFilter
+from bot.utils.filters import ChatTypeFilter, IsAdminFilter
 from .private import router as router_private
 from .admin import router as router_admin
 from .catalog import router as router_catalog
 from .teacher import router as router_teacher
 
+router_admin.message.filter(IsAdminFilter())
 router_private.message.filter(ChatTypeFilter(chat_type=['private']))
 router_catalog.message.filter(ChatTypeFilter(chat_type=['private']))
 router_teacher.message.filter(ChatTypeFilter(chat_type=['private']))

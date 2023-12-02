@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 from bot.utils.callback_factory import *
@@ -22,22 +22,24 @@ class TextMenu:
         Default buttons.
         """
         text_first_select_language = {
-            "ru": "Привет! Для начала выбери язык, на котором ты хочешь со мной общаться!",
-            "cz": "Ahoj! Pro začátek vyber jazyk, ve kterém chceš se mnou komunikovat!",
-            "en": "Hello! To start, select the language in which you want to communicate with me!",
-            "ua": "Привіт! На початку виберіть мову, на якій ви хочете спілкуватися зі мною!"
+            "ru": "🌍 <b>Привет! Для начала выбери язык, на котором ты хочешь со мной общаться!</b>",
+            "cz": "🌍 <b>Ahoj! Pro začátek vyber jazyk, ve kterém chceš se mnou komunikovat!</b>",
+            "en": "🌍 <b>Hello! To start, select the language in which you want to communicate with me!</b>",
+            "ua": "🌍 <b>Привіт! На початку виберіть мову, на якій ви хочете спілкуватися зі мною!</b>"
         }
+
         text_again_select_language = {
-            "ru": "Выбери язык, нажав на кнопки ниже!",
-            "cz": "Zvolte jazyk stisknutím tlačítek níže!",
-            "en": "Select a language by pressing the buttons below!",
-            "ua": "Оберіть мову, натиснувши кнопки нижче!"
+            "ru": "🌍 <b>Выбери язык, нажав на кнопки ниже!</b>",
+            "cz": "🌍 <b>Zvolte jazyk stisknutím tlačítek níže!</b>",
+            "en": "🌍 <b>Select a language by pressing the buttons below!</b>",
+            "ua": "🌍 <b>Оберіть мову, натиснувши кнопки нижче!</b>"
         }
+
         text_end_select_language = {
-            "ru": "Язык выбран!",
-            "cz": "Jazyk zvolen!",
-            "en": "Language selected!",
-            "ua": "Мова вибрана!"
+            "ru": "🌍 <b>Язык выбран!</b>",
+            "cz": "🌍 <b>Jazyk zvolen!</b>",
+            "en": "🌍 <b>Language selected!</b>",
+            "ua": "🌍 <b>Мова вибрана!</b>"
         }
 
         td_languages = {
@@ -56,71 +58,90 @@ class TextMenu:
         """
         text_main_menu = {
             "ru": 
-                "Привет Я бот КОННЕКТ! 🤖\n\n"\
+                "<b>Привет Я бот КОННЕКТ!</b> 🤖\n\n"\
                 
-                "Я нужен, что бы помочь тебе сориентироваться в нашем пространстве.\n\n"\
+                "📚Я нужен, что бы помочь тебе в учебе!\n\n"\
                 
-                "Здесь ты сможешь найти себе репетитора или предложить свои услуги."\
+                "Помогу тебе найти репетитора или студентов."\
                 "На данный момент моя база только пополняется :)\n\n"\
                 
-                "<b>Здесь ты можешь:</b>\n"\
+                "<b>Со мной ты можешь:</b>\n"\
                 "📍 Найти репетитора и помощь\n"
                 "📍 Бесплатно попасть в каталог репетиторов\n"\
                 "📍 Найти студенческие чаты/каналы\n"\
                 "📍 Предложить сотрудничество\n\n"
                 
+                "<b>💬 Мои команды:</b>\n"
                 "/start - Обновить меню\n"
-                "/language - Поменять язык",
+                "/language - Поменять язык\n\n"
 
+                "<b>Если что-то не понятно/не работает,то смело пишите ему!</b>\n"
+                "<b>Dev:</b> @vsem_azamat\n",
+            
             "cz":
-                "Ahoj, já jsem bot KONNEKT! 🤖\n\n"\
+                "<b>Ahoj Jsem bot CONNECT!</b> 🤖\n\n"\
                 
-                "Potřebuji ti pomoci zorientovat se v našem prostoru.\n\n"\
+                "📚Potřebuji vám pomoci se studiem!\n\n"\
                 
-                "Zde si můžeš najít doučovatele nebo nabídnout své služby."\
-                "Momentálně se stále rozrůstám :)\n\n"\
+                "Pomůžu vám najít učitele nebo studenty."\
+                "V současné době se můj seznam pouze doplňuje :)\n\n"\
                 
-                "<b>Zde můžeš:</b>\n"\
-                "📍 Najít si doučovatele a pomoc\n"
-                "📍 Zdarma se dostat do katalogu doučovatelů\n"\
-                "📍 Najít studentské chaty/kanály\n"\
-                "📍 Nabídnout spolupráci\n\n"
+                "<b>Semnou můžete:</b>\n"\
+                "📍 Najít učitele a pomoc\n"
+                "📍 Zdarma se dostanete do katalogu učitelů\n"\
+                "📍 Najděte studentské chaty / kanály\n"\
+                "📍 Navrhněte spolupráci\n\n"
                 
-                "/start - Obnovit menu\n"
-                "/language - Změnit jazyk",
+                "<b>💬 Moje příkazy:</b>\n"
+                "/start - Aktualizovat menu\n"
+                "/language - Změnit jazyk\n\n"
+
+                "<b>Pokud něco nerozumíte / nefunguje, napište mu!</b>\n"
+                "<b>Dev:</b> @vsem_azamat\n",
 
             "en":
-                "Hi! I'm CONNECT bot! 🤖\n\n"
+                "<b>Hello I'm bot CONNECT!</b> 🤖\n\n"\
                 
-                "I'm here to help you navigate our platform.\n\n"
+                "📚I need to help you with your studies!\n\n"\
                 
-                "Here, you can find a tutor or offer your services. Our database is being updated daily :)\n\n"
+                "I will help you find a tutor or students."\
+                "At the moment, my list is only being replenished :)\n\n"\
                 
-                "<b>What can I do for you:</b>\n"\
-                "📍 Find a tutor or study help\n"\
-                "📍 Add your profile to the tutor catalog for free\n"\
-                "📍 Find student chats/channels\n"\
+                "<b>With me you can:</b>\n"\
+                "📍 Find a tutor and help\n"
+                "📍 Get into the catalog of tutors for free\n"\
+                "📍 Find student chats / channels\n"\
                 "📍 Offer cooperation\n\n"
                 
-                "/start - Refresh the menu\n"
-                "/language - Change language",
-                
+                "<b>💬 My commands:</b>\n"
+                "/start - Update menu\n"
+                "/language - Change language\n\n"
+
+                "<b>If something is not clear / does not work, write to him!</b>\n"
+                "<b>Dev:</b> @vsem_azamat\n",
+
             "ua":
-                "Привіт! Я бот CONNECT! 🤖\n\n"
+                "<b>Привіт Я бот КОННЕКТ!</b> 🤖\n\n"\
                 
-                "Я допомагаю тобі орієнтуватися на нашій платформі.\n\n"
+                "📚Я потрібен, щоб допомогти тобі в навчанні!\n\n"\
                 
-                "Тут ти можеш знайти репетитора або запропонувати свої послуги. Наша база оновлюється щоденно :)\n\n"
+                "Допоможу тобі знайти репетитора або студентів."\
+                "На даний момент мій список тільки поповнюється :)\n\n"\
                 
-                "<b>Що я можу для тебе зробити:</b>\n"\
-                "📍 Знайти репетитора або допомогу в навчанні\n"\
-                "📍 Додати безкоштовно свій профіль до каталогу репетиторів\n"\
+                "<b>Зі мною ти можеш:</b>\n"\
+                "📍 Знайти репетитора і допомогу\n"
+                "📍 Безкоштовно потрапити в каталог репетиторів\n"\
                 "📍 Знайти студентські чати / канали\n"\
                 "📍 Запропонувати співпрацю\n\n"
                 
+                "<b>💬 Мої команди:</b>\n"
                 "/start - Оновити меню\n"
-                "/language - Змінити мову", 
+                "/language - Змінити мову\n\n"
+
+                "<b>Якщо щось незрозуміло / не працює, то сміливо пиши йому!</b>\n"
+                "<b>Dev:</b> @vsem_azamat\n"
         }
+          
 
         td_find_teachers = {
             'ru': '🔎Найти репетитора.',
@@ -252,16 +273,16 @@ class TextMenu:
 
         text_select_head = {
             "ru": 
-                "🟰🟰🟰🟰🔎🟰🟰🟰🟰\n"\
+                "🟰🟰🟰🟰🟰🔎🟰🟰🟰🟰🟰\n"\
                 "<b>-> Поиск репетитора</b>\n\n",
             "cz":
-                "🟰🟰🟰🟰🔎🟰🟰🟰🟰\n"
+                "🟰🟰🟰🟰🟰🔎🟰🟰🟰🟰🟰\n"
                 "<b>-> Vyhledávání doučujícího</b>\n\n",
             "en":
-                "🟰🟰🟰🟰🔎🟰🟰🟰🟰\n"
+                "🟰🟰🟰🟰🟰🔎🟰🟰🟰🟰🟰\n"
                 "<b>-> Tutor search</b>\n\n",
             "ua":
-                "🟰🟰🟰🟰🔎🟰🟰🟰🟰\n"
+                "🟰🟰🟰🟰🟰🔎🟰🟰🟰🟰🟰\n"
                 "<b>-> Пошук репетитора</b>\n\n"  
         }
 
@@ -286,17 +307,17 @@ class TextMenu:
             }
 
         text_show_teachers = {
-            'ru': '<b>📚 Репетиторы по предмету:</b>',
-            'en': '<b>📚 Tutors by lessons:</b>',
-            'cz': '<b>📚 Lektoři podle předmětu:</b>',
-            'ua': '<b>📚 Репетитори за предметом:</b>'
+            'ru': '📚 <b>Репетиторы по предмету:</b>',
+            'en': '📚 <b>Tutors by lessons:</b>',
+            'cz': '📚 <b>Lektoři podle předmětu:</b>',
+            'ua': '📚 <b>Репетитори за предметом:</b>'
             }
 
         text_lessons_search = {
-            'ru': '📚 Выберите способ поиска репетиторов по предмету:',
-            'en': '📚 Choose a way to search for tutors by lessons:',
-            'cz': '📚 Vyberte způsob vyhledávání lektorů podle předmětu:',
-            'ua': '📚 Виберіть спосіб пошуку репетиторів за предметом:'
+            'ru': '📚 <b>Выберите способ поиска репетиторов по предмету:</b>',
+            'en': '📚 <b>Choose a way to search for tutors by lessons:</b>',
+            'cz': '📚 <b>Vyberte způsob vyhledávání lektorů podle předmětu:</b>',
+            'ua': '📚 <b>Виберіть спосіб пошуку репетиторів за предметом:</b>'
             }
 
         ti_lessons_search_with_catalog = {
@@ -337,17 +358,17 @@ class TextMenu:
         Default buttons.
         """
         text_create_new_profile = {
-            "ru": "У вас еще нет профиля репетитора! Хотите создать?",
-            "en": "You do not have a tutor profile yet! Would you like to create one?",
-            "cz": "Nemáte ještě profil učitele! Chcete vytvořit profil?",
-            "ua": "У вас ще немає профілю репетитора! Хочете створити?"
+            "ru": "🧑‍🏫 <b>У вас еще нет профиля репетитора! Хотите создать?</b>",
+            "en": "🧑‍🏫 <b>You do not have a tutor profile yet! Would you like to create one?</b>",
+            "cz": "🧑‍🏫 <b>Nemáte ještě profil učitele! Chcete vytvořit profil?</b>",
+            "ua": "🧑‍🏫 <b>У вас ще немає профілю репетитора! Хочете створити?</b>"
             }
 
         text_your_profile = {
-            'ru': '<b>Ваш профиль</b> ⬆️',
-            'en': '<b>Your Profile</b> ⬆️',
-            'cz': '<b>Váš profil</b> ⬆️',
-            'ua': '<b>Ваш профіль</b> ⬆️'
+            'ru': '⬆️ <b>Ваш профиль:</b> ⬆️',
+            'en': '⬆️ <b>Your Profile:</b> ⬆️',
+            'cz': '⬆️ <b>Váš profil:</b> ⬆️',
+            'ua': '⬆️ <b>Ваш профіль:</b> ⬆️'
             }
         
         td_create_profile_yes = "✅"
@@ -356,10 +377,10 @@ class TextMenu:
         aviable_create_profile_answers = [td_create_profile_no, td_create_profile_yes]
 
         text_try_again_create_profile = {
-            "ru": "Нажмите на одну из кнопок ниже!",
-            "en": "Click on one of the buttons below!",
-            "cz": "Klikněte na jedno z tlačítek níže!",
-            "ua": "Натисніть на одну з кнопок нижче!"
+            "ru": "⚠️ <b>Нажмите на одну из кнопок ниже!</b>",
+            "en": "⚠️ <b>Click on one of the buttons below!</b>",
+            "cz": "⚠️ <b>Klikněte na jedno z tlačítek níže!</b>",
+            "ua": "⚠️ <b>Натисніть на одну з кнопок нижче!</b>"
             }
 
         @staticmethod
@@ -372,127 +393,157 @@ class TextMenu:
             return builder
 
         text_teacher_write_me_you_name = {
-            'ru': "<b>Ваш профиль будет выглядить подобным образом!</b> ⬆️\n"
-                "Рекомундую заполнять всё латиницей, кроме описания профиля!"
+            'ru': 
+                "⬆️ <b>Ваш профиль будет выглядить подобным образом!</b> ⬆️\n"
+                "Рекомендую заполнять всё латиницей, кроме описания профиля!\n\n"
                 "Можете не бояться сделать ошибку, у вас всегда будет возможность потом подправить свои данные!\n\n"
                 "<b>Помните, что данные не должны содержать спец символы:</b> /\>[_*...:\n\n"
-                "Напишите свое имя:",
-            'en': "<b>Your profile will look similar to this!</b> ⬆️\n"
-                "I recommend filling everything in Latin script except for the profile description! "
-                "Don't be afraid to make a mistake, you will always have the opportunity to correct your data later!\n\n"
-                "<b>Remember, data should not contain special characters:</b> /\>[_*...:\n\n"
-                "Write your name:",
-            'cs': "<b>Váš profil bude vypadat podobně!</b> ⬆️\n"
-                "Doporučuji vyplnit všechno latinkou kromě popisu profilu! "
-                "Nebojte se udělat chybu, později budete mít vždy možnost opravit svá data!\n\n"
-                "<b>Pamatujte si, že data by neměla obsahovat speciální znaky:</b> /\>[_*...:\n\n"
-                "Napište své jméno:",
-            'ua': "<b>Ваш профіль виглядатиме наступним чином!</b> ⬆️\n"
-                "Рекомендую заповнювати все латиницею, крім опису профілю! "
-                "Не бійтеся робити помилку, у вас завжди буде можливість потім виправити свої дані!\n\n"
+                "❌ <b>Отменить регистрацию:</b> /cancel\n\n"
+                "⬇️ <b>Напишите свое имя:</b> ⬇️",
+
+            'cz':
+                "⬆️ <b>Váš profil bude vypadat takto!</b> ⬆️\n"
+                "Nemusíte se bát udělat chybu, vždy budete mít možnost později opravit své údaje!\n\n"
+                "<b>Pamatujte, že údaje nesmí obsahovat speciální znaky:</b> /\>[_*...:\n\n"
+                "❌ <b>Zrušit registraci:</b> /cancel\n\n"
+                "⬇️ <b>Napište své jméno:</b> ⬇️",
+
+            'en':
+                "⬆️ <b>Your profile will look like this!</b> ⬆️\n"
+                "You don't have to be afraid to make a mistake, you will always have the opportunity to correct your data later!\n\n"
+                "<b>Remember that the data must not contain special characters:</b> /\>[_*...:\n\n"
+                "❌ <b>Cancel registration:</b> /cancel\n\n"
+                "⬇️ <b>Write your name:</b> ⬇️",
+
+            'ua':
+                "⬆️ <b>Ваш профіль буде виглядати так!</b> ⬆️\n"
+                "Ви не повинні боятися зробити помилку, у вас завжди буде можливість потім виправити свої дані!\n\n"
                 "<b>Пам'ятайте, що дані не повинні містити спеціальні символи:</b> /\>[_*...:\n\n"
-                "Напишіть своє ім'я:"
+                "❌ <b>Скасувати реєстрацію:</b> /cancel\n\n"
+                "⬇️ <b>Напишіть своє ім'я:</b> ⬇️"
                 }
 
         text_name_try_again = {
-            'ru': "↪️ <b>Попробуйте еще раз, вы что-то ввели неккоректно</b>\n"
-                " - имя должно быть от 2 до 25 символов\n",
-            'en': "↪️ <b>Try again, you entered something incorrectly</b>\n"
-                " - name must be between 2 and 25 characters long\n",
-            'cz': '↪️ <b>Zkuste to znovu, zadal jste něco špatně</b>\n'
-                '- jméno musí být 2 až 25 znaků dlouhé\n',
-            'ua': "↪️ <b>Спробуйте ще раз, ви щось ввели неправильно</b>\n"
-                " - ім'я повинно бути від 2 до 25 символів\n"
-        }   
+            'ru': 
+                "↪️ <b>Введите имя еще раз, вы что-то ввели неккоректно.</b>\n\n"
+                "⚠️ <b>Имя должно быть от 2 до 25 символов!</b>",
 
-        text_keep = {
+            'cz':
+                "↪️ <b>Zadejte jméno znovu, něco jste zadal(a) nesprávně.</b>\n\n"
+                "⚠️ <b>Jméno by mělo mít délku od 2 do 25 znaků!</b>",
+
+            'en':
+                "↪️ <b>Enter your name again, you entered something incorrectly.</b>\n\n"
+                "⚠️ <b>The name should be from 2 to 25 characters long!</b>",
+            
+            'ua':
+                "↪️ <b>Введіть ім'я ще раз, ви щось ввели неправильно.</b>\n\n"
+                "⚠️ <b>Ім'я повинно бути від 2 до 25 символів!</b>"
+            }   
+
+        td_keep = {
             "ru": "⏩ Пропустить",
             "en": "⏩ Skip",
+            "cz": "⏩ Přeskočit",
             "ua": "⏩ Пропустити",
-            "cz": "⏩ Přeskočit"
-        }
+            }
 
         text_location_write = {
             'ru': 
-                "📍<b>Перечислите кратко где и как проходят занятия!</b>\n"\
+                "📍<b>Перечислите кратко где и как проходят занятия!</b>\n\n"
+                "❌ <b>Отменить регистрацию:</b> /cancel\n\n"
                 "<b>Пример:</b> Прага, Скайп, Дискорд, Библиотека",
             'cz':
-                "📍<b>Stručně vyjmenujte, kde a jak probíhají lekce!</b>\n"\
+                "📍<b>Stručně vyjmenujte, kde a jak probíhají lekce!</b>\n"
+                "❌ <b>Zrušit registraci:</b> /cancel\n\n"
                 "<b>Příklad:</b> Praha, Skype, Discord, knihovna",
             'en':
-                "📍<b>List briefly where and how the lessons take place!</b>\n"\
+                "📍<b>List briefly where and how the lessons take place!</b>\n\n"
+                "❌ <b>Cancel registration:</b> /cancel\n\n"
                 "<b>Example:</b> Prague, Skype, Discord, library",
             'ua':
-                "📍<b>Перелічіть коротко де і як проходять заняття!</b>\n"\
+                "📍<b>Перелічіть коротко де і як проходять заняття!</b>\n\n"
+                "❌ <b>Скасувати реєстрацію:</b> /cancel\n\n"
                 "<b>Приклад:</b> Прага, Скайп, Дискорд, Бібліотека"
             }
 
         text_location_try_again = {
             "ru":
-                "↪️ <b>Попробуйте еще раз, вы что-то ввели некорректно</b>\n"\
-                " - текст должен быть от 2 до 100 символов\n",
-            'cz':
-                "↪️ <b>Zkuste to znovu, něco jste zadal(a) nesprávně</b>\n"\
-                " - text by měl mít délku od 2 do 100 znaků\n",
-            'en':
-                "↪️ <b>Try again, you entered something incorrectly</b>\n"\
-                " - the text should be from 2 to 100 characters long\n",
-            'ua':
-                "↪️ <b>Спробуйте ще раз, ви щось ввели неправильно</b>\n"\
-                " - текст повинен бути від 2 до 100 символів\n"
+                "↪️ <b>Попробуйте еще раз, вы что-то ввели некорректно</b>\n\n"
+                "⚠️ <b>Текст должен быть от 2 до 100 символов</b>\n",
+
+            "cz":
+                "↪️ <b>Zkuste to znovu, něco jste zadal(a) nesprávně</b>\n\n"
+                "⚠️ <b>Text by měl mít délku od 2 do 100 znaků</b>\n",
+
+            "en":
+                "↪️ <b>Try again, you entered something incorrectly</b>\n\n"
+                "⚠️ <b>The text should be from 2 to 100 characters long</b>\n",
+
+            "ua":
+                "↪️ <b>Спробуйте ще раз, ви щось ввели неправильно</b>\n\n"
+                "⚠️ <b>Текст повинен бути від 2 до 100 символів</b>\n"
                 }
 
         text_price_write = {
             "ru":
-                "💳<b>Напишите стоимость занятий!</b>\n"\
+                "💳 <b>Напишите стоимость занятий!</b>\n\n"
+                "❌ <b>Отменить регистрацию:</b> /cancel\n\n"
                 "<b>Пример:</b> 300-500 Kč/час",
             "cz":
-                "💳<b>Napište cenu lekcí!</b>\n"\
+                "💳 <b>Napište cenu lekcí!</b>\n\n"
+                "❌ <b>Zrušit registraci:</b> /cancel\n\n"
                 "Příklad:</b> 300-500 Kč/hod",
             "en":
-                "💳<b>Write down the price of the lessons!</b>\n"\
+                "💳 <b>Write down the price of the lessons!</b>\n\n"
+                "❌ <b>Cancel registration:</b> /cancel\n\n"
                 "<b>Example:</b> 300-500 CZK/hour",
             "ua":
-                "💳<b>Напишіть вартість занять!</b>\n"\
+                "💳 <b>Напишіть вартість занять!</b>\n\n"
+                "❌ <b>Скасувати реєстрацію:</b> /cancel\n\n"
                 "<b>Приклад:</b> 300-500 Kč/год"
             }
 
         text_price_try_again = {
             "ru":
-                "↪️ Попробуйте еще раз, вы что-то ввели некорректно\n"\
-                " - текст должен быть от 2 до 25 символов\n",
+                "↪️ <b>Попробуйте еще раз, вы что-то ввели некорректно</b>\n\n"
+                "⚠️ <b>Текст должен быть от 2 до 25 символов</b>\n",
+        
             "cz":
-                "↪️ Zkuste to znovu, něco jste zadal(a) nesprávně\n"\
-                " - text by měl mít délku od 2 do 25 znaků\n",
+                "↪️ <b>Zkuste to znovu, něco jste zadal(a) nesprávně</b>\n\n"
+                "⚠️ <b>Text by měl mít délku od 2 do 25 znaků</b>\n",
             "en":
-                "↪️ Try again, you entered something incorrectly\n"\
-                " - the text should be from 2 to 25 characters long\n",
+                "↪️ <b>Try again, you entered something incorrectly</b>\n\n"
+                "⚠️ <b>The text should be from 2 to 25 characters long</b>\n",
             "ua":
-                "↪️ Спробуйте ще раз, ви щось ввели неправильно\n"\
-                " - текст повинен бути від 2 до 25 символів\n"
+                "↪️ <b>Спробуйте ще раз, ви щось ввели неправильно</b>\n\n"
+                "⚠️ <b>Текст повинен бути від 2 до 25 символів</b>\n"
             }
 
 
         text_description_write = {
             "ru": 
-                "Напишите описание к своему профилю!\n"\
-                "Учтите, что в каталоге репетиторов, видно будет только первые 4-5 строк описания.\n"\
+                "📝 <b>Напишите описание к своему профилю!</b>\n\n"
+                "Учтите, что в каталоге репетиторов, видно будет только первые 4-5 строк описания.\n"
                 "Полный текст будет виден человека при полном открытии профиля.",
-            "cz": 
-                "Napište popis svého profilu!\n"\
-                "V katalogu lektorů bude vidět pouze prvních 4-5 řádků popisu.\n"\
-                "Celý text bude viditelný pro osobu při úplném otevření profilu.",
-            "en": 
-                "Write a description for your profile!\n"\
-                "Note that in the tutor directory, only the first 4-5 lines of the description will be visible.\n"\
+
+            "cz":
+                "📝 <b>Napište popis svého profilu!</b>\n\n"
+                "Vezměte prosím na vědomí, že v katalogu lektorů budou vidět pouze první 4-5 řádků popisu.\n"
+                "Plný text bude vidět člověk při úplném otevření profilu.",
+
+            "en":
+                "📝 <b>Write a description for your profile!</b>\n\n"
+                "Please note that in the catalog of tutors, only the first 4-5 lines of the description will be visible.\n"
                 "The full text will be visible to a person when the profile is fully opened.",
-            "ua": 
-                "Напишіть опис до свого профілю!\n"\
-                "Зверніть увагу, що в каталозі репетиторів, буде видно тільки перші 4-5 рядків опису.\n"\
+
+            "ua":
+                "📝 <b>Напишіть опис до свого профілю!</b>\n\n"
+                "Врахуйте, що в каталозі репетиторів, видно буде тільки перші 4-5 рядків опису.\n"
                 "Повний текст буде видно людині при повному відкритті профілю."
             }
         
-        text_description_keep_old ={
+        td_keep_old_description ={
             "ru":
                 "⏩ Оставить как есть",
             "cz":
@@ -501,109 +552,132 @@ class TextMenu:
                 "⏩ Leave as is",
             "ua":
                 "⏩ Залишити як є"
-        }
+            }
         
         text_description_try_again = {
             "ru":
-                "Попробуйте еще раз, вы что-то ввели неккоректно\n"\
-                " - текст описания должен быть от 30 до 2500 символов\n",
+                "↪️ <b>Попробуйте еще раз, вы что-то ввели неккоректно</b>\n\n"\
+                "⚠️ <b>Текст описания должен быть от 30 до 2500 символов</b>\n",
+
             "cz":
-                "Zkuste to znovu, něco jste zadal nesprávně\n"\
-                " - popis textu by měl být od 30 do 2500 znaků\n",
+                "↪️ <b>Zkuste to znovu, něco jste zadal(a) nesprávně</b>\n\n"\
+                "⚠️ <b>Text popisu by měl mít délku od 30 do 2500 znaků</b>\n",
+
             "en":
-                "Please try again, you entered something incorrectly\n"\
-                " - description text should be between 30 and 2500 characters\n",
+                "↪️ <b>Try again, you entered something incorrectly</b>\n\n"\
+                "⚠️ <b>The description text should be from 30 to 2500 characters long</b>\n",
+
             "ua":
-                "Спробуйте ще раз, ви щось ввели неправильно\n"\
-                " - текст опису має бути від 30 до 2500 символів\n"
+                "↪️ <b>Спробуйте ще раз, ви щось ввели неправильно</b>\n\n"\
+                "⚠️ <b>Текст опису повинен бути від 30 до 2500 символів</b>\n"
             }
 
         text_cancel_registration = {
-            "ru": "Вы отменили регистрацию!",
-            "en": "You have canceled registration!",
-            "cz": "Zrušili jste registraci!",
-            "ua": "Ви скасували реєстрацію!"
+            "ru": "❌ <b>Вы отменили регистрацию!</b>",
+            "en": "❌ <b>You have canceled registration!</b>",
+            "cz": "❌ <b>Zrušili jste registraci!</b>",
+            "ua": "❌ <b>Ви скасували реєстрацію!</b>"
             }
 
         text_profile_finish = {
             "ru": 
-                "<b>Ваш профиль почти готов!</b> ⬆️\n"
-                "Осталось только выбрать предметы, чтобы ваш профиль было видно в соответствующих каталогах.\n\n"
-                "Чтобы это сделать, еще раз нажмите на кнопку Личный Кабинет.",
-            "cz":
-                "<b>Váš profil je téměř hotový!</b> ⬆️\n"
-                "Zbývá pouze vybrat předměty, aby váš profil byl viditelný v příslušných katalozích.\n\n"
-                "Abyste to udělali, klikněte ještě jednou na tlačítko Osobní účet.",
-            "en":
-                "<b>Your profile is almost ready!</b> ⬆️\n"
-                "You just need to select subjects to make your profile visible in the corresponding catalogs.\n\n"
-                "To do this, click on the Personal Account button again.",
-            "ua":
-                "<b>Ваш профіль майже готовий!</b> ⬆️\n"
-                "Залишилося тільки вибрати предмети, щоб ваш профіль був видимим в відповідних каталогах.\n\n"
-                "Щоб це зробити, ще раз натисніть кнопку Особистий кабінет."
-        }
+                "⬆️ <b>Ваш профиль репетитора готов!</b> ⬆️\n\n"
+                "<b> Что-бы перейти в личный кабинет, из главного меню (start) нажмите на кнопку:<b>\n"
+                "👨‍🏫 <i>Личный кабинет репетитора</i>\n\n"
+                "<b>Теперь вам нужно:<b>"
+                    "📍 Выбрать предметы, которые вы будете преподавать, чтобы ваш профиль отображался в каталоге\n"
+                    "📍 Иметь логин (username) в Telegram\n"
+                    "📍 Активировать профиль, нажав на 3-ю кнопку в личном кабинете \n(✅Профиль активирован/❌Профиль деактивирован) \n\n"
+                "Если у вас что-то не получается или есть вопросы, то смело пишите мне: @vsem_azamat",
 
+            "cz":
+                "⬆️ <b>Váš profil učitele je připraven!</b> ⬆️\n\n"
+                "<b>Chcete-li přejít do osobního účtu, z hlavní nabídky (start) klikněte na tlačítko:<b>\n"
+                "👨‍🏫 <i>Můj profil učitele</i>\n\n"
+                "<b>Nyní musíte:<b>"
+                    "📍 Vyberte předměty, které budete vyučovat, aby se váš profil zobrazoval v katalogu\n"
+                    "📍 Mít přihlašovací jméno (username) v Telegramu\n"
+                    "📍 Aktivujte profil kliknutím na 3. tlačítko v osobním účtu \n(✅Profil aktivován/❌Profil deaktivován) \n\n"
+                "Pokud se vám něco nedaří nebo máte nějaké dotazy, napište mi: @vsem_azamat",
+
+            "en":
+                "⬆️ <b>Your tutor profile is ready!</b> ⬆️\n\n"
+                "<b>To go to your personal account, from the main menu (start) click on the button:<b>\n"
+                "👨‍🏫 <i>My tutor profile</i>\n\n"
+                "<b>Now you need:<b>"
+                    "📍 Select the subjects you will teach to make your profile visible in the catalog\n"
+                    "📍 Have a login (username) in Telegram\n"
+                    "📍 Activate the profile by clicking on the 3rd button in the personal account \n(✅Profile activated/❌Profile deactivated) \n\n"
+                "If you can't do something or have any questions, feel free to write to me: @vsem_azamat",
+
+            "ua":
+                "⬆️ <b>Ваш профіль репетитора готовий!</b> ⬆️\n\n"
+                "<b>Щоб перейти в особистий кабінет, з головного меню (start) натисніть на кнопку:<b>\n"
+                "👨‍🏫 <i>Особистий кабінет репетитора</i>\n\n"
+                "<b>Тепер вам потрібно:<b>"
+                    "📍 Вибрати предмети, які ви будете викладати, щоб ваш профіль відображався в каталозі\n"
+                    "📍 Мати логін (username) в Telegram\n"
+                    "📍 Активувати профіль, натиснувши на 3-ю кнопку в особистому кабінеті \n(✅Профіль активований/❌Профіль деактивований) \n\n"
+                "Якщо у вас щось не виходить або є питання, то сміливо пишіть мені: @vsem_azamat"
+            }
 
         text_profile_edit_finish = {
-            "ru": "Изменения внесены в ваш профиль⬆️",
-            "en": "Changes have been made to your profile⬆️",
-            "ua": "Зміни внесені до вашого профілю⬆️",
-            "cz": "Změny byly provedeny ve vašem profilu⬆️"
-        }
-
+            "ru": "⬆️ <b>Изменения внесены в ваш профиль:</b> ⬆️",
+            "en": "⬆️ <b>Changes have been made to your profile:</b> ⬆️",
+            "ua": "⬆️ <b>Зміни внесені до вашого профілю:</b> ⬆️",
+            "cz": "⬆️ <b>Změny byly provedeny ve vašem profilu:</b> ⬆️"
+            }
 
         text_profile_menu = {
-            "ru":
-                "Здесь вы можете самостоятельно редактировать свой профиль репетитора:",
-            "cz":
-                "Zde si můžete sami upravit profil učitele:",
-            "en":
-                "Here you can edit your tutor profile yourself:",
-            "ua":
-                "Тут ви можете самостійно змінити свій профіль репетитора:",
+            "ru": "✍️ <b>Здесь вы можете самостоятельно редактировать свой профиль репетитора:<b>",
+            "cz": "✍️ <b>Zde si můžete upravit svůj profil učitele:</b>",
+            "en": "✍️ <b>Here you can edit your tutor profile yourself:</b>",
+            "ua": "✍️ <b>Тут ви можете самостійно редагувати свій профіль репетитора:</b>"
             }
 
         text_profile_lessons_head = {
             "ru":
-                "🟰🟰🟰🟰🎓🟰🟰🟰🟰\n"
+                "🟰🟰🟰🟰🟰⚙️🎓🟰🟰🟰🟰🟰\n"
                 "<b>-> Вы в меню репетитора!</b>\n\n",
             "cz":
-                "🟰🟰🟰🟰🎓🟰🟰🟰🟰\n"
-                "<b>-> Jste v učitelském menu!</b>\n\n",
+                "🟰🟰🟰🟰🟰⚙️🎓🟰🟰🟰🟰🟰\n"
+                "<b>-> Jste v menu učitele!</b>\n\n",
             "en":
-                "🟰🟰🟰🟰🎓🟰🟰🟰🟰\n"
-                "<b>-> You are in the teacher menu!</b>\n\n",
+                "🟰🟰🟰🟰🟰⚙️🎓🟰🟰🟰🟰🟰\n"
+                "<b>-> You are in the tutor menu!</b>\n\n",
             "ua":
-                "🟰🟰🟰🟰🎓🟰🟰🟰🟰\n"
-                "<b>-> Ви в меню вчителя!</b>\n\n"
+                "🟰🟰🟰🟰🟰⚙️🎓🟰🟰🟰🟰🟰\n"
+                "<b>-> Ви в меню репетитора!</b>\n\n"
             }
         
         text_profile_lessons = {
             "ru":
-                "Предметы отсортированы в приведенных ниже категориях. "
-                "Выберите предмет, который хотите добавить себе, чтобы ваш профиль отображался в каталоге!",
+                "📚 <b>Предметы отсортированы по категориям, указанным ниже.</b>\n\n"
+                "Отмечайте предметы, чтобы ваш профиль отображался в каталогах выбранных предметов",
             "cz":
-                "Předměty jsou řazeny do kategorií uvedených níže. "
-                "Vyberte si předmět, který si chcete přidat, aby byl váš profil zobrazen v katalogu!",
+                "📚 <b>Předměty jsou seřazeny podle níže uvedených kategorií.</b>\n\n"
+                "Označte předměty, aby se váš profil zobrazoval v katalozích vybraných předmětů",
             "en":
-                "Lessons are sorted into categories listed below. "
-                "Select the lesson you want to add to yourself to make your profile visible in the catalog!",
+                "📚 <b>Subjects are sorted by the categories below.</b>\n\n"
+                "Check the subjects for your profile to be displayed in the catalogs of selected subjects",
             "ua":
-                "Предмети відсортовані в наведених нижче категоріях. "
-                "Виберіть предмет, який хочете додати собі, щоб ваш профіль відображався в каталозі!"
-        }
+                "📚 <b>Предмети відсортовані за категоріями, зазначеними нижче.</b>\n\n"
+                "Відмічайте предмети, щоб ваш профіль відображався в каталогах обраних предметів"
+            }
 
         text_profile_lessons_profile_doesnt_exists = {
-            "ru":
-                "У вас еще нет профиля репетитора! Чтобы создать, нажмите на <b>Личный кабинет.</b>",
-            "cz":
-                "Ještě nemáte vytvořený profil učitele! Abyste jej vytvořili, klepněte na <b>Osobní účet.</b>",
-            "en":
-                "You don't have a tutor profile yet! To create one, click on <b>Personal Account.</b>",
-            "ua":
-                "У вас ще немає профілю репетитора! Щоб створити профіль, натисніть <b>Особистий кабінет.</b>"
-        }
+            "ru": "⚠️ У вас еще нет профиля репетитора! Чтобы создать, нажмите на <b>Личный кабинет.</b>",
+            "cz": "⚠️ Ještě nemáte vytvořený profil učitele! Abyste jej vytvořili, klepněte na <b>Osobní účet.</b>",
+            "en": "⚠️ You don't have a tutor profile yet! To create one, click on <b>Personal Account.</b>",
+            "ua": "⚠️ У вас ще немає профілю репетитора! Щоб створити профіль, натисніть <b>Особистий кабінет.</b>"
+            }
+
+        text_profile_list_universities = {
+            "ru": "🏫 <b>Список ВУЗ-ов:</b>",
+            "cz": "🏫 <b>Seznam VŠ:</b>",
+            "en": "🏫 <b>List of universities:</b>",
+            "ua": "🏫 <b>Список ВНЗ:</b>"
+            }
 
         text_profile_list_universities = {
             "ru":
@@ -617,69 +691,54 @@ class TextMenu:
         }
 
         text_profile_lessons_universities = {
-            "ru":
-                "🏫Сортировка предметов по ВУЗ-ам:",
-            "cz":
-                "🏫Třídění předmětů podle vysokých škol:",
-            "en":
-                "🏫Sorting subjects by universities:",
-            "ua":
-                "🏫Сортування предметів за ВУЗ-ами:"
-        }
+            "ru": "🏫 <b>Сортировка предметов по ВУЗ-ам:</b>",
+            "cz": "🏫 <b>Třídění předmětů podle vysokých škol:</b>",
+            "en": "🏫 <b>Sorting subjects by universities:</b>",
+            "ua": "🏫 <b>Сортування предметів за ВУЗ-ами:</b>"
+            }
 
         text_profile_lessons_languages = {
-            "ru":
-                "🔠Сортировка предметов по Языкам:",
-            "cz":
-                "🔠Třídění předmětů podle jazyků:",
-            "en":
-                "🔠Sorting subjects by languages:",
-            "ua":
-                "🔠Сортування предметів за Мовами:"
-        }
+            "ru": "🔠 <b>Сортировка предметов по Языкам:</b>",
+            "cz": "🔠 <b>Třídění předmětů podle jazyků:</b>",
+            "en": "🔠 <b>Sorting subjects by languages:</b>",
+            "ua": "🔠 <b>Сортування предметів за Мовами:</b>"
+            }
 
         text_profile_lessons_select = {
-            "ru":
-                "Выберите предмет, который хотите добавить к себе профиль:",
-            "cz":
-                "Vyberte předmět, který chcete přidat do svého profilu:",
-            "en":
-                "Select the lessons you want to add to your profile:",
-            "ua":
-                "Виберіть предмет, який хочете додати до свого профілю:"
-        }
+            "ru": "📚🛒 <b>Выберите предмет, который хотите добавить к себе профиль:</b>",
+            "cz": "📚🛒 <b>Vyberte předmět, který chcete přidat do svého profilu:</b>",
+            "en": "📚🛒 <b>Select the lessons you want to add to your profile:</b>",
+            "ua": "📚🛒 <b>Виберіть предмет, який хочете додати до свого профілю:</b>"
+            }
 
         text_profile_lessons_catalog = {
-            "ru":
-                "Каталог всех предметов!",
-            "cz":
-                "Katalog všech předmětů!",
-            "en":
-                "Catalog of all lessons!",
-            "ua":
-                "Каталог всіх предметів!"
-        }
+            "ru": "📚 <b>Каталог всех предметов:</b>",
+            "cz": "📚 <b>Katalog všech předmětů:</b>",
+            "en": "📚 <b>Catalog of all lessons:</b>",
+            "ua": "📚 <b>Каталог всіх предметів:</b>"
+            }
         
         text_profile_select_edit = {
-            "ru": "<b>Редактировать:</b>",
-            "en": "<b>Edit:</b>",
-            "cz": "<b>Upravit:</b>",
-            "ua": "<b>Редагувати:</b>"
-        }
+            "ru": "✍️ <b>Редактировать:</b>",
+            "en": "✍️ <b>Edit:</b>",
+            "cz": "✍️ <b>Upravit:</b>",
+            "ua": "✍️ <b>Редагувати:</b>"
+            }
 
         ti_profile_lessons_add_delete = {
-            "ru": "📚 Добавить/Убрать предметы",
-            "en": "📚 Add/Remove lessons",
-            "cz": "📚 Přidat/Odstranit předměty",
-            "ua": "📚 Додати/Видалити предмети"
-        }
+            "ru": "📚🛒 Добавить/Убрать предметы",
+            "en": "📚🛒 Add/Remove lessons",
+            "cz": "📚🛒 Přidat/Odstranit předměty",
+            "ua": "📚🛒 Додати/Видалити предмети"
+            }
 
         ti_profile_edit = {
             "ru": "✍ Редактировать профиль",
             "en": "✍ Edit profile",
             "cz": "✍ Upravit profil",
             "ua": "✍ Редагувати профіль"
-        }
+            }
+        
         @staticmethod
         def kb_profile_menu(language: str) -> InlineKeyboardBuilder:
             builder = InlineKeyboardBuilder()
@@ -706,32 +765,36 @@ class TextMenu:
             "en": "👩‍🏫 All",
             "cz": "👩‍🏫 Vše",
             "ua": "👩‍🏫 Все"
-        }
+            }
         
         ti_profile_edit_description = {
             "ru": "📝 Описание",
             "en": "📝 Description",
             "cz": "📝 Popis",
             "ua": "📝 Опис"
-        }
+            }   
 
         text_login_error = {
             "ru": 
-                "❌<b>У вас отсуствует логин/username!</b>\n"
+                "❌<b>У вас отсуствует логин(username)!</b>\n\n"
                 "Пожалуйста, создайте его в настройках профиля телеграмма."
-                "Без него не получится продолжить и ваш профиль не попадет в каталог репетиторов!",
-            "en":
-                "❌<b>You don't have a login/username!</b>\n"
-                "Please create one in your Telegram profile settings. "
-                "Without it, you won't be able to proceed and your profile won't be listed in the tutor directory!",
-            "ua":
-                "❌<b>У вас немає логіну/username!</b>\n"
-                "Будь ласка, створіть його в налаштуваннях профілю Telegram. "
-                "Без нього ви не зможете продовжувати і ваш профіль не буде включено в довідник репетиторів!",
+                "Ваш профиль уже создан, но не отображается в каталоге репетиторов, пока вы не поставите <b>логин(username)</b>!\n",
+
             "cz":
-                "❌<b>Nemáte login/username!</b>\n"
-                "Vytvořte si ho v nastavení vašeho Telegram profilu. Bez něj nebude možné pokračovat a váš profil nebude zařazen do adresáře učitelů!"
-        }
+                "❌<b>Nemáte přihlašovací jméno (username)!</b>\n\n"
+                "Vytvořte jej prosím v nastavení profilu telegramu."
+                "Váš profil je již vytvořen, ale nebude zobrazen v katalogu lektorů, dokud nezadáte <b>přihlašovací jméno (username)</b>!\n",
+
+            "en":
+                "❌<b>You don't have a login (username)!</b>\n\n"
+                "Please create it in the telegram profile settings."
+                "Your profile is already created, but will not be displayed in the catalog of tutors until you enter <b>login (username)</b>!\n",
+
+            "ua":
+                "❌<b>У вас відсутнє логін(username)!</b>\n\n"
+                "Будь ласка, створіть його в налаштуваннях профілю телеграму."
+                "Ваш профіль вже створено, але не відображається в каталозі репетиторів, поки ви не введете <b>логін(username)</b>!\n"
+            }
 
         text_teacher_state = {
             True:

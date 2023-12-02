@@ -207,17 +207,18 @@ async def catalog_teacher_profile(query: types.CallbackQuery, callback_data: Cat
 
     # Page settings
     lesson_id = callback_data.lesson_id
+    lesson_type = callback_data.lesson_type
     current_page = callback_data.current_page
     university_id=callback_data.university_id
     return_catalog_type = callback_data.lesson_return_type
 
     #-------------- Return button --------------#
     # Return button -> Catalog of language lessons
-    return_callback = None
     if return_catalog_type == TypeCatalogLessons.lessons_languages:
         return_callback = CatalogLessons(
             lesson_id=lesson_id,
-            lesson_type=TypeLessons.language,
+            lesson_type=lesson_type,
+
             lesson_return_type=TypeCatalogLessons.lessons_languages,
             current_page=current_page,
         ).pack()
@@ -226,7 +227,7 @@ async def catalog_teacher_profile(query: types.CallbackQuery, callback_data: Cat
     elif return_catalog_type == TypeCatalogLessons.lessons_university:
         return_callback = CatalogLessons(
             lesson_id=lesson_id,
-            lesson_type=TypeLessons.university,
+            lesson_type=lesson_type,
             lesson_return_type=TypeCatalogLessons.lessons_university,
             university_id=university_id,
             current_page=current_page,
@@ -234,7 +235,17 @@ async def catalog_teacher_profile(query: types.CallbackQuery, callback_data: Cat
 
     # Return button -> Catalog of all lessons
     elif return_catalog_type == TypeCatalogLessons.lessons_all:
-        return_callback = CatalogGoogle(current_page=callback_data.current_page).pack()
+        return_callback = CatalogLessons(
+            lesson_id=lesson_id,
+            lesson_type=lesson_type,
+            lesson_return_type=TypeCatalogLessons.lessons_all,
+            current_page=current_page,
+        ).pack()
+
+    # Return button ->
+    # TODO: Add return button for search results
+    else:
+        return_callback = 'back_menu'
     
     # Build return button
     builder = InlineKeyboardBuilder()
