@@ -27,7 +27,7 @@ class TextMenu:
             "en": "🌍 <b>Hello! To start, select the language in which you want to communicate with me!</b>",
             "ua": "🌍 <b>Привіт! На початку виберіть мову, на якій ви хочете спілкуватися зі мною!</b>"
         }
-
+ 
         text_again_select_language = {
             "ru": "🌍 <b>Выбери язык, нажав на кнопки ниже!</b>",
             "cz": "🌍 <b>Zvolte jazyk stisknutím tlačítek níže!</b>",
@@ -493,7 +493,7 @@ class TextMenu:
             "cz":
                 "💳 <b>Napište cenu lekcí!</b>\n\n"
                 "❌ <b>Zrušit registraci:</b> /cancel\n\n"
-                "Příklad:</b> 300-500 Kč/hod",
+                "<b>Příklad:</b> 300-500 Kč/hod",
             "en":
                 "💳 <b>Write down the price of the lessons!</b>\n\n"
                 "❌ <b>Cancel registration:</b> /cancel\n\n"
@@ -582,9 +582,9 @@ class TextMenu:
         text_profile_finish = {
             "ru": 
                 "⬆️ <b>Ваш профиль репетитора готов!</b> ⬆️\n\n"
-                "<b> Что-бы перейти в личный кабинет, из главного меню (start) нажмите на кнопку:<b>\n"
+                "<b> Что-бы перейти в личный кабинет, из главного меню (start) нажмите на кнопку:</b>\n"
                 "👨‍🏫 <i>Личный кабинет репетитора</i>\n\n"
-                "<b>Теперь вам нужно:<b>"
+                "<b>Теперь вам нужно:</b>"
                     "📍 Выбрать предметы, которые вы будете преподавать, чтобы ваш профиль отображался в каталоге\n"
                     "📍 Иметь логин (username) в Telegram\n"
                     "📍 Активировать профиль, нажав на 3-ю кнопку в личном кабинете \n(✅Профиль активирован/❌Профиль деактивирован) \n\n"
@@ -592,9 +592,9 @@ class TextMenu:
 
             "cz":
                 "⬆️ <b>Váš profil učitele je připraven!</b> ⬆️\n\n"
-                "<b>Chcete-li přejít do osobního účtu, z hlavní nabídky (start) klikněte na tlačítko:<b>\n"
+                "<b>Chcete-li přejít do osobního účtu, z hlavní nabídky (start) klikněte na tlačítko:</b>\n"
                 "👨‍🏫 <i>Můj profil učitele</i>\n\n"
-                "<b>Nyní musíte:<b>"
+                "<b>Nyní musíte:</b>"
                     "📍 Vyberte předměty, které budete vyučovat, aby se váš profil zobrazoval v katalogu\n"
                     "📍 Mít přihlašovací jméno (username) v Telegramu\n"
                     "📍 Aktivujte profil kliknutím na 3. tlačítko v osobním účtu \n(✅Profil aktivován/❌Profil deaktivován) \n\n"
@@ -602,9 +602,9 @@ class TextMenu:
 
             "en":
                 "⬆️ <b>Your tutor profile is ready!</b> ⬆️\n\n"
-                "<b>To go to your personal account, from the main menu (start) click on the button:<b>\n"
+                "<b>To go to your personal account, from the main menu (start) click on the button:</b>\n"
                 "👨‍🏫 <i>My tutor profile</i>\n\n"
-                "<b>Now you need:<b>"
+                "<b>Now you need:</b>"
                     "📍 Select the subjects you will teach to make your profile visible in the catalog\n"
                     "📍 Have a login (username) in Telegram\n"
                     "📍 Activate the profile by clicking on the 3rd button in the personal account \n(✅Profile activated/❌Profile deactivated) \n\n"
@@ -612,9 +612,9 @@ class TextMenu:
 
             "ua":
                 "⬆️ <b>Ваш профіль репетитора готовий!</b> ⬆️\n\n"
-                "<b>Щоб перейти в особистий кабінет, з головного меню (start) натисніть на кнопку:<b>\n"
+                "<b>Щоб перейти в особистий кабінет, з головного меню (start) натисніть на кнопку:</b>\n"
                 "👨‍🏫 <i>Особистий кабінет репетитора</i>\n\n"
-                "<b>Тепер вам потрібно:<b>"
+                "<b>Тепер вам потрібно:</b>"
                     "📍 Вибрати предмети, які ви будете викладати, щоб ваш профіль відображався в каталозі\n"
                     "📍 Мати логін (username) в Telegram\n"
                     "📍 Активувати профіль, натиснувши на 3-ю кнопку в особистому кабінеті \n(✅Профіль активований/❌Профіль деактивований) \n\n"
@@ -629,7 +629,7 @@ class TextMenu:
             }
 
         text_profile_menu = {
-            "ru": "✍️ <b>Здесь вы можете самостоятельно редактировать свой профиль репетитора:<b>",
+            "ru": "✍️ <b>Здесь вы можете самостоятельно редактировать свой профиль репетитора:</b>",
             "cz": "✍️ <b>Zde si můžete upravit svůj profil učitele:</b>",
             "en": "✍️ <b>Here you can edit your tutor profile yourself:</b>",
             "ua": "✍️ <b>Тут ви можете самостійно редагувати свій профіль репетитора:</b>"
@@ -765,22 +765,22 @@ class TextMenu:
 
         text_login_error = {
             "ru": 
-                "❌<b>У вас отсуствует логин(username)!</b>\n\n"
+                "❌<b>У вас отсуствует логин (username)! </b>\n\n"
                 "Пожалуйста, создайте его в настройках профиля телеграмма."
                 "Ваш профиль уже создан, но не отображается в каталоге репетиторов, пока вы не поставите <b>логин(username)</b>!\n",
 
             "cz":
-                "❌<b>Nemáte přihlašovací jméno (username)!</b>\n\n"
+                "❌<b>Nemáte přihlašovací jméno (username)! </b>\n\n"
                 "Vytvořte jej prosím v nastavení profilu telegramu."
-                "Váš profil je již vytvořen, ale nebude zobrazen v katalogu lektorů, dokud nezadáte <b>přihlašovací jméno (username)</b>!\n",
+                "Váš profil je již vytvořen, ale nebude zobrazen v katalogu lektorů, dokud nezadáte <b>přihlašovací jméno(username)</b>!\n",
 
             "en":
-                "❌<b>You don't have a login (username)!</b>\n\n"
+                "❌<b>You don't have a login (username)! </b>\n\n"
                 "Please create it in the telegram profile settings."
-                "Your profile is already created, but will not be displayed in the catalog of tutors until you enter <b>login (username)</b>!\n",
+                "Your profile is already created, but will not be displayed in the catalog of tutors until you enter <b>login(username)</b>!\n",
 
             "ua":
-                "❌<b>У вас відсутнє логін(username)!</b>\n\n"
+                "❌<b>У вас відсутнє логін (username)! </b>\n\n"
                 "Будь ласка, створіть його в налаштуваннях профілю телеграму."
                 "Ваш профіль вже створено, але не відображається в каталозі репетиторів, поки ви не введете <b>логін(username)</b>!\n"
             }
