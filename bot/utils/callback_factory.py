@@ -81,6 +81,34 @@ class CatalogGoogle(CallbackData, prefix='cg'):
     rows_per_page: int = ROWS_PER_PAGE
 
 
+# TODO: Complete this class. And use it in all catalog callbacks.
+# Why? Because we need to save state of catalog menu, and I can't do it with different callbacks
+# For example, we need to save current page of lessons in catalog lessons, teachers, etc.
+class CatalogCallback(CallbackData, prefix='ctn'):
+    # ------ Catalog: universities ------ #
+    university_id: int = 0
+
+    # ------ Catalog: Lessons ------ #
+    lesson_type: Optional[TypeLessons] = None 
+    lesson_id: int = 0
+
+    # Page settings
+    lesson_total_pages: int = 0
+    lesson_current_page: int = 1
+    lesson_rows_per_page: int = ROWS_PER_PAGE
+    
+    # ------ Catalog: Teachers ------ #
+    teacher_id_tg: int = 0
+
+    # Page settings
+    teacher_total_pages: int = 0
+    teacher_current_page: int = 1
+    teacher_rows_per_page: int = ROWS_PER_PAGE
+    
+    
+    
+
+
 #-------------------------------CallbackData for Teacher settings-------------------------------#
 class TypeTeacherSettingsMenu(str, Enum):
     profile = "prof"
