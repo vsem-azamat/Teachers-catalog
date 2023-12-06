@@ -7,10 +7,11 @@ from typing import  Union
 from pydantic import BaseModel, validator, Field
 
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import Teachers
 from bot.text_assets import TextMenu as tm
+from bot.handlers.catalog.catalog_teacher_profile import teacher_profile_text
 from bot.utils.states import TeacherRegistration
-from bot.utils.navigation import *
-from bot.utils.callback_factory import *
+from bot.utils.callback_factory import TeacherSettingsEdit, TypeTeacherSettingsEdit
 
 router = Router()
 

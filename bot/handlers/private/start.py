@@ -54,7 +54,7 @@ async def main_menu_language(message: types.Message, state: FSMContext) -> None:
             user_language = 'ru'
         await db.update_user_language(id_tg=message.from_user.id, user_language=user_language)
 
-    text = tm.FirstStart.text_end_select_language.get(user_language)
+    text = tm.FirstStart.text_again_select_language.get(user_language)
     builder = ReplyKeyboardBuilder()
     for language in tm.FirstStart.td_languages.keys():
         builder.button(text=language)

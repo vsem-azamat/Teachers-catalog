@@ -35,7 +35,6 @@ async def handler_catalog_universitites(callback: types.CallbackQuery, bot: Bot)
             text = university.name, # type: ignore
             callback_data=CatalogUniversity(
                 university_id=university.id, # type: ignore
-                current_page=1,
             )
         )
     columns_per_row = catalog_config.ROWS_PER_PAGE_catalog_universities

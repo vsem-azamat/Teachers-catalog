@@ -51,7 +51,6 @@ async def teacher_profile_menu(teacher: Teachers, message_or_query: Union[types.
         # Event: profile_activate -> update teacher.state
         if callback_data.menu_type == TypeTeacherSettingsMenu.profile_activate:
             teacher_state = bool(callback_data.state)
-            print(message_or_query.from_user.id, teacher_state)
             teacher = await db.teacher_state_update(teacher_id_tg=message_or_query.from_user.id, state=teacher_state)            
 
     # Build button with teacher.state
