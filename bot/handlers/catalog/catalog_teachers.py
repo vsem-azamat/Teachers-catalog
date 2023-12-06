@@ -1,146 +1,175 @@
 from aiogram import Router, types, F, Bot
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from sqlalchemy.orm import Query
 
-from typing import Tuple
+import math
+from html import escape
+from typing import Tuple, Union
 
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import Teachers, LessonsUniversity, LessonsLanguage
 from bot.text_assets import TextMenu as tm
-
-from bot.utils.navigation import *
-from bot.utils.callback_factory import *
-from bot.config import catalog_config
+from bot.utils.callback_factory import CatalogTeacher, CatalogLessons, TypeCatalogLessons, TypeLessons, CatalogGoogle, CatalogUniversity
+from bot.utils.navigation import determine_navigation, EMOJI_NUMBERS, int_to_emoji, truncate_text
 
 router = Router()
 
 
-@router.callback_query(F.data == 'universities')
-async def handler_catalog_universitites(callback: types.CallbackQuery, bot: Bot):
-    """
-    Show list of Universities.
 
-    🏠 Main menu of catalog
-    ├── 🏫 List of Universities (THIS HANDLER)
-    │   └── 📚 Lessons of selected University
-    │       └── 👩‍🏫 Teachers of selected Lesson
-    │           └── 👤 Teacher profile
-    ...
+async def teachers_catalog_text(
+    teachers: Query[Teachers], lesson: Union[LessonsUniversity, LessonsLanguage], user_language: str,
+    total_rows: int, current_page: int = 1, rows_per_page: int = 3
+    ) -> str:
     """
-    # Text
-    user_language = await db.get_user_language(callback.from_user.id)
-    text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
-    text = tm.TeachersCategory.text_select_university.get(user_language, 'ru')
-    
-    # Make buttons with universities
-    universities = await db.get_universities(exclude_null_teachers=True)
-    builder = InlineKeyboardBuilder()
-    for university in universities:
-        builder.button(
-            text = university.name, # type: ignore
-            callback_data=CatalogUniversity(
-                university_id=university.id, # type: ignore
-                current_page=1,
+    Generate text for teachers catalog
+
+    Args:
+        teachers (Query[Teachers]): Teachers
+        lesson (Union[LessonsUniversity, LessonsLanguage]): Lesson which selected for catalog of teachers
+        user_language (str): User language
+        total_rows (int): Total rows in query
+        current_page (int, optional): Current page. Defaults to 1.
+
+    Returns:
+        str: Text for teachers catalog
+    """
+    text_body = tm.TeachersCategory.text_show_teachers.get(user_language, 'ru') + " {lesson_name}\n\n".format(lesson_name=lesson.name)
+    for i, teacher in enumerate(teachers, start=1):    
+        teacher_number = (current_page-1)*rows_per_page+i
+        teacher_number_emoji = await int_to_emoji(teacher_number)
+        lessons = ", ".join([lesson.name for lesson in teacher.lesson_language] + [lesson.name for lesson in teacher.lesson_university])
+        description = await truncate_text(teacher.description) # type: ignore
+        text = \
+            "{line}\n"\
+            "👩‍🏫 <b>{name} - @{login}</b>\n"\
+            "📚 {lessons} \n"\
+            "📍 {location}\n"\
+            "💳 {price} Kč/hod\n\n"\
+            "📝 {description}\n\n"
+        text_body += text.format(
+            line = f"{teacher_number_emoji}〰️〰️〰️〰️〰️〰️〰️〰️"[:15],
+            name = escape(str(teacher.name)),
+            login = escape(str(teacher.user.login)),
+            lessons = escape(str(lessons)),
+            location = escape(str(teacher.location)),
+            price = escape(str(teacher.price)),
+            description = escape(description),
             )
+    text_end = "<b>Page:</b> {current_page}/{total_rows}".format(
+        current_page=current_page, 
+        total_rows=math.ceil(total_rows/rows_per_page)
         )
-    columns_per_row = catalog_config.ROWS_PER_PAGE_catalog_universities
-    builder.adjust(columns_per_row)
-    builder.row(types.InlineKeyboardButton(text='↩️', callback_data='back_menu'))
-    # Send message
-    await bot.edit_message_text(
-        chat_id=callback.from_user.id,
-        message_id=callback.message.message_id, 
-        text=text_head + text, 
-        reply_markup=builder.as_markup()
-        )
-    await callback.answer()
+    return text_body + text_end    
 
 
-@router.callback_query(CatalogUniversity.filter())
-async def handler_catalog_university_lessons(query: types.CallbackQuery, bot: Bot, callback_data: CatalogUniversity):
+async def catalog_teachers(query: types.CallbackQuery, callback_data: CatalogLessons) -> Tuple[str, InlineKeyboardBuilder]:
     """
-    Show list Lessons of selected University.
+    Show catalog of teachers of selected lesson (university or language) for selected page
 
-    🏠 Main menu of catalog
-    ├── 🏫 List of Universities (THIS HANDLER)
-    │   └── 📚 Lessons of selected University
-    │       └── 👩‍🏫 Teachers of selected Lesson
-    │           └── 👤 Teacher profile
-    ...
+    Args:
+        query (types.CallbackQuery): Callback query
+        callback_data (Union[CatalogLessonUniversity, CatalogLessonLanguage]): Callback data
+
+    Returns:
+        Tuple[str, InlineKeyboardBuilder]: Text and buttons    
     """
     # Text
     user_language = await db.get_user_language(query.from_user.id)
-    text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
-    text = tm.TeachersCategory.text_select_lesson_of_university.get(user_language, 'ru')
     
-    # Make buttons with lessons
-    university_id = callback_data.university_id
+    # Make buttons with teachers
+    lesson_id = callback_data.lesson_id
     current_page = callback_data.current_page
-    lessons = await db.get_lessons_of_university(university_id=university_id, exclude_null_teachers=True)
+    rows_per_page = callback_data.rows_per_page
+
+    # Determine lesson type
+    if callback_data.lesson_type == TypeLessons.university:
+        selected_lessons = await db.get_lesson_of_university(lesson_id=lesson_id)
+        university_id = callback_data.university_id
+        teachers = await db.get_teachers_of_university_lesson(
+            lesson_id=lesson_id,
+            current_page=current_page,
+            rows_per_page=rows_per_page,
+            exclude_null_teachers=True,
+            )
+    elif callback_data.lesson_type == TypeLessons.language:
+        selected_lessons = await db.get_lesson_of_language(lesson_id=lesson_id)
+        university_id = None
+        teachers = await db.get_teachers_of_language_lesson(
+            lesson_id=lesson_id,
+            current_page=current_page,
+            rows_per_page=rows_per_page,
+            exclude_null_teachers=True,
+            )
+    else:
+        raise TypeError("callback_data must be CatalogLessonUniversity or CatalogLessonLanguage")
+    
+    total_rows = teachers.count()
     builder = InlineKeyboardBuilder()
-    for lesson in lessons:
+
+    # Build buttons with teachers
+    for idx, teacher in enumerate(teachers, start=1):
         builder.button(
-            text=lesson.name, # type: ignore
-            callback_data=CatalogLessons(
-                lesson_id=lesson.id, # type: ignore
-                lesson_type=TypeLessons.university,
-                lesson_return_type=TypeCatalogLessons.lessons_university,
+            text="".join([EMOJI_NUMBERS.get(i, '?') for i in str((current_page-1)*rows_per_page+idx)]),
+            callback_data=CatalogTeacher(
+                lesson_id=lesson_id,
+                lesson_type=callback_data.lesson_type,
+                lesson_return_type=callback_data.lesson_return_type,
                 university_id=university_id,
                 current_page=current_page,
+                teacher_id_tg=teacher.id_tg, # type: ignore
             )
         )
-    columns_per_row = catalog_config.COLUMNS_PER_ROW_catalog_lessons
-    builder.adjust(columns_per_row)
-    builder.row(types.InlineKeyboardButton(text='↩️', callback_data='universities'))
 
-    # Send message
-    await bot.edit_message_text(
-        chat_id=query.from_user.id,
-        message_id=query.message.message_id,
-        text=text_head + text,
-        reply_markup=builder.as_markup()
-    )
-    await query.answer()
-
-
-@router.callback_query(F.data == 'languages')
-async def catalog_language_lessons(query: types.CallbackQuery, bot: Bot):
-    """
-    Show list of Languages.
-
-    🏠 Main menu of catalog
-    ├── 🔠 List of Languages (THIS HANDLER)
-    │   └── 👩‍🏫 Teachers of selected Language
-    │       └── 👤 Teacher profile
-    ...
-    """
-    # Text
-    user_language = await db.get_user_language(query.from_user.id)
-    text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
-    text = tm.TeachersCategory.text_select_language.get(user_language, 'ru')
-
-    # Make buttons with languages
-    lessons = await db.get_lessons_of_languages(exclude_null_teachers=True)
-    builder = InlineKeyboardBuilder()
-    for lesson in lessons:
-        builder.button(
-            text = lesson.name, # type: ignore
-            callback_data=CatalogLessons(
-                lesson_id=lesson.id, # type: ignore
-                lesson_type=TypeLessons.language,
-                lesson_return_type=TypeCatalogLessons.lessons_languages,
+    # Build return button
+    return_callback = None
+    # Return -> List of lessons of university
+    if callback_data.lesson_return_type == TypeCatalogLessons.lessons_university and callback_data.university_id:
+        return_callback = CatalogUniversity(
+            university_id=callback_data.university_id
             ).pack()
-        )
-    columns_per_row = catalog_config.COLUMNS_PER_ROW_catalog_lessons
-    builder.adjust(columns_per_row)
-    builder.row(types.InlineKeyboardButton(text='↩️', callback_data='back_menu'))
+    # Return -> List of lessons of language
+    elif callback_data.lesson_return_type == TypeCatalogLessons.lessons_languages:
+        return_callback = "languages"
+    # Return -> List of all lessons
+    elif callback_data.lesson_return_type == TypeCatalogLessons.lessons_all:
+        return_callback = CatalogGoogle(
+            current_page=callback_data.current_page,
+            ).pack()        
 
-    # Send message
-    await bot.edit_message_text(
-        chat_id=query.from_user.id,
-        message_id=query.message.message_id, 
-        text=text_head + text, 
-        reply_markup=builder.as_markup()
+    # Build buttons with navigation
+    navigation_buttons = await determine_navigation(
+        total_rows=total_rows,
+        current_page=current_page,
+        rows_per_page=rows_per_page,
+
+        back_callback=CatalogLessons(
+            lesson_id=lesson_id,
+            lesson_type=callback_data.lesson_type,
+            university_id=university_id,
+            current_page=current_page-1,
+            ).pack(),
+        next_callback=CatalogLessons(
+            lesson_id=lesson_id,
+            lesson_type=callback_data.lesson_type,
+            university_id=university_id,
+            current_page=current_page+1,
+            ).pack(),
+        return_callback=return_callback,
         )
-    await query.answer()
+    builder.row(*navigation_buttons)
+    
+    # Build text
+    text = await teachers_catalog_text(
+        teachers=teachers,
+        lesson=selected_lessons,
+        user_language=user_language,
+        current_page=current_page,
+        rows_per_page=rows_per_page,
+        total_rows=total_rows,
+        )
+    
+    return text, builder
+
 
 
 @router.callback_query(CatalogLessons.filter(F.lesson_type == TypeLessons.university))
@@ -192,113 +221,3 @@ async def handler_catalog_teachers(query: types.CallbackQuery, bot: Bot, callbac
         )
     await query.answer()
 
-
-async def catalog_teacher_profile(query: types.CallbackQuery, callback_data: CatalogTeacher) ->Tuple[str, InlineKeyboardBuilder]:
-    """
-    Show Teacher profile. Return text with teacher profile and InlineKeyboardBuilder with return button
-
-    Args:
-        query (types.CallbackQuery): CallbackQuery
-        callback_data (CatalogTeacher): CallbackData for teacher buttons in catalog
-
-    Returns:
-        Tuple[str, InlineKeyboardBuilder]: text with teacher profile and InlineKeyboardBuilder with return button
-    """
-
-    # Page settings
-    lesson_id = callback_data.lesson_id
-    lesson_type = callback_data.lesson_type
-    current_page = callback_data.current_page
-    university_id=callback_data.university_id
-    return_catalog_type = callback_data.lesson_return_type
-
-    #-------------- Return button --------------#
-    # Return button -> Catalog of language lessons
-    if return_catalog_type == TypeCatalogLessons.lessons_languages:
-        return_callback = CatalogLessons(
-            lesson_id=lesson_id,
-            lesson_type=lesson_type,
-
-            lesson_return_type=TypeCatalogLessons.lessons_languages,
-            current_page=current_page,
-        ).pack()
-
-    # Return button -> Catalog of university lessons
-    elif return_catalog_type == TypeCatalogLessons.lessons_university:
-        return_callback = CatalogLessons(
-            lesson_id=lesson_id,
-            lesson_type=lesson_type,
-            lesson_return_type=TypeCatalogLessons.lessons_university,
-            university_id=university_id,
-            current_page=current_page,
-        ).pack()
-
-    # Return button -> Catalog of all lessons
-    elif return_catalog_type == TypeCatalogLessons.lessons_all:
-        return_callback = CatalogLessons(
-            lesson_id=lesson_id,
-            lesson_type=lesson_type,
-            lesson_return_type=TypeCatalogLessons.lessons_all,
-            current_page=current_page,
-        ).pack()
-
-    # Return button ->
-    # TODO: Add return button for search results
-    else:
-        return_callback = 'back_menu'
-    
-    # Build return button
-    builder = InlineKeyboardBuilder()
-    builder.add(types.InlineKeyboardButton(text='↩️', callback_data=return_callback))
-
-    #-------------- Teacher profile --------------#
-    # Text head
-    user_language = await db.get_user_language(query.from_user.id)
-    text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
-    
-    # Text teacher
-    teacher_id_tg = callback_data.teacher_id_tg
-    teacher = await db.get_teacher(teacher_id_tg)
-    text_teacher = await teacher_profile_text(teacher)
-    
-    # Make final text
-    text = text_head + text_teacher
-
-    return text, builder
-    
-
-@router.callback_query(CatalogTeacher.filter())
-async def handler_catalog_teacher_profile(query: types.CallbackQuery, bot: Bot, callback_data: CatalogTeacher):
-    """
-    Show Teacher profile.
-
-    🏠 Main menu of catalog
-    ├── 🔠 List of Languages
-    │   └── 👩‍🏫 Teachers of selected Language
-    │       └── 👤 Teacher profile (THIS HANDLER)
-    │
-    ├── 🏫 List of Universities
-    │   └── 📚 Lessons of selected University
-    │       └── 👩‍🏫 Teachers of selected Lesson
-    │           └── 👤 Teacher profile (THIS HANDLER)
-    │
-    └── 📑 Menu of of all lessons with categories
-        ├── 📚 Catalog of all lessons
-        │   └── 👩‍🏫 Teachers of selected Lesson
-        │       └── 👤 Teacher profile (THIS HANDLER)
-        │
-        └── 🔎 Search lessons by name 
-            └── 👩‍🏫 Teachers of selected Lesson
-                └── 👤 Teacher profile (THIS HANDLER)
-    """
-    text, builder = await catalog_teacher_profile(query=query, callback_data=callback_data)    
-    keyboard = builder.as_markup()
-
-    # Send message
-    await bot.edit_message_text(
-        text=text,
-        chat_id=query.from_user.id,
-        message_id=query.message.message_id,
-        reply_markup=keyboard
-        )
-    await query.answer()

@@ -6,7 +6,7 @@
 .vscode
 
 .vscode
-test*
+test__*.py
 venv
 test_db.py
 

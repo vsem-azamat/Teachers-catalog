@@ -6,8 +6,9 @@ from aiogram import exceptions
 from typing import Optional, Tuple
 
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import LessonsUniversity, LessonsLanguage
 from bot.text_assets import TextMenu as tm
-from bot.utils.navigation import *
+from bot.utils.navigation import determine_navigation
 from bot.handlers.private.start import main_menu_start
 from bot.utils.callback_factory import \
     TeacherSettingsMenu, TypeTeacherSettingsMenu, \

@@ -4,8 +4,17 @@
 This bot for searching teachers and tutors in the Czech Republic. Also, if you are a teacher, you can add yourself to the database and edit your data. The bot is multilingual and supports Russian, English, Czech, Ukrainian languages. 
 
 
-
 ## Preview:
+### Catalog of teachers
+| Start menu | Search teachers | Teacher profile |
+|:---:|:---:|:---:|
+| <img src="images/teacher_start.jpg" alt="Start menu" width="200"> | <img src="images/teacher_search.jpg" alt="Search teachers" width="200"> | <img src="images/teacher_settings.jpg" alt="Teacher profile" width="200"> |
+
+For clarity, you can watch the video:
+
+[![Watch the video](https://img.youtube.com/vi/jar4bUx6dJs/maxresdefault.jpg)](https://youtu.be/jar4bUx6dJs)
+
+
 ### Database structure
 <img src="images/database.png" alt="Database structure" width="700">
 
@@ -14,15 +23,10 @@ This bot for searching teachers and tutors in the Czech Republic. Also, if you a
 ## Contents:
 - [Teachers-catalog](#teachers-catalog)
 - [Preview:](#preview)
-    - [Database structure](#database-structure)
 - [Contents:](#contents)
 - [What is used:](#what-is-used)
 - [Current and planned features:](#current-and-planned-features)
-    - [Current](#current)
-    - [Planned](#planned)
 - [Installation and start](#installation-and-start)
-    - [Necessary:](#necessary)
-    - [Start:](#start)
 - [Commands:](#commands)
 
 

@@ -2,12 +2,13 @@ from aiogram import Router, types, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import Teachers
 from bot.text_assets import TextMenu as tm
+from bot.handlers.catalog.catalog_teacher_profile import teacher_profile_text
 from bot.utils.states import TeacherRegistration
-from bot.utils.navigation import *
 from bot.utils.filters import TeacherSettingsFilter
 from bot.utils.callback_factory import \
     TeacherSettingsMenu, TypeTeacherSettingsMenu, \
@@ -50,7 +51,6 @@ async def teacher_profile_menu(teacher: Teachers, message_or_query: Union[types.
         # Event: profile_activate -> update teacher.state
         if callback_data.menu_type == TypeTeacherSettingsMenu.profile_activate:
             teacher_state = bool(callback_data.state)
-            print(message_or_query.from_user.id, teacher_state)
             teacher = await db.teacher_state_update(teacher_id_tg=message_or_query.from_user.id, state=teacher_state)            
 
     # Build button with teacher.state

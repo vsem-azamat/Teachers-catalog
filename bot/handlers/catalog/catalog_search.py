@@ -7,10 +7,12 @@ from aiogram.types.input_text_message_content import InputTextMessageContent
 
 
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import LessonsUniversity, LessonsLanguage
 from bot.text_assets import TextMenu as tm
 from bot.utils.navigation import *
 
 router = Router()
+
 
 @router.callback_query(F.data == 'lessons')
 async def handler_lessons_category(query: types. CallbackQuery, bot: Bot):
