@@ -681,13 +681,13 @@ class TextMenu:
 
         text_profile_list_universities = {
             "ru":
-                "🏫<b>Список ВУЗ-ов:</b>",
+                "🏫 <b>Список ВУЗ-ов:</b>",
             "cz":
-                "🏫<b>Seznam VŠ:</b>",
+                "🏫 <b>Seznam VŠ:</b>",
             "en":
-                "🏫<b>List of universities:</b>",
+                "🏫 <b>List of universities:</b>",
             "ua":
-                "🏫<b>Список ВНЗ:</b>"
+                "🏫 <b>Список ВНЗ:</b>"
         }
 
         text_profile_lessons_universities = {
