@@ -4,12 +4,50 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from typing import Tuple
 
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import Teachers
 from bot.text_assets import TextMenu as tm
-from bot.utils.navigation import teacher_profile_text
 from bot.utils.callback_factory import CatalogTeacher, CatalogLessons, TypeCatalogLessons
 
 
 router = Router()
+
+
+async def teacher_profile_text(teacher: Teachers) -> str:
+    """
+    Generate text for teacher profile
+
+    Args:
+        teacher (Teachers): Teacher
+
+    Returns:
+        str: Text for teacher profile
+    """
+    # Lessons
+    lessons_university = "\n📚" + ", ".join([lesson.name for lesson in teacher.lesson_university]) + "\n" if teacher.lesson_university else ""
+    lessons_language = "🔠" + ", ".join([lesson.name for lesson in teacher.lesson_language]) + "\n" if teacher.lesson_language else ""
+
+    # Text body
+    try:
+        result = \
+            "👩‍🏫 <b>{name} - @{login}</b>\n"\
+            "{lessons_university}"\
+            "{lessons_language}"\
+            "\n📍 {location}\n"\
+            "💳 {price}\n\n"\
+            "📝 {description}\n\n"\
+            .format(
+                name = teacher.name,
+                login = teacher.user.login,
+                lessons_university = lessons_university,
+                lessons_language = lessons_language,
+                location = teacher.location,
+                description = teacher.description,
+                price = teacher.price,
+            )
+    except Exception as e:
+        raise e
+    
+    return result
 
 
 async def catalog_teacher_profile(query: types.CallbackQuery, callback_data: CatalogTeacher) ->Tuple[str, InlineKeyboardBuilder]:

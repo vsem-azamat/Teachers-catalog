@@ -1,14 +1,65 @@
 from aiogram import Router, types, F, Bot
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from sqlalchemy.orm import Query
 
-from typing import Tuple
+import math
+from html import escape
+from typing import Tuple, Union
 
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import Teachers, LessonsUniversity, LessonsLanguage
 from bot.text_assets import TextMenu as tm
 from bot.utils.callback_factory import CatalogTeacher, CatalogLessons, TypeCatalogLessons, TypeLessons, CatalogGoogle, CatalogUniversity
-from bot.utils.navigation import determine_navigation, teachers_catalog_text, EMOJI_NUMBERS
+from bot.utils.navigation import determine_navigation, EMOJI_NUMBERS, int_to_emoji, truncate_text
 
 router = Router()
+
+
+
+async def teachers_catalog_text(
+    teachers: Query[Teachers], lesson: Union[LessonsUniversity, LessonsLanguage], user_language: str,
+    total_rows: int, current_page: int = 1, rows_per_page: int = 3
+    ) -> str:
+    """
+    Generate text for teachers catalog
+
+    Args:
+        teachers (Query[Teachers]): Teachers
+        lesson (Union[LessonsUniversity, LessonsLanguage]): Lesson which selected for catalog of teachers
+        user_language (str): User language
+        total_rows (int): Total rows in query
+        current_page (int, optional): Current page. Defaults to 1.
+
+    Returns:
+        str: Text for teachers catalog
+    """
+    text_body = tm.TeachersCategory.text_show_teachers.get(user_language, 'ru') + " {lesson_name}\n\n".format(lesson_name=lesson.name)
+    for i, teacher in enumerate(teachers, start=1):    
+        teacher_number = (current_page-1)*rows_per_page+i
+        teacher_number_emoji = await int_to_emoji(teacher_number)
+        lessons = ", ".join([lesson.name for lesson in teacher.lesson_language] + [lesson.name for lesson in teacher.lesson_university])
+        description = await truncate_text(teacher.description) # type: ignore
+        text = \
+            "{line}\n"\
+            "👩‍🏫 <b>{name} - @{login}</b>\n"\
+            "📚 {lessons} \n"\
+            "📍 {location}\n"\
+            "💳 {price} Kč/hod\n\n"\
+            "📝 {description}\n\n"
+        text_body += text.format(
+            line = f"{teacher_number_emoji}〰️〰️〰️〰️〰️〰️〰️〰️"[:15],
+            name = escape(str(teacher.name)),
+            login = escape(str(teacher.user.login)),
+            lessons = escape(str(lessons)),
+            location = escape(str(teacher.location)),
+            price = escape(str(teacher.price)),
+            description = escape(description),
+            )
+    text_end = "<b>Page:</b> {current_page}/{total_rows}".format(
+        current_page=current_page, 
+        total_rows=math.ceil(total_rows/rows_per_page)
+        )
+    return text_body + text_end    
 
 
 async def catalog_teachers(query: types.CallbackQuery, callback_data: CatalogLessons) -> Tuple[str, InlineKeyboardBuilder]:

@@ -2,12 +2,13 @@ from aiogram import Router, types, F, Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from typing import Optional, Union
+from typing import Optional, Union, Tuple
 
 from bot.databases.db_postgresql import db
+from bot.databases.db_declaration import Teachers
 from bot.text_assets import TextMenu as tm
+from bot.handlers.catalog.catalog_teacher_profile import teacher_profile_text
 from bot.utils.states import TeacherRegistration
-from bot.utils.navigation import *
 from bot.utils.filters import TeacherSettingsFilter
 from bot.utils.callback_factory import \
     TeacherSettingsMenu, TypeTeacherSettingsMenu, \
