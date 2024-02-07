@@ -1,8 +1,8 @@
 from typing import Optional, Union, List
 
 from sqlalchemy import URL, create_engine, and_
-from sqlalchemy.orm import sessionmaker, configure_mappers, Query
-
+from sqlalchemy.orm import sessionmaker, configure_mappers, Query, Session
+from sqlalchemy.engine import Connection
 
 # Local imports
 from bot.config import settingsDB
@@ -19,11 +19,17 @@ class SqlAlchemy:
             database=settingsDB.DATABASE,
         )
         self.engine = create_engine(self.url_object, client_encoding='utf8')
+        self.conn: Connection
+        self.__session: sessionmaker
+        self.s: Session
+    
+
+    def connect(self) -> None:
         self.conn = self.engine.connect()
         Base.metadata.create_all(self.engine, checkfirst=True)
         self.__session = sessionmaker(bind=self.engine)
         self.s = self.__session()
-    
+
     
     def _update_db(self):
         """Update the database schema in case of changes."""

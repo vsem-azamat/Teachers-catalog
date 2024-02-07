@@ -4,15 +4,19 @@ from aiogram import Bot, Dispatcher
 
 from bot.handlers import main_router
 from bot.config import settings
+from bot.databases.db_postgresql import db
 
 
 async def on_startup(bot: Bot) -> None:
+    db.connect()
+    logging.info("Connected to database")
     await bot.delete_webhook()
 
 
 async def on_shutdown(bot: Bot) -> None:
     await bot.delete_webhook()
     await bot.session.close()
+    logging.info("Bot has been shut down")
 
 
 # Run bot
@@ -25,6 +29,7 @@ async def main() -> None:
         dp.startup.register(on_startup)
         dp.shutdown.register(on_shutdown)
         await dp.start_polling(bot, skip_updates=True)
+        logging.info("Bot has been started")
 
     except Exception as e:
         logging.info(e)
