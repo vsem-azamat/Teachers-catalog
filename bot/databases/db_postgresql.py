@@ -30,6 +30,12 @@ class SqlAlchemy:
         self.__session = sessionmaker(bind=self.engine)
         self.s = self.__session()
 
+
+    def close(self) -> None:
+        self.s.close()
+        self.conn.close()
+        self.engine.dispose()
+
     
     def _update_db(self):
         """Update the database schema in case of changes."""
