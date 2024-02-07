@@ -16,6 +16,7 @@ async def on_startup(bot: Bot) -> None:
 async def on_shutdown(bot: Bot) -> None:
     await bot.delete_webhook()
     await bot.session.close()
+    db.close()
     logging.info("Bot has been shut down")
 
 
