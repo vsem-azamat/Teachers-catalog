@@ -3,8 +3,7 @@ from sqlalchemy import Table, Boolean, DateTime, \
     Integer, BigInteger,\
     Text, VARCHAR 
     
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.sql import func
 
 
