@@ -4,13 +4,16 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from aiogram.filters import Command
 
 from typing import  Union
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field, field_validator
 
 from bot.databases.db_postgresql import db
 from bot.databases.db_declaration import Teachers
+
 from bot.text_assets import TextMenu as tm
 from bot.handlers.catalog.catalog_teacher_profile import teacher_profile_text
+
 from bot.utils.states import TeacherRegistration
+from bot.utils.navigation import detect_bad_symbols
 from bot.utils.callback_factory import TeacherSettingsEdit, TypeTeacherSettingsEdit
 
 router = Router()
@@ -44,25 +47,25 @@ class TeacherValidator(BaseModel):
     price: str = Field(None)
     description: str = Field(None)
 
-    @validator("name")
+    @field_validator("name")
     def name_validator(cls, name):
         if not 1 < len(name) < 25 or detect_bad_symbols(name):
             raise TeacherNameError(name)
         return name
     
-    @validator("location")
+    @field_validator("location")
     def location_validator(cls, location):
         if not 1 < len(location) < 100 or detect_bad_symbols(location):
             raise TeacherLocationError(location)
         return location
     
-    @validator("price")
+    @field_validator("price")
     def price_validator(cls, price):
         if not 1 < len(price) < 100 or detect_bad_symbols(price):
             raise TeacherPriceError(price)
         return price
     
-    @validator("description")
+    @field_validator("description")
     def description_validator(cls, description):
         if not 30 < len(description) < 2500 or detect_bad_symbols(description):
             raise TeacherDescriptionError(description)
