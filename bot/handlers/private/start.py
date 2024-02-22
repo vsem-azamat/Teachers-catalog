@@ -120,7 +120,7 @@ async def set_user_language(message: types.Message, state: FSMContext):
         keyboard = tm.MainMenu.kb_main_menu(new_user_lang).as_markup(resize_keyboard=True)
         await message.answer(text=text, reply_markup=keyboard)
 
-
+@router.callback_query(F.data == 'lessons')
 @router.callback_query(F.data == 'back_menu')
 @router.message(FindTeachersFilter())
 async def category_teachers(message: types.Message or types.CallbackQuery):
@@ -133,8 +133,9 @@ async def category_teachers(message: types.Message or types.CallbackQuery):
     user_language = await db.get_user_language(message.from_user.id)
     text_head = tm.TeachersCategory.text_select_head.get(user_language, 'ru')
     text = tm.TeachersCategory.text_select_category.get(user_language, 'ru')
-    keyboard = tm.TeachersCategory.kb_teachers_category(user_language)
+    builder = tm.TeachersCategory.kb_teachers_category(user_language)
+
     if isinstance(message, types.Message):
-        await message.answer(text=text_head + text, reply_markup=keyboard)
+        await message.answer(text=text_head + text, reply_markup=builder.as_markup())
     elif isinstance(message, types.CallbackQuery):
-        await message.message.edit_text(text=text_head + text, reply_markup=keyboard) # type: ignore
+        await message.message.edit_text(text=text_head + text, reply_markup=builder.as_markup()) # type: ignore

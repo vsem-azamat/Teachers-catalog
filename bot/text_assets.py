@@ -254,7 +254,7 @@ class TextMenu:
 
 
         @staticmethod
-        def kb_teachers_category(language: str) -> InlineKeyboardMarkup:
+        def kb_teachers_category(language: str) -> InlineKeyboardBuilder:
             builder = InlineKeyboardBuilder()
             builder.button(
                 text=TextMenu.TeachersCategory.ti_universities[language],
@@ -265,11 +265,15 @@ class TextMenu:
                 callback_data="languages"
             )
             builder.button(
-                text=TextMenu.TeachersCategory.ti_lessons[language],
-                callback_data="lessons"
+                text=TextMenu.TeachersCategory.ti_lessons_search_with_catalog.get(language, 'ru'),
+                callback_data=CatalogGoogle().pack()
+            )
+            builder.button(
+                text=TextMenu.TeachersCategory.ti_lessons_search_with_google.get(language, 'ru'),
+                switch_inline_query_current_chat=""
             )
             builder.adjust(1)
-            return builder.as_markup()
+            return builder
 
         text_select_head = {
             "ru": 
@@ -327,10 +331,10 @@ class TextMenu:
             'ua': '🗂 Каталог усіх предметів'
             }
         ti_lessons_search_with_google = {
-            'ru': '🔎 Поиск предмета по названию',
-            'en': '🔎 Search for a lesson by name',
-            'cz': '🔎 Vyhledávání předmětu podle názvu',
-            'ua': '🔎 Пошук предмету за назвою'
+            'ru': '🔎 Поиск по названию',
+            'en': '🔎 Search by name',
+            'cz': '🔎 Vyhledávání podle názvu',
+            'ua': '🔎 Пошук за назвою'
             }
 
         @staticmethod

@@ -1,15 +1,15 @@
 -- USERS
-INSERT INTO "Users"(id, id_tg, start_time, language)
+INSERT INTO "Users"(id, id_tg, login, start_time, language)
 VALUES
-    (10, 11111, current_timestamp, 'ru'),
-    (20, 22222, current_timestamp, 'en'),
-    (30, 33333, current_timestamp, 'cz'),
-    (40, 44444, current_timestamp, 'ru'),
-    (50, 55555, current_timestamp, 'en'),
-    (60, 66666, current_timestamp, 'ru'),
-    (70, 77777, current_timestamp, 'ru'),
-    (80, 88888, current_timestamp, 'ru'),
-    (90, 99999, current_timestamp, 'ru');
+    (10, 11111, 11111, current_timestamp, 'ru'),
+    (20, 22222, 22222, current_timestamp, 'en'),
+    (30, 33333, 33333, current_timestamp, 'cz'),
+    (40, 44444, 44444, current_timestamp, 'ru'),
+    (50, 55555, 55555, current_timestamp, 'en'),
+    (60, 66666, 66666, current_timestamp, 'ru'),
+    (70, 77777, NULL, current_timestamp, 'ru'),
+    (80, 88888, NULL, current_timestamp, 'ru'),
+    (90, 99999, NULL, current_timestamp, 'ru');
 
 SELECT * FROM "Users";
 

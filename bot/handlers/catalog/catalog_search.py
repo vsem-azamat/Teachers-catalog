@@ -14,7 +14,7 @@ from bot.utils.navigation import *
 router = Router()
 
 
-@router.callback_query(F.data == 'lessons')
+# @router.callback_query(F.data == 'lessons')
 async def handler_lessons_category(query: types. CallbackQuery, bot: Bot):
     """
     Show menu for catalog of all lessons.
