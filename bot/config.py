@@ -1,7 +1,7 @@
 from decouple import config
 
 
-class Settings:
+class ConfigBot:
     BOT_TOKEN = config('BOT_TOKEN', cast=str)
 
     try:
@@ -10,21 +10,21 @@ class Settings:
     except:
         ADMINS = []
 
-class SettingsDB:
-    USERNAME: str = config('DB_USERNAME', default=None)
-    PASSWORD: str = config('DB_PASSWORD', default=None)
-    HOST: str =  config('DB_HOST', default=None)
-    DATABASE: str = config('DB_DATABASE', default=None)
-    PORT: int = int(config('DB_PORT', cast=int, default=5432))
+class ConfigDB:
+    USERNAME: str = config('POSTGRES_USER')
+    PASSWORD: str = config('POSTGRES_PASSWORD')
+    DATABASE: str = config('POSTGRES_DB')
+    HOST: str =  config('POSTGRES_HOST', default='localhost')
+    PORT: int = int(config('POSTGRES_PORT', cast=int, default=5432))
 
     assert USERNAME and PASSWORD and HOST and DATABASE and PORT, 'DB settings are not set'
 
 
-class CatalogConfig:
+class ConfigCatalog:
     ROWS_PER_PAGE_catalog_universities: int = 8
     COLUMNS_PER_ROW_catalog_lessons: int = 2
 
 
-catalog_config = CatalogConfig()
-settings = Settings()
-settingsDB = SettingsDB()
+cnfg_bot = ConfigBot()
+cnfg_db = ConfigDB()
+cnfg_catalog = ConfigCatalog()

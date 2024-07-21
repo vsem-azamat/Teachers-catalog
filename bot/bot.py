@@ -1,9 +1,10 @@
 import logging
 import asyncio
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
 
 from bot.handlers import main_router
-from bot.config import settings
+from bot.config import cnfg_bot
 from bot.databases.db_postgresql import db
 
 
@@ -20,9 +21,8 @@ async def on_shutdown(bot: Bot) -> None:
     logging.info("Bot has been shut down")
 
 
-# Run bot
 async def main() -> None:
-    bot = Bot(token=settings.BOT_TOKEN, parse_mode="HTML")
+    bot = Bot(token=cnfg_bot.BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
     dp = Dispatcher()
     
     try:
@@ -37,7 +37,6 @@ async def main() -> None:
 
     finally:
         await bot.session.close()
-
 
 
 if __name__ == "__main__":

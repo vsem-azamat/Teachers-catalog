@@ -1,7 +1,7 @@
 from aiogram import Router, types, F, Bot
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from bot.config import catalog_config
+from bot.config import cnfg_catalog
 from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
 from bot.utils.callback_factory import CatalogUniversity
@@ -37,7 +37,7 @@ async def handler_catalog_universitites(callback: types.CallbackQuery, bot: Bot)
                 university_id=university.id, # type: ignore
             )
         )
-    columns_per_row = catalog_config.ROWS_PER_PAGE_catalog_universities
+    columns_per_row = cnfg_catalog.ROWS_PER_PAGE_catalog_universities
     builder.adjust(columns_per_row)
     builder.row(types.InlineKeyboardButton(text='↩️', callback_data='back_menu'))
     # Send message

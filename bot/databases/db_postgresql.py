@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker, configure_mappers, Query, Session
 from sqlalchemy.engine import Connection
 
 # Local imports
-from bot.config import settingsDB
+from bot.config import cnfg_db
 from bot.databases.db_declaration import *
 
 
@@ -13,10 +13,10 @@ class SqlAlchemy:
     def __init__(self) -> None:
         self.url_object = URL.create(
             drivername="postgresql+pg8000",
-            username=settingsDB.USERNAME,
-            password=settingsDB.PASSWORD,
-            host=settingsDB.HOST,
-            database=settingsDB.DATABASE,
+            username=cnfg_db.USERNAME,
+            password=cnfg_db.PASSWORD,
+            host=cnfg_db.HOST,
+            database=cnfg_db.DATABASE,
         )
         self.engine = create_engine(self.url_object, client_encoding='utf8')
         self.conn: Connection

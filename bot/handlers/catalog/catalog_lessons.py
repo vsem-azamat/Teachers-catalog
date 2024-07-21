@@ -1,7 +1,7 @@
 from aiogram import Router, types, F, Bot
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from bot.config import catalog_config
+from bot.config import cnfg_catalog
 from bot.databases.db_postgresql import db
 from bot.text_assets import TextMenu as tm
 from bot.utils.callback_factory import CatalogUniversity, CatalogLessons, TypeLessons, TypeCatalogLessons
@@ -43,7 +43,7 @@ async def handler_catalog_university_lessons(query: types.CallbackQuery, bot: Bo
                 current_page=current_page,
             )
         )
-    columns_per_row = catalog_config.COLUMNS_PER_ROW_catalog_lessons
+    columns_per_row = cnfg_catalog.COLUMNS_PER_ROW_catalog_lessons
     builder.adjust(columns_per_row)
     builder.row(types.InlineKeyboardButton(text='↩️', callback_data='universities'))
 
@@ -85,7 +85,7 @@ async def catalog_language_lessons(query: types.CallbackQuery, bot: Bot):
                 lesson_return_type=TypeCatalogLessons.lessons_languages,
             ).pack()
         )
-    columns_per_row = catalog_config.COLUMNS_PER_ROW_catalog_lessons
+    columns_per_row = cnfg_catalog.COLUMNS_PER_ROW_catalog_lessons
     builder.adjust(columns_per_row)
     builder.row(types.InlineKeyboardButton(text='↩️', callback_data='back_menu'))
 

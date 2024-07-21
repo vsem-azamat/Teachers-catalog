@@ -5,7 +5,7 @@ from watchgod import watch
 
 def run_bot() -> Popen:
     print("Files changed. Restarting your project...")
-    return Popen(['venv/bin/python3', '-m', 'bot'], shell=False)
+    return Popen(['python3', '-m', 'bot'], shell=False)
 
 
 if __name__ == "__main__":
