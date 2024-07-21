@@ -1,7 +1,7 @@
-aiogram==3.3.0
-python-decouple==3.8
-pg8000==1.30.3
-SQLAlchemy==2.0.23
-watchgod==0.8.2
-pytest==7.4.4
-pytest-asyncio==0.23.4
+aiogram
+python-decouple
+pg8000
+pytest
+pytest-asyncio
+SQLAlchemy
+watchgod
